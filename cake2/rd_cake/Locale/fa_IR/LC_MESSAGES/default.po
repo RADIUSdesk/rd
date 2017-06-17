@@ -1,0 +1,321 @@
+# LANGUAGE translation of CakePHP Application
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2013-01-15 15:28+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: Dirk van der Walt dirkvanderwalt@gmail.com\n"
+"Language-Team: Dirk van der Walt dirkvanderwalt@gmail.com\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: ja boet
+msgid "Direct (Fixed IP)"
+msgstr "kkoos"
+
+#: Config/RadiusDesk.php:13
+msgid "OpenVPN"
+msgstr "Oop VPN"
+
+#: Config/RadiusDesk.php:14
+msgid "PPTP"
+msgstr "Punt tot Punt"
+
+#: Config/RadiusDesk.php:15
+msgid "Dynamic Client"
+msgstr "Veranderlike IP"
+
+#: Controller/AccessProvidersController.php:250;350
+#: Controller/NasController.php:683;783
+#: Controller/RealmsController.php:720;797
+#: Controller/TagsController.php:420;497
+msgid "Action"
+msgstr "Aksie"
+
+#: Controller/AccessProvidersController.php:251;282
+#: Controller/NasController.php:684;712
+#: Controller/RealmsController.php:721;746
+#: Controller/TagsController.php:421;446
+msgid "Reload"
+msgstr "Herlaai"
+
+#: Controller/AccessProvidersController.php:252;291
+#: Controller/NasController.php:685;721
+#: Controller/RealmsController.php:722;755
+#: Controller/TagsController.php:422;455
+msgid "Add"
+msgstr "Voeg by"
+
+#: Controller/AccessProvidersController.php:253;301
+#: Controller/NasController.php:686;731
+#: Controller/RealmsController.php:723;765
+#: Controller/TagsController.php:423;465
+msgid "Delete"
+msgstr "Verwyder"
+
+#: Controller/AccessProvidersController.php:255;312
+#: Controller/NasController.php:687;742
+#: Controller/RealmsController.php:724;776
+#: Controller/TagsController.php:424;476
+msgid "Edit"
+msgstr "Verander"
+
+#: Controller/AccessProvidersController.php:258;351
+#: Controller/NasController.php:689;784
+#: Controller/RealmsController.php:726;798
+#: Controller/TagsController.php:426;498
+msgid "Document"
+msgstr "Dokumentasie"
+
+#: Controller/AccessProvidersController.php:259
+#: Controller/NasController.php:690 Controller/RealmsController.php:727
+#: Controller/TagsController.php:427
+msgid "Add notes"
+msgstr "Notas"
+
+#: Controller/AccessProvidersController.php:260;330
+#: Controller/NasController.php:691;760
+#: Controller/RealmsController.php:728;794
+#: Controller/TagsController.php:428;494
+msgid "Export CSV"
+msgstr "CSV uitvoer"
+
+#: Controller/AccessProvidersController.php:262;352
+msgid "Access Provider"
+msgstr "Toegangs Voorsiener"
+
+#: Controller/AccessProvidersController.php:263;338
+msgid "Expand"
+msgstr "Sit uit"
+
+#: Controller/AccessProvidersController.php:264;346
+msgid "Change Password"
+msgstr "Verander Wagwoord"
+
+#: Controller/AccessProvidersController.php:321
+#: Controller/NasController.php:751 Controller/RealmsController.php:785
+#: Controller/TagsController.php:485
+msgid "Add Notes"
+msgstr "Notas"
+
+#: Controller/AcosRightsController.php:168
+msgid "Not allowed to change root node"
+msgstr "Kan nie grond nodus verander nie"
+
+#: Controller/CountriesController.php:49
+msgid "Problem adding country"
+msgstr ""
+
+#: Controller/DesktopController.php:30
+msgid "Confirm this name"
+msgstr "Maak seker van hierdie naam"
+
+#: Controller/DesktopController.php:30
+msgid "Type the password again"
+msgstr "Voorsien weer die wagwoord"
+
+#: Controller/DesktopController.php:32
+msgid "Authentication failed"
+msgstr "Geldigheids vasstelling het gefaal"
+
+#: Controller/DesktopController.php:112;152
+msgid "Realms and Providers"
+msgstr "Gebiede en voorsieners"
+
+#: Controller/DesktopController.php:115;146
+msgid "Access Providers"
+msgstr "Toegangs voorsieners"
+
+#: Controller/DesktopController.php:116;149
+msgid "Realms"
+msgstr "Gebiede"
+
+#: Controller/DesktopController.php:122;125;159;167
+msgid "NAS Devices"
+msgstr "NAS-toestelle"
+
+#: Controller/DesktopController.php:126;163
+msgid "NAS Device tags"
+msgstr "NAS-toesel merkers"
+
+#: Controller/DesktopController.php:130
+msgid "Translation manager"
+msgstr "Vertalings bestuurder"
+
+#: Controller/DesktopController.php:131
+msgid "Rights manager"
+msgstr "Regte bestuurder"
+
+#: Controller/GroupsController.php:30;62;90
+msgid "Invalid group"
+msgstr ""
+
+#: Controller/GroupsController.php:44;66
+msgid "The group has been saved"
+msgstr ""
+
+#: Controller/GroupsController.php:47;69
+msgid "The group could not be saved. Please, try again."
+msgstr ""
+
+#: Controller/GroupsController.php:93
+msgid "Group deleted"
+msgstr ""
+
+#: Controller/GroupsController.php:96
+msgid "Group was not deleted"
+msgstr ""
+
+#: Controller/NasController.php:319 Controller/TagsController.php:248
+msgid "Could not create item"
+msgstr ""
+
+#: Controller/NasController.php:398
+msgid "Single item"
+msgstr ""
+
+#: Controller/NasController.php:481
+msgid "Could not create note"
+msgstr ""
+
+#: Controller/NasController.php:564 Controller/TagsController.php:340
+msgid "Could not delete some items"
+msgstr ""
+
+#: Controller/NasController.php:693;785
+msgid "Nas"
+msgstr ""
+
+#: Controller/NasController.php:694;770
+msgid "Manage tags"
+msgstr ""
+
+#: Controller/NasController.php:695
+msgid "Map"
+msgstr ""
+
+#: Controller/NasController.php:778
+msgid "Maps"
+msgstr ""
+
+#: Controller/NasController.php:818 Controller/RealmsController.php:829
+msgid "orphaned"
+msgstr ""
+
+#: Controller/PhpPhrasesController.php:371
+msgid "The file default.po is missing for"
+msgstr ""
+
+#: Controller/PhpPhrasesController.php:391
+msgid "No language specified"
+msgstr ""
+
+#: Controller/PhraseKeysController.php:41
+#: Controller/PhraseValuesController.php:145
+msgid "Could not create key"
+msgstr ""
+
+#: Controller/TagsController.php:279
+msgid "Could not update item"
+msgstr ""
+
+#: Controller/UsersController.php:18
+msgid "Invalid user"
+msgstr ""
+
+#: Controller/UsersController.php:22
+msgid "User deleted"
+msgstr ""
+
+#: Controller/UsersController.php:25
+msgid "User was not deleted"
+msgstr ""
+
+#: Controller/Component/TokenAclComponent.php:28
+msgid "You do not have rights for this action"
+msgstr ""
+
+#: Controller/Component/TokenAuthComponent.php:28
+msgid "Token in wrong format"
+msgstr ""
+
+#: Controller/Component/TokenAuthComponent.php:34
+msgid "Token missing"
+msgstr ""
+
+#: Controller/Component/TokenAuthComponent.php:59
+msgid "No user for token"
+msgstr ""
+
+#: Controller/Component/TokenAuthComponent.php:64
+msgid "Account disabled"
+msgstr ""
+
+#: Model/Country.php:validation for field name Model/Language.php:validation
+msgid "You already have an entry"
+msgstr ""
+
+#: Model/Country.php:validation for field name
+msgid "Country name is required"
+msgstr ""
+
+#: Model/Country.php:validation for field iso_code
+#: Model/Language.php:validation
+msgid "ISO code is required"
+msgstr ""
+
+#: Model/Country.php:validation for field iso_code
+msgid "Iso codes can not be more than two characters"
+msgstr ""
+
+#: Model/Country.php:validation for field iso_code
+#: Model/Language.php:validation
+msgid "Minimum length of 2 characters"
+msgstr ""
+
+#: Model/Country.php:validation for field icon_file
+msgid "Supply a name for the icon file"
+msgstr ""
+
+#: Model/Group.php:validation for field name Model/User.php:validation
+#: username;validation password
+msgid "notempty"
+msgstr ""
+
+#: Model/Language.php:validation for field name
+msgid "Language name is required"
+msgstr ""
+
+#: Model/Language.php:validation for field iso_code
+msgid "Maximum lenght of 2 characters"
+msgstr ""
+
+#: Model/Na.php:validation for field nasname;validation shortname
+#: Model/Note.php:validation note Model/OpenvpnClient.php:validation username
+#: Model/PhraseKey.php:validation name Model/PhraseValue.php:validation
+#: Model/Realm.php:validation Model/Tag.php:validation
+msgid "Value is required"
+msgstr ""
+
+#: Model/Na.php:validation for field nasname;validation shortname
+#: Model/OpenvpnClient.php:validation username Model/Realm.php:validation name
+#: Model/Tag.php:validation
+msgid "This name is already taken"
+msgstr ""
+
+#: Model/PhraseKey.php:validation for field name
+msgid "This key is already defined"
+msgstr ""
+
+#: Model/User.php:validation for field group_id
+msgid "numeric"
+msgstr ""
+
+#: webroot/test.php:87
+msgid "Debug setting does not allow access to this url."
+msgstr "test"

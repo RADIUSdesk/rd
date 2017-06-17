@@ -1,0 +1,116 @@
+Direct (Fixed IP)
+OpenVPN
+PPTP
+Dynamic Client
+Action
+Reload
+Add
+Delete
+Edit
+Document
+Add notes
+Export CSV
+Access Provider
+Expand
+Change Password
+Add Notes
+Not allowed to change root node
+Problem adding country
+Confirm this name
+Type the password again
+Authentication failed
+Realms and Providers
+Access Providers
+Realms
+NAS Devices
+NAS Device tags
+Translation manager
+Rights manager
+Invalid group
+The group has been saved
+The group could not be saved. Please, try again.
+Group deleted
+Group was not deleted
+Could not create item
+Single item
+Could not create note
+Could not delete some items
+Nas
+Manage tags
+Map
+Maps
+orphaned
+The file default.po is missing for
+No language specified
+Could not create key
+Could not update item
+Invalid user
+User deleted
+User was not deleted
+You do not have rights for this action
+Token in wrong format
+Token missing
+No user for token
+Account disabled
+You already have an entry
+Country name is required
+ISO code is required
+Iso codes can not be more than two characters
+Minimum length of 2 characters
+Supply a name for the icon file
+Language name is required
+Maximum lenght of 2 characters
+Value is required
+This name is already taken
+This key is already defined
+numeric
+Debug setting does not allow access to this url.
+Permanent Users
+Vouchers
+BYOD Manager
+Activity monitor
+Internet Access Voucher
+Address
+Contact Detail
+phone
+fax
+cell
+Username
+Password
+days from first log-in
+day from first log-in
+Valid for
+Expiry date
+Dynamic Login Pages
+Tools
+Profiles
+RADIUS client
+Logfile viewer
+Debug output
+Translation manager
+Rights manager
+Profile Components
+Profiles
+Extra actions
+Enable / Disable
+Test RADIUS
+Close session
+Kick user off
+Usage graph
+Show only currently connected
+Change password
+Password manager
+BYOD manager
+Export to PDF
+Usage graphs
+Heartbeat actions
+Availability
+Photo
+Daily
+Weekly
+Monthly
+Reload every
+30 seconds
+1 minute
+5 minutes
+Stop auto reload

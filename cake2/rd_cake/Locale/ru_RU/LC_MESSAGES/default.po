@@ -1,0 +1,524 @@
+# LANGUAGE translation of CakePHP Application
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2013-01-15 15:28+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: Config/RadiusDesk.php:12
+msgid "Direct (Fixed IP)"
+msgstr "Прямой (фиксированный IP)"
+
+#: Config/RadiusDesk.php:13
+msgid "OpenVPN"
+msgstr "En OpenVPN"
+
+#: Config/RadiusDesk.php:14
+msgid "PPTP"
+msgstr "PPTP"
+
+#: Config/RadiusDesk.php:15
+msgid "Dynamic Client"
+msgstr "Dynamic Client"
+
+#: Controller/AccessProvidersController.php:250;350
+#: Controller/NasController.php:683;783
+#: Controller/RealmsController.php:720;797
+#: Controller/TagsController.php:420;497
+msgid "Action"
+msgstr "ДЕЙСТВИЙ"
+
+#: Controller/AccessProvidersController.php:251;282
+#: Controller/NasController.php:684;712
+#: Controller/RealmsController.php:721;746
+#: Controller/TagsController.php:421;446
+msgid "Reload"
+msgstr "Перезагрузка"
+
+#: Controller/AccessProvidersController.php:252;291
+#: Controller/NasController.php:685;721
+#: Controller/RealmsController.php:722;755
+#: Controller/TagsController.php:422;455
+msgid "Add"
+msgstr "Добавить"
+
+#: Controller/AccessProvidersController.php:253;301
+#: Controller/NasController.php:686;731
+#: Controller/RealmsController.php:723;765
+#: Controller/TagsController.php:423;465
+msgid "Delete"
+msgstr "Удалить"
+
+#: Controller/AccessProvidersController.php:255;312
+#: Controller/NasController.php:687;742
+#: Controller/RealmsController.php:724;776
+#: Controller/TagsController.php:424;476
+msgid "Edit"
+msgstr "Изменить"
+
+#: Controller/AccessProvidersController.php:258;351
+#: Controller/NasController.php:689;784
+#: Controller/RealmsController.php:726;798
+#: Controller/TagsController.php:426;498
+msgid "Document"
+msgstr "Документ"
+
+#: Controller/AccessProvidersController.php:259
+#: Controller/NasController.php:690
+#: Controller/RealmsController.php:727
+#: Controller/TagsController.php:427
+msgid "Add notes"
+msgstr "Добавить примечания"
+
+#: Controller/AccessProvidersController.php:260;330
+#: Controller/NasController.php:691;760
+#: Controller/RealmsController.php:728;794
+#: Controller/TagsController.php:428;494
+msgid "Export CSV"
+msgstr "Экспорт в CSV"
+
+#: Controller/AccessProvidersController.php:262;352
+msgid "Access Provider"
+msgstr "Поставщик услуг доступа к"
+
+#: Controller/AccessProvidersController.php:263;338
+msgid "Expand"
+msgstr "Расширение"
+
+#: Controller/AccessProvidersController.php:264;346
+msgid "Change Password"
+msgstr "Изменить пароль"
+
+#: Controller/AccessProvidersController.php:321
+#: Controller/NasController.php:751
+#: Controller/RealmsController.php:785
+#: Controller/TagsController.php:485
+msgid "Add Notes"
+msgstr "Добавить примечания"
+
+#: Controller/AcosRightsController.php:168
+msgid "Not allowed to change root node"
+msgstr "Не допускается изменять корневой узел"
+
+#: Controller/CountriesController.php:49
+msgid "Problem adding country"
+msgstr "Проблема при добавлении страны"
+
+#: Controller/DesktopController.php:30
+msgid "Confirm this name"
+msgstr "Подтвердить это имя"
+
+#: Controller/DesktopController.php:30
+msgid "Type the password again"
+msgstr "Введите пароль еще раз"
+
+#: Controller/DesktopController.php:32
+msgid "Authentication failed"
+msgstr "Не удалось выполнить проверку подлинности"
+
+#: Controller/DesktopController.php:112;152
+msgid "Realms and Providers"
+msgstr "Области и поставщиками услуг"
+
+#: Controller/DesktopController.php:115;146
+msgid "Access Providers"
+msgstr "Провайдеры доступа"
+
+#: Controller/DesktopController.php:116;149
+msgid "Realms"
+msgstr "Область"
+
+#: Controller/DesktopController.php:122;125;159;167
+msgid "NAS Devices"
+msgstr "Устройства NAS"
+
+#: Controller/DesktopController.php:126;163
+msgid "NAS Device tags"
+msgstr "Устройства NAS теги"
+
+#: Controller/DesktopController.php:130
+msgid "Translation manager"
+msgstr "Translation manager"
+
+#: Controller/DesktopController.php:131
+msgid "Rights manager"
+msgstr "Прав Человека manager"
+
+#: Controller/GroupsController.php:30;62;90
+msgid "Invalid group"
+msgstr "Недействительные группы"
+
+#: Controller/GroupsController.php:44;66
+msgid "The group has been saved"
+msgstr "Группа была сохранена"
+
+#: Controller/GroupsController.php:47;69
+msgid "The group could not be saved. Please, try again."
+msgstr "Группа не может быть сохранен. Пожалуйста, попробуйте еще раз."
+
+#: Controller/GroupsController.php:93
+msgid "Group deleted"
+msgstr "Удаление группы"
+
+#: Controller/GroupsController.php:96
+msgid "Group was not deleted"
+msgstr "Группа не была удалена"
+
+#: Controller/NasController.php:319
+#: Controller/TagsController.php:248
+msgid "Could not create item"
+msgstr "Не удалось создать пункт"
+
+#: Controller/NasController.php:398
+msgid "Single item"
+msgstr "Один пункт"
+
+#: Controller/NasController.php:481
+msgid "Could not create note"
+msgstr "Не удалось создать примечание."
+
+#: Controller/NasController.php:564
+#: Controller/TagsController.php:340
+msgid "Could not delete some items"
+msgstr "Не удалось удалить некоторые пункты"
+
+#: Controller/NasController.php:693;785
+msgid "Nas"
+msgstr "Nas"
+
+#: Controller/NasController.php:694;770
+msgid "Manage tags"
+msgstr "Управление метками"
+
+#: Controller/NasController.php:695
+msgid "Map"
+msgstr "Карты"
+
+#: Controller/NasController.php:778
+msgid "Maps"
+msgstr "Карты"
+
+#: Controller/NasController.php:818
+#: Controller/RealmsController.php:829
+msgid "orphaned"
+msgstr "Сиротами"
+
+#: Controller/PhpPhrasesController.php:371
+msgid "The file default.po is missing for"
+msgstr "Этот файл по умолчанию.po отсутствует для"
+
+#: Controller/PhpPhrasesController.php:391
+msgid "No language specified"
+msgstr "Не указан язык"
+
+#: Controller/PhraseKeysController.php:41
+#: Controller/PhraseValuesController.php:145
+msgid "Could not create key"
+msgstr "Не удалось создать ключ"
+
+#: Controller/TagsController.php:279
+msgid "Could not update item"
+msgstr "Не удалось обновить элемент"
+
+#: Controller/UsersController.php:18
+msgid "Invalid user"
+msgstr "Недопустимый пользователь"
+
+#: Controller/UsersController.php:22
+msgid "User deleted"
+msgstr "Удаление пользователя"
+
+#: Controller/UsersController.php:25
+msgid "User was not deleted"
+msgstr "Пользователь не была удалена"
+
+#: Controller/Component/TokenAclComponent.php:28
+msgid "You do not have rights for this action"
+msgstr "У вас нет прав на выполнение этого действия"
+
+#: Controller/Component/TokenAuthComponent.php:28
+msgid "Token in wrong format"
+msgstr "Маркер в неправильном формате"
+
+#: Controller/Component/TokenAuthComponent.php:34
+msgid "Token missing"
+msgstr "Маркер отсутствует"
+
+#: Controller/Component/TokenAuthComponent.php:59
+msgid "No user for token"
+msgstr "Нет пользователя для Token ring"
+
+#: Controller/Component/TokenAuthComponent.php:64
+msgid "Account disabled"
+msgstr "Учетная запись отключена"
+
+#: Model/Country.php:validation for field name
+#: Model/Language.php:validation for field name
+msgid "You already have an entry"
+msgstr "У вас уже есть запись"
+
+#: Model/Country.php:validation for field name
+msgid "Country name is required"
+msgstr "Название страны не требуется"
+
+#: Model/Country.php:validation for field iso_code
+#: Model/Language.php:validation for field iso_code
+msgid "ISO code is required"
+msgstr "Код ISO не требуется"
+
+#: Model/Country.php:validation for field iso_code
+msgid "Iso codes can not be more than two characters"
+msgstr "ISO коды могут быть не более двух символов"
+
+#: Model/Country.php:validation for field iso_code
+#: Model/Language.php:validation for field iso_code
+msgid "Minimum length of 2 characters"
+msgstr "Длиной не менее 2 символов"
+
+#: Model/Country.php:validation for field icon_file
+msgid "Supply a name for the icon file"
+msgstr "Имя значок файла"
+
+#: Model/Language.php:validation for field name
+msgid "Language name is required"
+msgstr "Название языка не требуется"
+
+#: Model/Language.php:validation for field iso_code
+msgid "Maximum lenght of 2 characters"
+msgstr "Длиной до 2 символов"
+
+#: Model/Na.php:validation for field nasname;validation for field shortname
+#: Model/Note.php:validation for field note
+#: Model/OpenvpnClient.php:validation for field username
+#: Model/PhraseKey.php:validation for field name
+#: Model/PhraseValue.php:validation for field name
+#: Model/Realm.php:validation for field name
+#: Model/Tag.php:validation for field name
+msgid "Value is required"
+msgstr "Значение не требуется"
+
+#: Model/Na.php:validation for field nasname;validation for field shortname
+#: Model/OpenvpnClient.php:validation for field username
+#: Model/Realm.php:validation for field name
+#: Model/Tag.php:validation for field name
+msgid "This name is already taken"
+msgstr "Это имя уже используется"
+
+#: Model/PhraseKey.php:validation for field name
+msgid "This key is already defined"
+msgstr "Данный ключ уже определен"
+
+#: Model/User.php:validation for field group_id
+msgid "numeric"
+msgstr "Числовое значение"
+
+#: webroot/test.php:87
+msgid "Debug setting does not allow access to this url."
+msgstr "Данные отладки параметр не разрешить доступ на этот URL-адрес."
+
+#: Manual add
+msgid "Permanent Users"
+msgstr "Постоянные пользователи"
+
+#: Manual add
+msgid "Vouchers"
+msgstr "Ваучеры"
+
+#: Manual add
+msgid "BYOD Manager"
+msgstr "BYOD Manager"
+
+#: Manual add
+msgid "Activity monitor"
+msgstr "Монитор активности"
+
+#: Manual add
+msgid "Internet Access Voucher"
+msgstr "Доступ к Интернету ваш ваучер"
+
+#: Manual add
+msgid "Address"
+msgstr "Адрес"
+
+#: Manual add
+msgid "Contact Detail"
+msgstr "Сведения о контакте"
+
+#: Manual add
+msgid "phone"
+msgstr "Номер телефона"
+
+#: Manual add
+msgid "fax"
+msgstr "Факс"
+
+#: Manual add
+msgid "cell"
+msgstr "Сотовый"
+
+#: Manual add
+msgid "Username"
+msgstr "Имя пользователя"
+
+#: Manual add
+msgid "Password"
+msgstr "ПарольПароль"
+
+#: Manual add
+msgid "days from first log-in"
+msgstr "дней с момента первого входа в"
+
+#: Manual add
+msgid "day from first log-in"
+msgstr "День с первым журнал - в"
+
+#: Manual add
+msgid "Valid for"
+msgstr "Действительно для"
+
+#: Manual add
+msgid "Expiry date"
+msgstr "Дата истечения срока действия"
+
+#: Manual add
+msgid "Dynamic Login Pages"
+msgstr "Динамические страницы входа в систему"
+
+#: Manual add
+msgid "Tools"
+msgstr "Инструменты"
+
+#: Manual add
+msgid "Profiles"
+msgstr "Профили"
+
+#: Manual add
+msgid "RADIUS client"
+msgstr "RADIUS Client"
+
+#: Manual add
+msgid "Logfile viewer"
+msgstr "Программа просмотра журнала"
+
+#: Manual add
+msgid "Debug output"
+msgstr "Вывод отладки"
+
+#: Manual add
+msgid "Translation manager"
+msgstr "Translation manager"
+
+#: Manual add
+msgid "Rights manager"
+msgstr "Прав Человека manager"
+
+#: Manual add
+msgid "Profile Components"
+msgstr "Профиль компонентов"
+
+#: Manual add
+msgid "Profiles"
+msgstr "Профили"
+
+#: Manual add
+msgid "Extra actions"
+msgstr "Дополнительные действия"
+
+#: Manual add
+msgid "Enable / Disable"
+msgstr "Включение / выключение"
+
+#: Manual add
+msgid "Test RADIUS"
+msgstr "RADIUS проверка"
+
+#: Manual add
+msgid "Close session"
+msgstr "Закрытие сессии"
+
+#: Manual add
+msgid "Kick user off"
+msgstr "Кик пользователя"
+
+#: Manual add
+msgid "Usage graph"
+msgstr "Графика использования"
+
+#: Manual add
+msgid "Show only currently connected"
+msgstr "Показать только в настоящее время подключены к"
+
+#: Manual add
+msgid "Change password"
+msgstr "Изменить пароль"
+
+#: Manual add
+msgid "Password manager"
+msgstr "Password manager"
+
+#: Manual add
+msgid "BYOD manager"
+msgstr "BYOD manager"
+
+#: Manual add
+msgid "Export to PDF"
+msgstr "Экспорт в PDF"
+
+#: Manual add
+msgid "Usage graphs"
+msgstr "Использование графики"
+
+#: Manual add
+msgid "Heartbeat actions"
+msgstr "Heartbeat действия"
+
+#: Manual add
+msgid "Availability"
+msgstr "Доступность"
+
+#: Manual add
+msgid "Photo"
+msgstr "Рис."
+
+#: Manual add
+msgid "Daily"
+msgstr "Ежедневно"
+
+#: Manual add
+msgid "Weekly"
+msgstr "За неделю"
+
+#: Manual add
+msgid "Monthly"
+msgstr "За месяц"
+
+#: Manual add
+msgid "Reload every"
+msgstr "Перезагрузить все"
+
+#: Manual add
+msgid "30 seconds"
+msgstr "30 секунд"
+
+#: Manual add
+msgid "1 minute"
+msgstr "1 минуты"
+
+#: Manual add
+msgid "5 minutes"
+msgstr "5 минут"
+
+#: Manual add
+msgid "Stop auto reload"
+msgstr "Остановки автоматической перезагрузки"
+
+

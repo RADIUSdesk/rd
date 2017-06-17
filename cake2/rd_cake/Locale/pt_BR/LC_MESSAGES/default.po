@@ -1,0 +1,315 @@
+# LANGUAGE translation of CakePHP Application
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2012-11-30 06:43+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: /Controller/AcosRightsController.php:85
+msgid "Not allowed to change root node"
+msgstr ""
+
+#: /Controller/GroupsController.php:30;62;90
+msgid "Invalid group"
+msgstr ""
+
+#: /Controller/GroupsController.php:44;66
+msgid "The group has been saved"
+msgstr ""
+
+#: /Controller/GroupsController.php:47;69
+msgid "The group could not be saved. Please, try again."
+msgstr ""
+
+#: /Controller/GroupsController.php:93
+msgid "Group deleted"
+msgstr ""
+
+#: /Controller/GroupsController.php:96
+msgid "Group was not deleted"
+msgstr "ffhhgh"
+
+#: /Controller/RealmsController.php:33;53;73
+msgid "Invalid realm"
+msgstr "gjhg"
+
+#: /Controller/RealmsController.php:42;57
+msgid "The realm has been saved"
+msgstr ""
+
+#: /Controller/RealmsController.php:45;60
+msgid "The realm could not be saved. Please, try again."
+msgstr ""
+
+#: /Controller/RealmsController.php:76
+msgid "Realm deleted"
+msgstr ""
+
+#: /Controller/RealmsController.php:79
+msgid "Realm was not deleted"
+msgstr ""
+
+#: /Controller/Component/TokenAclComponent.php:27
+msgid "You do not have rights for this action"
+msgstr ""
+
+#: /Controller/Component/TokenAuthComponent.php:28
+msgid "Token in wrong format"
+msgstr ""
+
+#: /Controller/Component/TokenAuthComponent.php:34
+msgid "Token missing"
+msgstr ""
+
+#: /View/Groups/add.ctp:4
+msgid "Add Group"
+msgstr "Wodkatjie"
+
+#: /View/Groups/add.ctp:9
+#: /View/Groups/edit.ctp:10
+#: /View/Realms/add.ctp:10
+#: /View/Realms/edit.ctp:11
+#: /View/Users/add.ctp:12
+#: /View/Users/edit.ctp:13
+msgid "Submit"
+msgstr ""
+
+#: /View/Groups/add.ctp:15
+#: /View/Groups/edit.ctp:17
+#: /View/Groups/view.ctp:31
+#: /View/Users/add.ctp:19
+#: /View/Users/edit.ctp:21
+#: /View/Users/index.ctp:55
+#: /View/Users/view.ctp:48
+msgid "List Groups"
+msgstr ""
+
+#: /View/Groups/add.ctp:16
+#: /View/Groups/edit.ctp:18
+#: /View/Groups/index.ctp:45
+#: /View/Groups/view.ctp:33
+#: /View/Realms/add.ctp:17
+#: /View/Realms/edit.ctp:19
+#: /View/Realms/index.ctp:43
+#: /View/Realms/view.ctp:28
+#: /View/Users/add.ctp:18
+#: /View/Users/edit.ctp:20
+#: /View/Users/view.ctp:46
+msgid "List Users"
+msgstr ""
+
+#: /View/Groups/add.ctp:17
+#: /View/Groups/edit.ctp:19
+#: /View/Groups/index.ctp:46
+#: /View/Groups/view.ctp:34;72
+#: /View/Realms/add.ctp:18
+#: /View/Realms/edit.ctp:20
+#: /View/Realms/index.ctp:44
+#: /View/Realms/view.ctp:29;69
+#: /View/Users/index.ctp:54
+#: /View/Users/view.ctp:47
+msgid "New User"
+msgstr ""
+
+#: /View/Groups/edit.ctp:4
+#: /View/Groups/view.ctp:29
+msgid "Edit Group"
+msgstr ""
+
+#: /View/Groups/edit.ctp:16
+#: /View/Groups/index.ctp:21
+#: /View/Groups/view.ctp:63
+#: /View/Realms/edit.ctp:17
+#: /View/Realms/index.ctp:19
+#: /View/Realms/view.ctp:60
+#: /View/Users/edit.ctp:19
+#: /View/Users/index.ctp:31
+msgid "Delete"
+msgstr ""
+
+#: /View/Groups/edit.ctp:16
+#: /View/Groups/index.ctp:21
+#: /View/Groups/view.ctp:30;63
+#: /View/Realms/edit.ctp:17
+#: /View/Realms/index.ctp:19
+#: /View/Realms/view.ctp:25;60
+#: /View/Users/edit.ctp:19
+#: /View/Users/index.ctp:31
+#: /View/Users/view.ctp:45
+msgid "Are you sure you want to delete # %s?"
+msgstr ""
+
+#: /View/Groups/index.ctp:2
+msgid "Groups"
+msgstr ""
+
+#: /View/Groups/index.ctp:19
+#: /View/Groups/view.ctp:61
+#: /View/Realms/index.ctp:17
+#: /View/Realms/view.ctp:58
+#: /View/Users/index.ctp:29
+msgid "View"
+msgstr ""
+
+#: /View/Groups/index.ctp:20
+#: /View/Groups/view.ctp:62
+#: /View/Realms/index.ctp:18
+#: /View/Realms/view.ctp:59
+#: /View/Users/index.ctp:30
+msgid "Edit"
+msgstr ""
+
+#: /View/Groups/index.ctp:35
+#: /View/Realms/index.ctp:33
+#: /View/Users/index.ctp:45
+msgid "previous"
+msgstr ""
+
+#: /View/Groups/index.ctp:37
+#: /View/Realms/index.ctp:35
+#: /View/Users/index.ctp:47
+msgid "next"
+msgstr ""
+
+#: /View/Groups/index.ctp:44
+#: /View/Groups/view.ctp:32
+#: /View/Users/add.ctp:20
+#: /View/Users/edit.ctp:22
+#: /View/Users/index.ctp:56
+#: /View/Users/view.ctp:49
+msgid "New Group"
+msgstr ""
+
+#: /View/Groups/view.ctp:2
+#: /View/Users/view.ctp:19
+msgid "Group"
+msgstr ""
+
+#: /View/Groups/view.ctp:4;42
+#: /View/Realms/view.ctp:4;37
+#: /View/Users/view.ctp:4
+msgid "Id"
+msgstr ""
+
+#: /View/Groups/view.ctp:9
+#: /View/Realms/view.ctp:9
+msgid "Name"
+msgstr ""
+
+#: /View/Groups/view.ctp:14;46
+#: /View/Realms/view.ctp:42
+#: /View/Users/view.ctp:29
+msgid "Created"
+msgstr ""
+
+#: /View/Groups/view.ctp:19;47
+#: /View/Realms/view.ctp:43
+#: /View/Users/view.ctp:34
+msgid "Modified"
+msgstr ""
+
+#: /View/Groups/view.ctp:30
+msgid "Delete Group"
+msgstr ""
+
+#: /View/Groups/view.ctp:38
+#: /View/Realms/view.ctp:33
+msgid "Related Users"
+msgstr ""
+
+#: /View/Groups/view.ctp:43
+#: /View/Realms/view.ctp:38
+#: /View/Users/view.ctp:9
+msgid "Username"
+msgstr ""
+
+#: /View/Groups/view.ctp:44
+#: /View/Realms/view.ctp:39
+#: /View/Users/view.ctp:14
+msgid "Password"
+msgstr ""
+
+#: /View/Groups/view.ctp:45
+#: /View/Realms/view.ctp:40
+msgid "Group Id"
+msgstr ""
+
+#: /View/Realms/add.ctp:4
+msgid "Goue Oue"
+msgstr ""
+
+#: /View/Realms/add.ctp:16
+#: /View/Realms/edit.ctp:18
+#: /View/Realms/view.ctp:26
+#: /View/Users/add.ctp:21
+#: /View/Users/edit.ctp:23
+#: /View/Users/index.ctp:57
+#: /View/Users/view.ctp:50
+msgid "List Realms"
+msgstr ""
+
+#: /View/Realms/edit.ctp:4
+#: /View/Realms/view.ctp:24
+msgid "Edit Realm"
+msgstr ""
+
+#: /View/Realms/index.ctp:2
+msgid "Realms"
+msgstr ""
+
+#: /View/Realms/index.ctp:42
+#: /View/Realms/view.ctp:27
+#: /View/Users/add.ctp:22
+#: /View/Users/edit.ctp:24
+#: /View/Users/index.ctp:58
+#: /View/Users/view.ctp:51
+msgid "New Realm"
+msgstr ""
+
+#: /View/Realms/view.ctp:2
+#: /View/Users/view.ctp:24
+msgid "Realm"
+msgstr ""
+
+#: /View/Realms/view.ctp:14
+msgid "Suffix"
+msgstr ""
+
+#: /View/Realms/view.ctp:25
+msgid "Delete Realm"
+msgstr ""
+
+#: /View/Realms/view.ctp:41
+msgid "Realm Id"
+msgstr ""
+
+#: /View/Users/add.ctp:4
+msgid "Add User"
+msgstr "Brandewyn"
+
+#: /View/Users/edit.ctp:4
+#: /View/Users/view.ctp:44
+msgid "Edit User"
+msgstr ""
+
+#: /View/Users/index.ctp:2
+msgid "Users"
+msgstr ""
+
+#: /View/Users/view.ctp:2
+msgid "User"
+msgstr ""
+
+#: /View/Users/view.ctp:45
+msgid "Delete User"
+msgstr ""
+
