@@ -1,0 +1,3 @@
+perl pl_check_usage {
+	filename = ${modconfdir}/perl/check_usage.pl
+}

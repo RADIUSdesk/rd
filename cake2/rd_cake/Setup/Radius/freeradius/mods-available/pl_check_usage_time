@@ -1,0 +1,3 @@
+perl pl_check_usage_time {
+	filename = ${modconfdir}/perl/check_usage_time.pl
+}

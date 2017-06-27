@@ -1,0 +1,60 @@
+# -*- text -*-
+##############################################################################
+#
+#	ChilliSpot (and CoovaChilli) captive portal
+#	http://www.chillispot.org
+#	http://coova.org/wiki/index.php/CoovaChilli
+#
+#	$Id$
+#
+##############################################################################
+
+VENDOR		ChilliSpot			14559
+
+BEGIN-VENDOR	ChilliSpot
+
+ATTRIBUTE	ChilliSpot-Max-Input-Octets		1	integer
+ATTRIBUTE	ChilliSpot-Max-Output-Octets		2	integer
+ATTRIBUTE	ChilliSpot-Max-Total-Octets		3	integer
+ATTRIBUTE       ChilliSpot-Bandwidth-Max-Up        	4       integer
+ATTRIBUTE       ChilliSpot-Bandwidth-Max-Down      	5       integer
+ATTRIBUTE       ChilliSpot-Config                  	6       string
+ATTRIBUTE       ChilliSpot-Lang                    	7       string
+ATTRIBUTE       ChilliSpot-Version                 	8       string
+ATTRIBUTE       ChilliSpot-OriginalURL             	9       string
+
+ATTRIBUTE	Chillispot-Max-Input-Gigawords		21	integer
+ATTRIBUTE	Chillispot-Max-Output-Gigawords		22	integer
+ATTRIBUTE	Chillispot-Max-Total-Gigawords		23	integer
+
+#YFi Specific Attributes
+ATTRIBUTE       Yfi-Voucher                		40     string
+ATTRIBUTE       Yfi-MAC-Reset              		41     string
+ATTRIBUTE	    Yfi-Data			        42     string
+ATTRIBUTE	    Yfi-Time				43     string
+
+#YFi Various Counters
+ATTRIBUTE       Max-Daily-Session               50      integer
+ATTRIBUTE       Max-Monthly-Session             51      integer
+ATTRIBUTE       Max-Weekly-Session              52      integer
+ATTRIBUTE       Max-All-Session                 53      integer
+
+ATTRIBUTE       ChilliSpot-Max-Daily-Octets               60      integer
+ATTRIBUTE       ChilliSpot-Max-Monthly-Octets             61      integer
+ATTRIBUTE       ChilliSpot-Max-Weekly-Octets              62      integer
+ATTRIBUTE       ChilliSpot-Max-All-Octets                 63      integer
+
+
+
+# Configuration management parameters (ChilliSpot Only)
+ATTRIBUTE	ChilliSpot-UAM-Allowed			100	string
+ATTRIBUTE	ChilliSpot-MAC-Allowed			101	string
+ATTRIBUTE	ChilliSpot-Interval			102	integer
+
+# Inline with RFC 2882 use of VSE-Authorize-Only for remote config
+# Note that 14559 = 0x38df is used as prefix for the VSE.
+# This is recognized as the best (but bad) way of doing VSEs.
+# (ChilliSpot Only - CoovaChilli uses Service-Type = Administrative-User)
+VALUE	Service-Type			ChilliSpot-Authorize-Only 0x38df0001
+
+END-VENDOR	ChilliSpot

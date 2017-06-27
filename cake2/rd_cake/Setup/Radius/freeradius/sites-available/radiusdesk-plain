@@ -1,0 +1,164 @@
+######################################################################
+server radiusdesk-plain {
+	#
+	#	Listen on 192.0.2.1:1812 for Access-Requests
+	#
+	#	When the server receives a packet, it is processed
+	#	through the "authorize", etc. sections listed here,
+	#	NOT the global ones the "default" site.
+
+	authorize {
+        #We created a less strict "filter_username" since the default one from FreeRADIUS are very strict in terms of the Realm
+        #Which it assumes is part of the username
+	    RADIUSdesk_filter_username
+	    preprocess
+
+        #RADIUSdesk -> Used to normalise the callingstation id to format aa-bb-cc-dd-ee.. (lowercase with dash)
+	    RADIUSdesk_rewrite_calling_station_id
+
+        #Check if this client is allowed here
+        RADIUSdesk_find_dynamic_client
+
+	    chap
+	    mschap
+	    digest
+	    suffix
+	    #
+	    #  This module takes care of EAP-MD5, EAP-TLS, and EAP-LEAP
+	    #  authentication.
+	    #
+	    #  It also sets the EAP-Type attribute in the request
+	    #  attribute list to the EAP type from the packet.
+	    #
+	    #  The EAP module returns "ok" if it is not yet ready to
+	    #  authenticate the user.  The configuration below checks for
+	    #  that code, and stops processing the "authorize" section if
+	    #  so.
+	    #
+	    #  Any LDAP and/or SQL servers will not be queried for the
+	    #  initial set of packets that go back and forth to set up
+	    #  TTLS or PEAP.
+	    #
+	    eap {
+		    ok = return
+	    }
+	    #
+	    #  Read the 'users' file.  In v3, this is located in
+	    #  raddb/mods-config/files/authorize
+
+        #RADIUSdesk -> We will not do all the RADIUSdesk things on EAP outer tunnel 
+	    if (!EAP-Message) {
+            #RADIUSdesk add-on
+            RADIUSdesk_main
+        }
+        else{
+            eap {
+                ok = return
+            }
+        }
+
+	    files
+	    expiration
+	    logintime
+
+        #RADIUSdesk -> expiration and logintime will set a reply attribute for Session-Timeout. 
+        #We may however have to override it if
+        #the **time based counter** or the Voucher's **time left** is **smaller** than the Session-Timeout
+        RADIUSdesk_session_timeout
+
+        #RADIUSdesk -> MAC Authentication
+        #If this was a valid device which passed all the tests AND auth type is not yet set; allow it.
+        if((&control:Rd-User-Type =='device')&&(!&control:Auth-Type)){
+            update control{
+                Auth-Type := "Accept"
+            }
+        }
+
+        if((&control:Rd-User-Type =='voucher-device')&&(!&control:Auth-Type)){
+            update control{
+                Auth-Type := "Accept"
+            }
+        }
+
+	    pap
+
+    }
+
+	authenticate {
+	
+	    Auth-Type PAP {
+		    pap
+	    }
+
+	    Auth-Type CHAP {
+		    chap
+	    }
+
+	    Auth-Type MS-CHAP {
+		    mschap
+	    }
+
+
+	    digest
+
+	    #
+	    #  Allow EAP authentication.
+	    eap
+    }
+
+preacct {
+	preprocess
+    acct_unique
+	suffix
+    
+    RADIUSdesk_acct_dynamic_client_check
+
+    if(&control:Rd-Dynamic-Client == 1){
+        #RADIUSdesk -> Add realm etc before accounting
+        RADIUSdesk_preacct
+    }
+
+    #RADIUSdesk  We add this since some clients give a total wrong value thus messing the accounting detail
+    update request {
+        Event-Timestamp := "%l"
+    }
+}
+
+accounting {
+
+    if(&control:Rd-Dynamic-Client == 1){
+        #RADIUSdesk -> Only is accounting is not disabled for this user; (by default it is enabled)
+        RADIUSdesk_acct
+    }
+
+    ok
+}
+
+session {
+	#  See "Simultaneous Use Checking Queries" in sql.conf
+	sql
+}
+
+
+post-auth {
+    #RADIUSdesk -> For accepts:
+    RADIUSdesk_last_accept
+	RADIUSdesk_post_auth
+    RADIUSdesk_auto_devices_check
+
+    Post-Auth-Type REJECT {
+		attr_filter.access_reject
+		#CoovaChilli does not like the Reply-Message := "\r\nYou are already logged in - access denied\r\n\n" so we detect it and rewrite it
+		if(reply:Reply-Message =~ /You are already logged in/i){
+			update reply {
+				Reply-Message := "Simultaneous connections limited to %{control:Simultaneous-Use}"
+			}
+		}	
+
+        #RADIUSdesk -> For rejects:
+        RADIUSdesk_last_reject
+	}
+}
+
+}
+
