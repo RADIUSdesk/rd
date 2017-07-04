@@ -157,22 +157,20 @@ $config['icnRedirect']  = 'xf074@'.$config['webFont'];
 $config['icnDynamicNas']= 'xf239@'.$config['webFont'];
 $config['icnCloud']     = 'xf0c2@'.$config['webFont'];
 $config['icnVPN']       = 'xf10e@'.$config['webFont'];
-
 $config['icnAdmin']     = 'xf19d@'.$config['webFont'];
 $config['icnRadius']    = 'xf140@'.$config['webFont'];
 $config['icnBan']       = 'xf05e@'.$config['webFont'];
 $config['icnData']      = 'xf1c0@'.$config['webFont'];
 $config['icnGears']     = 'xf085@'.$config['webFont'];
 $config['icnWizard']    = 'xf0d0@'.$config['webFont'];
-
 $config['icnShield']    = 'xf132@'.$config['webFont'];
 $config['icnList']      = 'xf03a@'.$config['webFont'];
 $config['icnScale']     = 'xf24e@'.$config['webFont'];
 $config['icnFilter']    = 'xf0b0@'.$config['webFont'];
 $config['icnDropbox']   = 'xf16b@'.$config['webFont'];
-
 $config['icnBan']       = 'xf05e@'.$config['webFont'];
 $config['icnCheckC']    = 'xf058@'.$config['webFont'];
+$config['icnGroup']     = 'xf0c0@'.$config['webFont'];
 
 
 //=== EXPERIMENTAL STUFF =====

@@ -137,6 +137,11 @@ class GridButtonsComponent extends Component {
             $menu = array($b);
         }
         
+        if($type == 'add_and_delete'){
+            $b = $this->_fetchAddAndDelete();
+            $menu = array($b);
+        }
+        
         if($type == 'basic_no_disabled'){
             $b = $this->_fetchBasic('no_disabled');
             $menu = array($b);
@@ -208,7 +213,6 @@ class GridButtonsComponent extends Component {
             $menu = array($b,$d);
         }
         
-        
         return $menu;
     }
 
@@ -235,6 +239,23 @@ class GridButtonsComponent extends Component {
             );
         }
 
+        return $menu;
+    }
+    
+    private function _fetchAddAndDelete(){
+    
+        $menu = ['xtype' => 'buttongroup', 'items' => [
+                    [
+                        'xtype'     => 'button',  
+                        'glyph'     => Configure::read('icnReload'), 
+                        'scale'     => $this->scale, 
+                        'itemId'    => 'reload',   
+                        'tooltip'=> __('Reload')
+                    ],
+                    $this->btnAdd,
+                    $this->btnDelete,    
+                ]
+        ];
         return $menu;
     }
     

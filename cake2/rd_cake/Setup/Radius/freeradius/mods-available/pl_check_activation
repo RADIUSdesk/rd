@@ -1,3 +1,0 @@
-perl pl_check_activation {
-	filename = ${modconfdir}/perl/check_activation.pl
-}

@@ -603,7 +603,13 @@ class DashboardController extends AppController{
                         'glyph'   => Configure::read('icnScale'),
                         'id'      => 'cPolicies',
                         'layout'  => 'fit'
-                    ),  
+                    ), 
+                    array(
+                        'title'   => 'Policy User Groups',
+                        'glyph'   => Configure::read('icnGroup'),
+                        'id'      => 'cPolicyUserGroups',
+                        'layout'  => 'fit'
+                    ),    
                 ) 
             ];
             array_push($tabs, $dns_desk);   
@@ -1139,7 +1145,13 @@ class DashboardController extends AppController{
                         'glyph'   => Configure::read('icnScale'),
                         'id'      => 'cPolicies',
                         'layout'  => 'fit'
-                    ),  
+                    ), 
+                    array(
+                        'title'   => 'Policy User Groups',
+                        'glyph'   => Configure::read('icnGroup'),
+                        'id'      => 'cPolicyUserGroups',
+                        'layout'  => 'fit'
+                    ),   
                 ) 
             ];
             array_push($tabs, $dns_desk);   

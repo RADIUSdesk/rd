@@ -1,3 +1,0 @@
-perl pl_reset_time_for_data {
-	filename = ${modconfdir}/perl/reset_time_for_data.pl
-}

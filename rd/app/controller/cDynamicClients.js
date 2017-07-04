@@ -53,7 +53,7 @@ Ext.define('Rd.controller.cDynamicClients', {
         urlAdd          : '/cake2/rd_cake/dynamic_clients/add.json',
         urlDelete       : '/cake2/rd_cake/dynamic_clients/delete.json',
 		urlEdit         : '/cake2/rd_cake/dynamic_clients/edit.json',
-		urlNoteAdd      : '/cake2/rd_cake/dynamic_clients/note_add.json',
+		urlNoteAdd      : '/cake3/rd_cake/dynamic-clients/note-add.json',
 		urlView         : '/cake2/rd_cake/dynamic_clients/view.json',
 		urlViewPhoto    : '/cake2/rd_cake/dynamic_clients/view_photo.json',
         urlPhotoBase    : '/cake2/rd_cake/webroot/img/nas/',
@@ -229,25 +229,25 @@ Ext.define('Rd.controller.cDynamicClients', {
 			'gridUnknownDynamicClients #delete': {
                 click: me.delUnknownDynamicClient
             } ,
-            'gridNote[noteForGrid=dynamic_clients] #reload' : {
+            'gridNote[noteForGrid=dynamicClients] #reload' : {
                 click:  me.noteReload
             },
-            'gridNote[noteForGrid=dynamic_clients] #add' : {
+            'gridNote[noteForGrid=dynamicClients] #add' : {
                 click:  me.noteAdd
             },
-            'gridNote[noteForGrid=dynamic_clients] #delete' : {
+            'gridNote[noteForGrid=dynamicClients] #delete' : {
                 click:  me.noteDelete
             },
-            'gridNote[noteForGrid=dynamic_clients]' : {
+            'gridNote[noteForGrid=dynamicClients]' : {
                 itemclick: me.gridNoteClick
             },
-            'winNoteAdd[noteForGrid=dynamic_clients] #btnTreeNext' : {
+            'winNoteAdd[noteForGrid=dynamicClients] #btnTreeNext' : {
                 click:  me.btnNoteTreeNext
             },
-            'winNoteAdd[noteForGrid=dynamic_clients] #btnNoteAddPrev'  : {   
+            'winNoteAdd[noteForGrid=dynamicClients] #btnNoteAddPrev'  : {   
                 click: me.btnNoteAddPrev
             },
-            'winNoteAdd[noteForGrid=dynamic_clients] #btnNoteAddNext'  : {   
+            'winNoteAdd[noteForGrid=dynamicClients] #btnNoteAddNext'  : {   
                 click: me.btnNoteAddNext
             },
             
@@ -949,7 +949,7 @@ Ext.define('Rd.controller.cDynamicClients', {
                         {
                             id          : 'winNoteDynamicClient'+sr.getId(),
                             noteForId   : sr.getId(),
-                            noteForGrid : 'dynamic_clients',
+                            noteForGrid : 'dynamicClients',
                             noteForName : sr.get('name')
                         });
                     w.show()       

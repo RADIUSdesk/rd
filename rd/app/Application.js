@@ -183,7 +183,7 @@ Ext.define('Rd.Application', {
                     if(!msgCt){
                         msgCt = Ext.DomHelper.insertFirst(document.body, {id:'msg-div'}, false);
                     }
-                    //Here the 'true' is important to get Ext.Element to do animation on
+                    //Here the 'true' is important to get Ext.Element to do angit clone https://github.com/lede-project/source.gitimation on
                     var m = Ext.DomHelper.append(msgCt, createBox(title, content), true);
                     //Add a class if required
                     if(type !== undefined){
