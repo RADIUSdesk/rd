@@ -4,9 +4,9 @@ Ext.define('Rd.controller.cMeshEdits', {
         'meshes.pnlMeshEdit',
         'meshes.gridMeshEntries',   'meshes.winMeshAddEntry',   'meshes.cmbEncryptionOptions',
         'meshes.winMeshEditEntry',  'meshes.pnlMeshSettings',   'meshes.gridMeshExits',
-        'meshes.winMeshAddExit',    'meshes.cmbMeshEntryPoints','meshes.winMeshEditExit',
+        'meshes.winMeshAddExit',    'meshes.tagMeshEntryPoints','meshes.winMeshEditExit',
         'meshes.pnlNodeCommonSettings', 'meshes.gridNodes',     'meshes.winMeshAddNode',
-        'meshes.cmbHardwareOptions', 'meshes.cmbStaticEntries', 'meshes.cmbStaticExits',
+        'meshes.cmbHardwareOptions', 'meshes.tagStaticEntries', 'meshes.cmbStaticExits',
         'meshes.winMeshEditNode',	'meshes.pnlMeshEditGMap',	'meshes.winMeshMapPreferences',
 		'meshes.winMeshMapNodeAdd',	'meshes.cmbEthBridgeOptions',
 		'components.cmbFiveGigChannels',
@@ -634,6 +634,15 @@ Ext.define('Rd.controller.cMeshEdits', {
         var a_page  = win.down('#chkLoginPage');
         var cmb_page= win.down('cmbDynamicDetail');
         
+        //#rgrpProtocol #txtIpaddr #txtNetmask #txtGateway #txtDns1 #txtDns2
+        var rgrpProtocol= win.down('#rgrpProtocol');
+        var txtIpaddr   = win.down('#txtIpaddr');
+        var txtNetmask  = win.down('#txtNetmask');
+        var txtGateway  = win.down('#txtGateway');
+        var txtDns1     = win.down('#txtDns1');
+        var txtDns2     = win.down('#txtDns2');
+        var tagConWith  = win.down('tagMeshEntryPoints');
+        
         sel_type.setValue(type);
  
         if(type == 'openvpn_bridge'){
@@ -675,6 +684,58 @@ Ext.define('Rd.controller.cMeshEdits', {
 			cmb_page.setDisabled(true);
 			cmb_realm.setVisible(false);
 			cmb_realm.setDisabled(true);			
+        } 
+        
+        if(type == 'tagged_bridge_l3'){
+            vlan.setVisible(true);
+            vlan.setDisabled(false);
+            rgrpProtocol.setVisible(true);
+            rgrpProtocol.setDisabled(false);
+            
+            if(rgrpProtocol.getValue().proto == 'static'){         
+                txtIpaddr.setVisible(true);
+			    txtIpaddr.setDisabled(false);
+                txtNetmask.setVisible(true);
+                txtNetmask.setDisabled(false);  
+                txtGateway.setVisible(true);
+                txtGateway.setDisabled(false);     
+                txtDns1.setVisible(true);
+                txtDns1.setDisabled(false);
+                txtDns2.setVisible(true);  
+                txtDns2.setDisabled(false);
+            }else{
+                txtIpaddr.setVisible(false);
+			    txtIpaddr.setDisabled(true);
+                txtNetmask.setVisible(false);
+                txtNetmask.setDisabled(true);  
+                txtGateway.setVisible(false);
+                txtGateway.setDisabled(true);     
+                txtDns1.setVisible(false);
+                txtDns1.setDisabled(true);
+                txtDns2.setVisible(false);  
+                txtDns2.setDisabled(true);
+            }
+            tagConWith.setVisible(false);
+            tagConWith.setDisabled(true);
+            
+        }else{
+            //vlan.setVisible(false);
+            //vlan.setDisabled(true);
+            rgrpProtocol.setVisible(false);
+            rgrpProtocol.setDisabled(true);
+            txtIpaddr.setVisible(false);
+			txtIpaddr.setDisabled(true);
+            txtNetmask.setVisible(false);
+            txtNetmask.setDisabled(true);  
+            txtGateway.setVisible(false);
+            txtGateway.setDisabled(true);     
+            txtDns1.setVisible(false);
+            txtDns1.setDisabled(true);
+            txtDns2.setVisible(false);  
+            txtDns2.setDisabled(true);
+            
+            tagConWith.setVisible(true);
+            tagConWith.setDisabled(false);
         }   
         win.getLayout().setActiveItem('scrnData');
     },
@@ -690,6 +751,7 @@ Ext.define('Rd.controller.cMeshEdits', {
         form.submit({
             clientValidation: true,
             url: me.getUrlAddExit(),
+            submitEmptyText: false,
             success: function(form, action) {
                 win.close();
                 win.store.load();
@@ -825,7 +887,15 @@ Ext.define('Rd.controller.cMeshEdits', {
                 var t     = form.down("#type");
                 var t_val = t.getValue();
                 var vlan  = form.down('#vlan');
-                var vpn   = form.down('#cmbOpenVpnServers') 
+                var vpn   = form.down('#cmbOpenVpnServers');
+                
+                var rgrpProtocol= form.down('#rgrpProtocol');
+                var txtIpaddr   = form.down('#txtIpaddr');
+                var txtNetmask  = form.down('#txtNetmask');
+                var txtGateway  = form.down('#txtGateway');
+                var txtDns1     = form.down('#txtDns1');
+                var txtDns2     = form.down('#txtDns2');
+                var tagConWith  = form.down('tagMeshEntryPoints'); 
                 
                 if(t_val == 'openvpn_bridge'){
                     vpn.setVisible(true);
@@ -848,7 +918,7 @@ Ext.define('Rd.controller.cMeshEdits', {
                     vlan.setVisible(false);
                     vlan.setDisabled(true);
                 }
-                var ent  = form.down("cmbMeshEntryPoints");
+                var ent  = form.down("tagMeshEntryPoints");
                 ent.setValue(b.result.data.entry_points);
                 if(b.result.data.type == 'captive_portal'){
                     if((b.result.data.auto_login_page == true)&&
@@ -862,7 +932,59 @@ Ext.define('Rd.controller.cMeshEdits', {
                         //form.down("cmbDynamicDetail").setVisible(false);
                         //form.down("cmbDynamicDetail").setDisabled(true);
                     }
-                }  
+                }
+                
+                if(b.result.data.type == 'tagged_bridge_l3'){
+                
+                    vlan.setVisible(true);
+                    vlan.setDisabled(false);
+                    rgrpProtocol.setVisible(true);
+                    rgrpProtocol.setDisabled(false);
+                    
+                    if(rgrpProtocol.getValue().proto == 'static'){         
+                        txtIpaddr.setVisible(true);
+			            txtIpaddr.setDisabled(false);
+                        txtNetmask.setVisible(true);
+                        txtNetmask.setDisabled(false);  
+                        txtGateway.setVisible(true);
+                        txtGateway.setDisabled(false);     
+                        txtDns1.setVisible(true);
+                        txtDns1.setDisabled(false);
+                        txtDns2.setVisible(true);  
+                        txtDns2.setDisabled(false);
+                    }else{
+                        txtIpaddr.setVisible(false);
+			            txtIpaddr.setDisabled(true);
+                        txtNetmask.setVisible(false);
+                        txtNetmask.setDisabled(true);  
+                        txtGateway.setVisible(false);
+                        txtGateway.setDisabled(true);     
+                        txtDns1.setVisible(false);
+                        txtDns1.setDisabled(true);
+                        txtDns2.setVisible(false);  
+                        txtDns2.setDisabled(true);
+                    }
+                    tagConWith.setVisible(false);
+                    tagConWith.setDisabled(true);
+                    
+                }else{
+                
+                    rgrpProtocol.setVisible(false);
+                    rgrpProtocol.setDisabled(true);
+                    txtIpaddr.setVisible(false);
+			        txtIpaddr.setDisabled(true);
+                    txtNetmask.setVisible(false);
+                    txtNetmask.setDisabled(true);  
+                    txtGateway.setVisible(false);
+                    txtGateway.setDisabled(true);     
+                    txtDns1.setVisible(false);
+                    txtDns1.setDisabled(true);
+                    txtDns2.setVisible(false);  
+                    txtDns2.setDisabled(true);
+                    
+                    tagConWith.setVisible(true);
+                    tagConWith.setDisabled(false);
+                }      
             }
         });
     },
@@ -873,6 +995,7 @@ Ext.define('Rd.controller.cMeshEdits', {
         form.submit({
             clientValidation: true,
             url: me.getUrlEditExit(),
+            submitEmptyText: false,
             success: function(form, action) {
                 win.close();
                 win.store.load();

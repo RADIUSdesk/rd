@@ -1094,6 +1094,23 @@ class MeshesController extends AppController {
             '_serialize'=> array('success', 'items')
         ));
     }
+    
+     public function mesh_exit_upstream_list(){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+         
+        $items  = [
+            ['name'=> 'LAN (Ethernet0)', 'id' => 0 ]
+        ];
+        
+        $this->set(array(
+            'items'     => $items,
+            'success'   => true,
+            '_serialize'=> array('success', 'items')
+        ));
+    }
 
     public function mesh_exit_delete(){
 
@@ -1693,7 +1710,7 @@ class MeshesController extends AppController {
         }
 
         $node = ClassRegistry::init('Node');
-		$node->contain('NodeMpSetting','NodeWifiSetting');
+		$node->contain('NodeMpSetting','NodeWifiSetting','NodeMeshEntry');
 
         $id    = $this->request->query['node_id'];
         $q_r   = $node->findById($id);
@@ -1712,6 +1729,13 @@ class MeshesController extends AppController {
 				$q_r['Node']["$key"] = $value; 
 			}
 		}
+		
+		$nme_list = [];
+		
+		foreach($q_r['NodeMeshEntry'] as $nme){
+		    array_push($nme_list,$nme['mesh_entry_id']);
+		}
+		$q_r['Node']['static_entries[]'] = $nme_list;
 
         //Return the Advanced WiFi Settings...
         if(count($q_r['NodeWifiSetting'])>0){
@@ -1965,16 +1989,18 @@ class MeshesController extends AppController {
         if(!$user){
             return;
         }
+        
+        $conditions = ['MeshEntry.apply_to_all' => 0];
 
         if(isset($this->request->query['mesh_id'])){
             $mesh_id = $this->request->query['mesh_id'];
+            array_push($conditions,['MeshEntry.mesh_id' => $mesh_id]);
         }
 
         $entry  = ClassRegistry::init('MeshEntry');
         $entry->contain();
-        $q_r    = $entry->find('all',array('conditions' => array('MeshEntry.apply_to_all' => 0)));
+        $q_r    = $entry->find('all',['conditions' => $conditions]);
         $items = array();
-        array_push($items,array('id' => 0, 'name' => "(None)")); //Allow the user not to assign at this stage
         foreach($q_r as $i){
             $id = $i['MeshEntry']['id'];
             $n  = $i['MeshEntry']['name'];
@@ -1986,8 +2012,6 @@ class MeshesController extends AppController {
             'success' => true,
             '_serialize' => array('items','success')
         ));
-        
-
     }
 
     public function static_exit_options(){

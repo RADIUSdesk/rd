@@ -16,7 +16,7 @@ class ApProfileExit extends AppModel {
         'OpenvpnServer' => array(
                 'className'     => 'OpenvpnServer',
                 'foreignKey'    => 'openvpn_server_id'
-                ),         
+                ),          
     );
 
     public $hasMany = array(
@@ -25,7 +25,7 @@ class ApProfileExit extends AppModel {
             ),
             'OpenvpnServerClient'   => array(
                 'dependent'     => true   
-            ),
+            )
     );
 
     public $hasOne = array(

@@ -1,18 +1,15 @@
-Ext.define('Rd.view.aps.cmbAccessPointEntryPoints', {
+Ext.define('Rd.view.aps.cmbApProfileUpstreamList', {
     extend          : 'Ext.form.ComboBox',
-    alias           : 'widget.cmbAccessPointEntryPoints',
-    fieldLabel      : i18n("sConnects_with"),
+    alias           : 'widget.cmbApProfileUpstreamList',
+    fieldLabel      : 'Available',
     labelSeparator  : '',
     queryMode       : 'local',
     valueField      : 'id',
     displayField    : 'name',
     editable        : false,
     mode            : 'local',
-    itemId          : 'entry_points',
-    name            : 'entry_points[]',
-    multiSelect     : true,
-    labelClsExtra   : 'lblRdReq',
-    allowBlank      : true,
+    name            : 'ap_profile_exit_upstream_id',
+    allowBlank      : false,
     initComponent: function(){
         var me      = this;
         var s       = Ext.create('Ext.data.Store', {
@@ -23,7 +20,10 @@ Ext.define('Rd.view.aps.cmbAccessPointEntryPoints', {
             proxy: {
                     type    : 'ajax',
                     format  : 'json',
-                    url     : '/cake2/rd_cake/ap_profiles/ap_profile_entry_points.json',
+                    url     : '/cake2/rd_cake/ap_profiles/ap_profile_exit_upstream_list.json',
+                    extraParams : {
+                        ap_profile_id : me.ap_profile_id
+                    },
                     reader: {
                         type            : 'json',
                         rootProperty    : 'items',

@@ -1,20 +1,15 @@
-Ext.define('Rd.view.meshes.cmbStaticEntries', {
-    extend          : 'Ext.form.ComboBox',
-    alias           : 'widget.cmbStaticEntries',
+Ext.define('Rd.view.meshes.tagStaticEntries', {
+    extend          : 'Ext.form.field.Tag',
+    alias           : 'widget.tagStaticEntries',
     fieldLabel      : i18n('sStatic_entry_points'),
-    labelSeparator  : '',
     queryMode       : 'local',
-    valueField      : 'id',
+    emptyText       : 'Select Static Entry Points',
     displayField    : 'name',
-    allowBlank      : true,
-    editable        : false,
-    mode            : 'local',
+    valueField      : 'id',
+    labelClsExtra   : 'lblRd',
     itemId          : 'static_entries',
     name            : 'static_entries[]',
-    labelClsExtra   : 'lblRd',
     meshId          : '' ,
-    nodeId          : '',
-	multiSelect     : true,
     initComponent: function(){
         var me      = this;
         var s       = Ext.create('Ext.data.Store', {
@@ -23,7 +18,7 @@ Ext.define('Rd.view.meshes.cmbStaticEntries', {
                 type    : 'ajax',
                 format  : 'json',
                 batchActions: true,
-                extraParams: { 'mesh_id' : me.meshId, 'node_id' : me.nodeId }, 
+               // extraParams: { 'mesh_id' : me.meshId}, 
                 url     : '/cake2/rd_cake/meshes/static_entry_options.json',
                 reader: {
                     type: 'json',

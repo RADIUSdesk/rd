@@ -85,6 +85,7 @@ Ext.define('Rd.view.meshes.pnlMeshSettings', {
 					            allowBlank  : false,
 					            minLength   : 8,
 					            hidden      : true,
+					            disabled    : true,
 					            blankText   : i18n('sSupply_a_value'),
 					            labelClsExtra: 'lblRdReq'
 					        }

@@ -24,7 +24,7 @@ Ext.define('Rd.controller.cMeshes', {
 		'meshes.gridNodeLists',		'meshes.winMeshEditNode',	'meshes.gridUnknownNodes',
 		'meshes.winMeshAttachNode',
         'meshes.winMeshUnknownRedirect',
-        'meshes.cmbHardwareOptions', 'meshes.cmbStaticEntries', 'meshes.cmbStaticExits'
+        'meshes.cmbHardwareOptions', 'meshes.tagStaticEntries', 'meshes.cmbStaticExits'
     ],
     stores      : [
 		'sMeshes',   'sAccessProvidersTree', 'sNodeLists', 				'sUnknownNodes',

@@ -58,5 +58,38 @@ Ext.define('Rd.view.aps.vcAccessPointExitPoint', {
             },
             scope: me
         });
+	},
+	onRgrpProtocolChange : function(grp){
+	    var me          = this; 
+	    var win         = grp.up('window');
+	    var txtIpaddr   = win.down('#txtIpaddr');
+        var txtNetmask  = win.down('#txtNetmask');
+        var txtGateway  = win.down('#txtGateway');
+        var txtDns1     = win.down('#txtDns1');
+        var txtDns2     = win.down('#txtDns2');
+          
+        if(grp.getValue().proto == 'static'){         
+            txtIpaddr.setVisible(true);
+		    txtIpaddr.setDisabled(false);
+            txtNetmask.setVisible(true);
+            txtNetmask.setDisabled(false);  
+            txtGateway.setVisible(true);
+            txtGateway.setDisabled(false);     
+            txtDns1.setVisible(true);
+            txtDns1.setDisabled(false);
+            txtDns2.setVisible(true);  
+            txtDns2.setDisabled(false);
+        }else{
+            txtIpaddr.setVisible(false);
+		    txtIpaddr.setDisabled(true);
+            txtNetmask.setVisible(false);
+            txtNetmask.setDisabled(true);  
+            txtGateway.setVisible(false);
+            txtGateway.setDisabled(true);     
+            txtDns1.setVisible(false);
+            txtDns1.setDisabled(true);
+            txtDns2.setVisible(false);  
+            txtDns2.setDisabled(true);
+        }
 	}
 });

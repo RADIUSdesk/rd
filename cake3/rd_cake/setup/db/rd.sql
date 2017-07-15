@@ -257,6 +257,7 @@ CREATE TABLE `ap_profile_exit_captive_portals` (
   `uamanydns` tinyint(1) NOT NULL DEFAULT '0',
   `dnsparanoia` tinyint(1) NOT NULL DEFAULT '0',
   `dnsdesk` tinyint(1) NOT NULL DEFAULT '0',
+  `ap_profile_exit_upstream_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -267,7 +268,7 @@ CREATE TABLE `ap_profile_exit_captive_portals` (
 
 LOCK TABLES `ap_profile_exit_captive_portals` WRITE;
 /*!40000 ALTER TABLE `ap_profile_exit_captive_portals` DISABLE KEYS */;
-INSERT INTO `ap_profile_exit_captive_portals` VALUES (5,23,'198.27.111.78','','testing123','','http://198.27.111.78/cake3/rd_cake/dynamic-details/chilli-browser-detect/','greatsecret','',0,'2016-05-10 05:23:30','2017-02-24 21:13:54',1,0,'',3128,'','','ssid=radiusdesk',0,'4.4.4.4','8.8.8.8',0,0,0);
+INSERT INTO `ap_profile_exit_captive_portals` VALUES (5,23,'198.27.111.78','','testing123','','http://198.27.111.78/cake3/rd_cake/dynamic-details/chilli-browser-detect/','greatsecret','',0,'2016-05-10 05:23:30','2017-02-24 21:13:54',1,0,'',3128,'','','ssid=radiusdesk',0,'4.4.4.4','8.8.8.8',0,0,0,NULL);
 /*!40000 ALTER TABLE `ap_profile_exit_captive_portals` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -281,7 +282,7 @@ DROP TABLE IF EXISTS `ap_profile_exits`;
 CREATE TABLE `ap_profile_exits` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ap_profile_id` int(11) DEFAULT NULL,
-  `type` enum('bridge','tagged_bridge','nat','captive_portal','openvpn_bridge') DEFAULT NULL,
+  `type` enum('bridge','tagged_bridge','nat','captive_portal','openvpn_bridge','tagged_bridge_l3') DEFAULT NULL,
   `vlan` int(4) DEFAULT NULL,
   `auto_dynamic_client` tinyint(1) NOT NULL DEFAULT '0',
   `realm_list` varchar(128) NOT NULL DEFAULT '',
@@ -290,6 +291,12 @@ CREATE TABLE `ap_profile_exits` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   `openvpn_server_id` int(11) DEFAULT NULL,
+  `proto` enum('static','dhcp','dhcpv6') DEFAULT 'dhcp',
+  `ipaddr` varchar(50) NOT NULL DEFAULT '',
+  `netmask` varchar(50) NOT NULL DEFAULT '',
+  `gateway` varchar(50) NOT NULL DEFAULT '',
+  `dns_1` varchar(50) NOT NULL DEFAULT '',
+  `dns_2` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -300,7 +307,7 @@ CREATE TABLE `ap_profile_exits` (
 
 LOCK TABLES `ap_profile_exits` WRITE;
 /*!40000 ALTER TABLE `ap_profile_exits` DISABLE KEYS */;
-INSERT INTO `ap_profile_exits` VALUES (23,14,'captive_portal',NULL,1,'35',1,3,'2016-05-10 05:23:30','2017-02-24 21:13:54',NULL),(40,14,'openvpn_bridge',NULL,0,'',0,NULL,'2016-09-18 05:00:15','2016-09-18 05:00:15',2);
+INSERT INTO `ap_profile_exits` VALUES (23,14,'captive_portal',NULL,1,'35',1,3,'2016-05-10 05:23:30','2017-02-24 21:13:54',NULL,'dhcp','','','','',''),(40,14,'openvpn_bridge',NULL,0,'',0,NULL,'2016-09-18 05:00:15','2016-09-18 05:00:15',2,'dhcp','','','','','');
 /*!40000 ALTER TABLE `ap_profile_exits` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1343,6 +1350,7 @@ CREATE TABLE `mesh_exit_captive_portals` (
   `uamanydns` tinyint(1) NOT NULL DEFAULT '0',
   `dnsparanoia` tinyint(1) NOT NULL DEFAULT '0',
   `dnsdesk` tinyint(1) NOT NULL DEFAULT '0',
+  `mesh_exit_upstream_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1353,7 +1361,7 @@ CREATE TABLE `mesh_exit_captive_portals` (
 
 LOCK TABLES `mesh_exit_captive_portals` WRITE;
 /*!40000 ALTER TABLE `mesh_exit_captive_portals` DISABLE KEYS */;
-INSERT INTO `mesh_exit_captive_portals` VALUES (1,33,'198.27.111.78','','testing123','cheetah_cp1','http://198.27.111.78/cake3/rd_cake/dynamic-details/chilli-browser-detect/','greatsecret','www.radiusdesk.com',0,'2014-08-11 12:21:02','2017-02-24 20:56:38',0,0,'192.168.10.10',3128,'admin','admin','',0,'4.4.4.4','8.8.8.8',0,0,0);
+INSERT INTO `mesh_exit_captive_portals` VALUES (1,33,'198.27.111.78','','testing123','cheetah_cp1','http://198.27.111.78/cake3/rd_cake/dynamic-details/chilli-browser-detect/','greatsecret','www.radiusdesk.com',0,'2014-08-11 12:21:02','2017-02-24 20:56:38',0,0,'192.168.10.10',3128,'admin','admin','',0,'4.4.4.4','8.8.8.8',0,0,0,NULL);
 /*!40000 ALTER TABLE `mesh_exit_captive_portals` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1395,12 +1403,18 @@ CREATE TABLE `mesh_exits` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `mesh_id` int(11) DEFAULT NULL,
   `name` varchar(128) NOT NULL,
-  `type` enum('bridge','tagged_bridge','nat','captive_portal','openvpn_bridge') DEFAULT NULL,
+  `type` enum('bridge','tagged_bridge','nat','captive_portal','openvpn_bridge','tagged_bridge_l3') DEFAULT NULL,
   `auto_detect` tinyint(1) NOT NULL DEFAULT '0',
   `vlan` int(4) DEFAULT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   `openvpn_server_id` int(11) DEFAULT NULL,
+  `proto` enum('static','dhcp','dhcpv6') DEFAULT 'dhcp',
+  `ipaddr` varchar(50) NOT NULL DEFAULT '',
+  `netmask` varchar(50) NOT NULL DEFAULT '',
+  `gateway` varchar(50) NOT NULL DEFAULT '',
+  `dns_1` varchar(50) NOT NULL DEFAULT '',
+  `dns_2` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1411,7 +1425,7 @@ CREATE TABLE `mesh_exits` (
 
 LOCK TABLES `mesh_exits` WRITE;
 /*!40000 ALTER TABLE `mesh_exits` DISABLE KEYS */;
-INSERT INTO `mesh_exits` VALUES (30,35,'br-one','bridge',1,NULL,'2014-07-26 04:21:57','2016-04-30 11:56:06',NULL),(32,40,'cheetah_ebr1','bridge',1,NULL,'2014-08-11 12:16:52','2016-04-24 15:33:04',NULL),(33,40,'cheetah_cp1','captive_portal',1,NULL,'2014-08-11 12:21:02','2017-02-24 20:56:38',NULL),(35,41,'lion_ebr1','bridge',1,NULL,'2014-08-11 12:28:41','2014-08-11 12:28:41',NULL),(59,41,'','openvpn_bridge',1,NULL,'2016-09-19 03:34:27','2016-09-19 03:34:27',1),(60,41,'','openvpn_bridge',1,NULL,'2016-09-19 03:34:43','2016-09-19 03:34:43',2);
+INSERT INTO `mesh_exits` VALUES (30,35,'br-one','bridge',1,NULL,'2014-07-26 04:21:57','2016-04-30 11:56:06',NULL,'dhcp','','','','',''),(32,40,'cheetah_ebr1','bridge',1,NULL,'2014-08-11 12:16:52','2016-04-24 15:33:04',NULL,'dhcp','','','','',''),(33,40,'cheetah_cp1','captive_portal',1,NULL,'2014-08-11 12:21:02','2017-02-24 20:56:38',NULL,'dhcp','','','','',''),(35,41,'lion_ebr1','bridge',1,NULL,'2014-08-11 12:28:41','2014-08-11 12:28:41',NULL,'dhcp','','','','',''),(59,41,'','openvpn_bridge',1,NULL,'2016-09-19 03:34:27','2016-09-19 03:34:27',1,'dhcp','','','','',''),(60,41,'','openvpn_bridge',1,NULL,'2016-09-19 03:34:43','2016-09-19 03:34:43',2,'dhcp','','','','','');
 /*!40000 ALTER TABLE `mesh_exits` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2407,7 +2421,7 @@ CREATE TABLE `permanent_users` (
 
 LOCK TABLES `permanent_users` WRITE;
 /*!40000 ALTER TABLE `permanent_users` DISABLE KEYS */;
-INSERT INTO `permanent_users` VALUES (248,'dvdwalt@meshdesk','5db12f09b204bb56b5dac06877550d3c064e4e1a','1afb04b4-0d81-4091-881f-1db84296bfcf','','','','','','sql',1,'2017-05-07 00:29:02',NULL,'127.0.0.1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'hard','soft','MESHdesk',36,'1G-1Day',15,NULL,NULL,0,1,'','','',4,4,44,'2017-05-06 19:57:06','2017-05-21 14:47:31');
+INSERT INTO `permanent_users` VALUES (248,'dvdwalt@meshdesk','5db12f09b204bb56b5dac06877550d3c064e4e1a','1afb04b4-0d81-4091-881f-1db84296bfcf','','','','','','sql',1,'2017-07-15 17:43:56',NULL,'127.0.0.1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'hard','soft','MESHdesk',36,'1G-1Day',15,NULL,NULL,0,1,'','','',4,4,44,'2017-05-06 19:57:06','2017-05-21 14:47:31');
 /*!40000 ALTER TABLE `permanent_users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2684,7 +2698,7 @@ CREATE TABLE `radgroupcheck` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `groupname` (`groupname`(32))
-) ENGINE=InnoDB AUTO_INCREMENT=134 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=135 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2693,7 +2707,7 @@ CREATE TABLE `radgroupcheck` (
 
 LOCK TABLES `radgroupcheck` WRITE;
 /*!40000 ALTER TABLE `radgroupcheck` DISABLE KEYS */;
-INSERT INTO `radgroupcheck` VALUES (43,'500M','Rd-Reset-Type-Data',':=','never','','2013-08-24 21:34:24','2013-08-24 21:35:25'),(44,'500M','Rd-Cap-Type-Data',':=','hard','','2013-08-24 21:34:34','2013-08-24 21:35:17'),(45,'500M','Rd-Total-Data',':=','500000000','','2013-08-24 21:34:53','2013-08-24 21:35:11'),(49,'250M','Rd-Reset-Type-Data',':=','never','','2013-08-24 21:38:07','2013-08-24 21:38:48'),(51,'250M','Rd-Total-Data',':=','250000000','','2013-08-24 21:38:21','2013-08-24 21:38:33'),(53,'1Hour','Rd-Reset-Type-Time',':=','never','','2013-08-24 21:39:32','2013-08-24 21:39:53'),(62,'1Hour','Rd-Cap-Type-Time',':=','hard','','2013-08-24 21:44:42','2013-08-24 21:44:49'),(63,'5M-every-hour','Rd-Reset-Interval-Data',':=','3600','','2014-05-27 19:35:39','2014-05-27 19:36:09'),(64,'5M-every-hour','Rd-Cap-Type-Data',':=','hard','','2014-05-27 19:37:15','2014-05-27 19:37:20'),(65,'5M-every-hour','Rd-Total-Data',':=','5000000','','2014-05-27 19:37:31','2014-05-27 19:37:38'),(67,'5M-every-hour','Rd-Reset-Type-Data',':=','dynamic','','2014-05-27 19:39:11','2014-05-27 19:39:21'),(68,'5M-every-hour','Rd-Mac-Counter-Data',':=','1','','2014-05-27 19:39:48','2014-05-27 19:39:53'),(69,'1G','Rd-Cap-Type-Data',':=','hard','','2014-09-02 16:09:08','2014-09-02 16:09:18'),(85,'1G','Rd-Total-Data',':=','1000000000','','2016-06-27 07:23:15','2016-06-27 07:23:44'),(87,'2G','Rd-Reset-Type-Data',':=','never','','2016-06-27 07:46:58','2016-06-27 07:48:10'),(88,'2G','Rd-Cap-Type-Data',':=','hard','','2016-06-27 07:47:08','2016-06-27 07:48:17'),(89,'2G','Rd-Total-Data',':=','2000000000','','2016-06-27 07:47:33','2016-06-27 07:48:41'),(91,'5G','Rd-Cap-Type-Data',':=','hard','','2016-06-27 07:53:12','2016-06-27 07:53:17'),(92,'5G','Rd-Reset-Type-Data',':=','never','','2016-06-27 07:53:24','2016-06-27 07:54:06'),(93,'5G','Rd-Total-Data',':=','5000000000','','2016-06-27 07:54:24','2016-06-27 07:54:32'),(95,'1Week','Rd-Total-Time',':=','604800','','2016-06-27 09:05:03','2016-06-27 09:05:15'),(96,'1Week','Rd-Reset-Type-Time',':=','never','','2016-06-27 09:05:35','2016-06-27 09:05:44'),(97,'1Week','Rd-Cap-Type-Time',':=','hard','','2016-06-27 09:05:54','2016-06-27 09:06:01'),(99,'1Day','Rd-Cap-Type-Time',':=','hard','','2016-06-27 09:07:15','2016-06-27 09:11:53'),(100,'1Day','Rd-Reset-Type-Time',':=','never','','2016-06-27 09:07:31','2016-06-27 09:12:00'),(101,'1Day','Rd-Total-Time',':=','86400','','2016-06-27 09:12:05','2016-06-27 09:12:10'),(102,'1Month','Rd-Total-Time',':=','2628029','','2016-06-27 09:15:32','2016-06-27 09:16:42'),(104,'1Month','Rd-Cap-Type-Time',':=','hard','','2016-06-27 09:17:38','2016-06-27 09:17:54'),(105,'1Month','Rd-Reset-Type-Time',':=','never','','2016-06-27 09:17:47','2016-06-27 09:18:01'),(122,'1Hour per MAC daily','Rd-Total-Time',':=','3600','','2016-06-27 12:57:57','2016-06-27 13:02:14'),(123,'1Hour','Rd-Total-Time',':=','3600','','2016-06-27 12:58:42','2016-06-27 12:59:25'),(124,'250M','Rd-Cap-Type-Data',':=','hard','','2016-06-27 13:00:33','2016-06-27 13:00:40'),(125,'1Hour per MAC daily','Rd-Reset-Type-Time',':=','daily','','2016-06-27 13:02:57','2016-06-27 13:03:06'),(126,'1Hour per MAC daily','Rd-Mac-Counter-Time',':=','1','','2016-06-27 13:03:59','2016-06-27 13:04:04'),(127,'1Hour per MAC daily','Rd-Cap-Type-Time',':=','hard','','2016-06-27 13:04:20','2016-06-27 13:04:26'),(129,'500M per MAC daily','Rd-Cap-Type-Data',':=','hard','','2016-06-27 13:06:37','2016-06-27 13:07:32'),(131,'500M per MAC daily','Rd-Mac-Counter-Data',':=','1','','2016-06-27 13:07:06','2016-06-27 13:07:44'),(132,'500M per MAC daily','Rd-Total-Data',':=','500000000','','2016-06-27 13:07:23','2016-06-27 13:11:26'),(133,'500M per MAC daily','Rd-Reset-Type-Data',':=','daily','','2016-06-27 13:11:05','2016-06-27 13:11:16');
+INSERT INTO `radgroupcheck` VALUES (43,'500M','Rd-Reset-Type-Data',':=','never','','2013-08-24 21:34:24','2013-08-24 21:35:25'),(44,'500M','Rd-Cap-Type-Data',':=','hard','','2013-08-24 21:34:34','2013-08-24 21:35:17'),(45,'500M','Rd-Total-Data',':=','500000000','','2013-08-24 21:34:53','2013-08-24 21:35:11'),(49,'250M','Rd-Reset-Type-Data',':=','never','','2013-08-24 21:38:07','2013-08-24 21:38:48'),(51,'250M','Rd-Total-Data',':=','250000000','','2013-08-24 21:38:21','2013-08-24 21:38:33'),(53,'1Hour','Rd-Reset-Type-Time',':=','never','','2013-08-24 21:39:32','2013-08-24 21:39:53'),(62,'1Hour','Rd-Cap-Type-Time',':=','hard','','2013-08-24 21:44:42','2013-08-24 21:44:49'),(63,'5M-every-hour','Rd-Reset-Interval-Data',':=','3600','','2014-05-27 19:35:39','2014-05-27 19:36:09'),(64,'5M-every-hour','Rd-Cap-Type-Data',':=','hard','','2014-05-27 19:37:15','2014-05-27 19:37:20'),(65,'5M-every-hour','Rd-Total-Data',':=','5000000','','2014-05-27 19:37:31','2014-05-27 19:37:38'),(67,'5M-every-hour','Rd-Reset-Type-Data',':=','dynamic','','2014-05-27 19:39:11','2014-05-27 19:39:21'),(68,'5M-every-hour','Rd-Mac-Counter-Data',':=','1','','2014-05-27 19:39:48','2014-05-27 19:39:53'),(69,'1G','Rd-Cap-Type-Data',':=','hard','','2014-09-02 16:09:08','2014-09-02 16:09:18'),(85,'1G','Rd-Total-Data',':=','1000000000','','2016-06-27 07:23:15','2016-06-27 07:23:44'),(87,'2G','Rd-Reset-Type-Data',':=','never','','2016-06-27 07:46:58','2016-06-27 07:48:10'),(88,'2G','Rd-Cap-Type-Data',':=','hard','','2016-06-27 07:47:08','2016-06-27 07:48:17'),(89,'2G','Rd-Total-Data',':=','2000000000','','2016-06-27 07:47:33','2016-06-27 07:48:41'),(91,'5G','Rd-Cap-Type-Data',':=','hard','','2016-06-27 07:53:12','2016-06-27 07:53:17'),(92,'5G','Rd-Reset-Type-Data',':=','never','','2016-06-27 07:53:24','2016-06-27 07:54:06'),(93,'5G','Rd-Total-Data',':=','5000000000','','2016-06-27 07:54:24','2016-06-27 07:54:32'),(95,'1Week','Rd-Total-Time',':=','604800','','2016-06-27 09:05:03','2016-06-27 09:05:15'),(96,'1Week','Rd-Reset-Type-Time',':=','never','','2016-06-27 09:05:35','2016-06-27 09:05:44'),(97,'1Week','Rd-Cap-Type-Time',':=','hard','','2016-06-27 09:05:54','2016-06-27 09:06:01'),(99,'1Day','Rd-Cap-Type-Time',':=','hard','','2016-06-27 09:07:15','2016-06-27 09:11:53'),(100,'1Day','Rd-Reset-Type-Time',':=','never','','2016-06-27 09:07:31','2016-06-27 09:12:00'),(101,'1Day','Rd-Total-Time',':=','86400','','2016-06-27 09:12:05','2016-06-27 09:12:10'),(102,'1Month','Rd-Total-Time',':=','2628029','','2016-06-27 09:15:32','2016-06-27 09:16:42'),(104,'1Month','Rd-Cap-Type-Time',':=','hard','','2016-06-27 09:17:38','2016-06-27 09:17:54'),(105,'1Month','Rd-Reset-Type-Time',':=','never','','2016-06-27 09:17:47','2016-06-27 09:18:01'),(122,'1Hour per MAC daily','Rd-Total-Time',':=','3600','','2016-06-27 12:57:57','2016-06-27 13:02:14'),(123,'1Hour','Rd-Total-Time',':=','3600','','2016-06-27 12:58:42','2016-06-27 12:59:25'),(124,'250M','Rd-Cap-Type-Data',':=','hard','','2016-06-27 13:00:33','2016-06-27 13:00:40'),(125,'1Hour per MAC daily','Rd-Reset-Type-Time',':=','daily','','2016-06-27 13:02:57','2016-06-27 13:03:06'),(126,'1Hour per MAC daily','Rd-Mac-Counter-Time',':=','1','','2016-06-27 13:03:59','2016-06-27 13:04:04'),(127,'1Hour per MAC daily','Rd-Cap-Type-Time',':=','hard','','2016-06-27 13:04:20','2016-06-27 13:04:26'),(129,'500M per MAC daily','Rd-Cap-Type-Data',':=','hard','','2016-06-27 13:06:37','2016-06-27 13:07:32'),(131,'500M per MAC daily','Rd-Mac-Counter-Data',':=','1','','2016-06-27 13:07:06','2016-06-27 13:07:44'),(132,'500M per MAC daily','Rd-Total-Data',':=','500000000','','2016-06-27 13:07:23','2016-06-27 13:11:26'),(133,'500M per MAC daily','Rd-Reset-Type-Data',':=','daily','','2016-06-27 13:11:05','2016-06-27 13:11:16'),(134,'1G','Rd-Reset-Type-Data',':=','daily','','2017-07-15 17:43:45','2017-07-15 17:43:50');
 /*!40000 ALTER TABLE `radgroupcheck` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2785,7 +2799,7 @@ CREATE TABLE `radpostauth` (
   `nasname` varchar(128) NOT NULL DEFAULT '',
   `authdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2794,7 +2808,7 @@ CREATE TABLE `radpostauth` (
 
 LOCK TABLES `radpostauth` WRITE;
 /*!40000 ALTER TABLE `radpostauth` DISABLE KEYS */;
-INSERT INTO `radpostauth` VALUES (2,'dvdwalt@meshdesk',NULL,'dvdwalt','Access-Accept','','2017-05-06 22:29:02');
+INSERT INTO `radpostauth` VALUES (2,'dvdwalt@meshdesk',NULL,'dvdwalt','Access-Accept','','2017-05-06 22:29:02'),(3,'dvdwalt@meshdesk',NULL,'dvdwalt','Access-Reject','','2017-07-15 15:39:06'),(4,'dvdwalt@meshdesk',NULL,'dvdwalt','Access-Reject','','2017-07-15 15:39:27'),(5,'dvdwalt@meshdesk',NULL,'dvdwalt','Access-Accept','','2017-07-15 15:43:24'),(6,'dvdwalt@meshdesk',NULL,'dvdwalt','Access-Accept','','2017-07-15 15:43:25'),(7,'dvdwalt@meshdesk',NULL,'dvdwalt','Access-Accept','','2017-07-15 15:43:53'),(8,'dvdwalt@meshdesk',NULL,'dvdwalt','Access-Accept','','2017-07-15 15:43:54'),(9,'dvdwalt@meshdesk',NULL,'dvdwalt','Access-Accept','','2017-07-15 15:43:56');
 /*!40000 ALTER TABLE `radpostauth` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3534,4 +3548,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-06-15 11:21:15
+-- Dump completed on 2017-07-15 17:45:21

@@ -6,8 +6,14 @@ Ext.define('Rd.view.meshes.vcMeshNodeGeneric', {
     },
     init: function() {
         var me = this;
-    },
-     
+    },  
+    onCmbMeshChange : function(cmb){
+        var me      = this;
+        var form    = cmb.up('form');
+        var cmbSe   = form.down('tagStaticEntries');
+        cmbSe.getStore().getProxy().setExtraParam('mesh_id',cmb.getValue());
+        cmbSe.getStore().load();
+    },   
     onCmbHardwareOptionsChange: function(cmb){
 		var me      = this;
         var form    = cmb.up('form');
@@ -22,14 +28,17 @@ Ext.define('Rd.view.meshes.vcMeshNodeGeneric', {
         if(record != null){
             r_count =record.get('radios');
         }
-
+        
         var tabAdvRadio1    = form.down('#tabAdvWifiRadio1');
         var window          = cmb.up('window');
         
-        if(window.getItemId() != 'winMeshEditNodeMain'){
-             var params     = {model:val};
+        if(
+            (window.getItemId() == 'winMeshEditNodeMain')||
+            (window.getItemId() == 'winMeshEditNodeEdit')
+        ){
+            var params  = {model:val,node_id:window.nodeId};  
         }else{
-            var params      = {model:val,node_id:window.nodeId};
+           var params   = {model:val}; 
         }
              
         //Load the advanced settings for this hardware...

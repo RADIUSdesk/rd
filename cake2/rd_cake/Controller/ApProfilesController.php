@@ -1023,6 +1023,23 @@ class ApProfilesController extends AppController {
             '_serialize'=> array('success', 'data')
         ));
     }
+    
+    public function ap_profile_exit_upstream_list(){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+          
+        $items  = [
+            ['name'=> 'LAN (Ethernet0)', 'id' => 0 ]
+        ];
+        
+        $this->set(array(
+            'items'     => $items,
+            'success'   => true,
+            '_serialize'=> array('success', 'items')
+        ));
+    }
 
 
     public function ap_profile_exit_delete(){

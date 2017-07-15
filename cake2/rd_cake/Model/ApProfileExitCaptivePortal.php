@@ -7,7 +7,11 @@ class ApProfileExitCaptivePortal extends AppModel {
         'ApProfileExit' => array(
                     'className' => 'ApProfileExit',
                     'foreignKey' => 'ap_profile_exit_id'
-                    )
+                    ),
+        'ApProfileExitUpstream' => [
+                'className'     => 'ApProfileExit',
+                'foreignKey'    => 'ap_profile_exit_upstream_id'
+            ]
         );
 
      public $validate = array(

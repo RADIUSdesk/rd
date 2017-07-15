@@ -874,6 +874,19 @@ Ext.define('Rd.controller.cAccessPoints', {
             r_count =record.get('radios');
         }
         
+        if(r_count == 0){
+            form.down('#tabAdvanced').setDisabled(true);
+            form.down('#tabAdvanced').tab.hide();
+            form.down('#tabRadio').setDisabled(true);
+            form.down('#tabRadio').tab.hide();
+            return
+        }else{
+            form.down('#tabAdvanced').setDisabled(false);
+            form.down('#tabAdvanced').tab.show();
+            form.down('#tabRadio').setDisabled(false);
+            form.down('#tabRadio').tab.show();
+        }
+        
         var tabRadiosRadio1	= form.down('#tabRadiosRadio1');
         var tabAdvRadio1    = form.down('#tabAdvWifiRadio1');
         var window          = cmb.up('window');

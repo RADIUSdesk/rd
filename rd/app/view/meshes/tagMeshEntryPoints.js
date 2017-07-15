@@ -1,18 +1,12 @@
-Ext.define('Rd.view.meshes.cmbMeshEntryPoints', {
-    extend          : 'Ext.form.ComboBox',
-    alias           : 'widget.cmbMeshEntryPoints',
+Ext.define('Rd.view.meshes.tagMeshEntryPoints', {
+    extend          : 'Ext.form.field.Tag',
+    alias           : 'widget.tagMeshEntryPoints',
     fieldLabel      : i18n('sConnects_with'),
-    labelSeparator  : '',
     queryMode       : 'local',
-    valueField      : 'id',
+    emptyText       : 'Select Entry Points',
     displayField    : 'name',
-    editable        : false,
-    mode            : 'local',
-    itemId          : 'entry_points',
+    valueField      : 'id',
     name            : 'entry_points[]',
-    multiSelect     : true,
-    labelClsExtra   : 'lblRdReq',
-    allowBlank      : true,
     initComponent: function(){
         var me      = this;
         var s       = Ext.create('Ext.data.Store', {

@@ -27,14 +27,16 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
         'Rd.store.sEncryptionOptions',
         'Rd.model.mEncryptionOption',
         'Rd.view.components.cmbOpenVpnServers',
-        'Rd.view.meshes.vcMeshExitPoint'
+        'Rd.view.meshes.vcMeshExitPoint',
+        'Rd.view.meshes.cmbMeshUpstreamList',
+        'Rd.view.meshes.tagMeshEntryPoints'
     ],
     controller  : 'vcMeshExitPoint',
     initComponent: function() {
         var me = this;
 
         //Set the combo
-        var cmbConnectWith = Ext.create('Rd.view.meshes.cmbMeshEntryPoints',{
+        var tagConnectWith = Ext.create('Rd.view.meshes.tagMeshEntryPoints',{
             labelClsExtra   : 'lblRdReq'
         });
 
@@ -43,9 +45,9 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
 			hide_cp = false;
 		}
  
-        cmbConnectWith.getStore().getProxy().setExtraParam('mesh_id',me.meshId);
-        cmbConnectWith.getStore().getProxy().setExtraParam('exit_id',me.exitId);
-        cmbConnectWith.getStore().load();
+        tagConnectWith.getStore().getProxy().setExtraParam('mesh_id',me.meshId);
+        tagConnectWith.getStore().getProxy().setExtraParam('exit_id',me.exitId);
+        tagConnectWith.getStore().load();
  
         var frmData = Ext.create('Ext.form.Panel',{
             border:     false,
@@ -133,12 +135,80 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
                                     allowBlank  : false,
                                     blankText   : i18n("sSupply_a_value")
                                 },
-                                cmbConnectWith,
+                                tagConnectWith,
                                 {
                                     itemId      : 'cmbOpenVpnServers',
                                     xtype       : 'cmbOpenVpnServers',
                                     labelClsExtra: 'lblRdReq',
                                     allowBlank  : false
+                                },
+                                //-----------------------------
+                                //-Layer 3 Tagged VLAN Options-
+                                // #rgrpProtocol #txtIpaddr #txtNetmask #txtGateway #txtDns1 #txtDns2
+                                //-----------------------------
+                                {
+                                    xtype       : 'radiogroup',
+                                    fieldLabel  : 'Protocol',
+                                    vertical    : true,
+                                    itemId      : 'rgrpProtocol',
+                                    labelClsExtra: 'lblRdReq',
+                                    listeners   : {
+							            change  : 'onRgrpProtocolChange'
+							        },
+                                    items: [
+                                        { boxLabel: 'DHCP',     name: 'proto', inputValue: 'dhcp', checked: true },
+                                        { boxLabel: 'Static',   name: 'proto', inputValue: 'static'}
+                                    ]
+                                },
+                                {
+                                    itemId      : 'txtIpaddr',
+                                    xtype       : 'textfield',
+                                    fieldLabel  : i18n('sIP_Address'),
+                                    name        : 'ipaddr',
+                                    allowBlank  : false,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    labelClsExtra: 'lblRdReq',
+                                    vtype       : 'IPAddress'
+                                },
+                                {
+                                    itemId      : 'txtNetmask',
+                                    xtype       : 'textfield',
+                                    fieldLabel  : 'Netmask',
+                                    name        : 'netmask',
+                                    allowBlank  : false,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    labelClsExtra: 'lblRdReq',
+                                    vtype       : 'IPAddress'
+                                },
+                                {
+                                    itemId      : 'txtGateway',
+                                    xtype       : 'textfield',
+                                    fieldLabel  : 'Gateway',
+                                    name        : 'gateway',
+                                    allowBlank  : false,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    labelClsExtra: 'lblRdReq',
+                                    vtype       : 'IPAddress'
+                                },
+                                {
+                                    itemId      : 'txtDns1',
+                                    xtype       : 'textfield',
+                                    fieldLabel  : 'DNS Primary',
+                                    name        : 'dns_1',
+                                    allowBlank  : true,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    labelClsExtra: 'lblRd',
+                                    vtype       : 'IPAddress'
+                                },
+                                {
+                                    itemId      : 'txtDns2',
+                                    xtype       : 'textfield',
+                                    fieldLabel  : 'DNS Secondary',
+                                    name        : 'dns_2',
+                                    allowBlank  : true,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    labelClsExtra: 'lblRd',
+                                    vtype       : 'IPAddress'
                                 }
                             ]
                         },
@@ -378,6 +448,21 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
                                                     allowBlank  : true,
                                                     labelClsExtra: 'lblRd'
                                                  }
+                                            ]
+                                        },
+                                        {
+                                            title       : 'Upstream Interface',
+                                            layout      : 'anchor',
+                                            defaults    : {
+                                                    anchor: '100%'
+                                            },
+                                            items       :[
+                                                {
+                                                   xtype            : 'cmbMeshUpstreamList',
+                                                   mesh_id          : me.meshId,
+                                                   labelClsExtra    : 'lblRdReq',
+                                                   value            : 0
+                                                }     
                                             ]
                                         }
                                     ]

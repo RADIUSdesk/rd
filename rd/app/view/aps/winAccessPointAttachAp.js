@@ -5,7 +5,7 @@ Ext.define('Rd.view.aps.winAccessPointAttachAp', {
     draggable   : true,
     resizable   : true,
     title       : 'Attach Device to Profile',
-    width       : 400,
+    width       : 450,
     height      : 450,
     plain       : true,
     border      : false,

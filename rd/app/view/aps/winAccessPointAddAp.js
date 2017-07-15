@@ -5,7 +5,7 @@ Ext.define('Rd.view.aps.winAccessPointAddAp', {
     draggable   : true,
     resizable   : true,
     title       : 'New Device',
-    width       : 400,
+    width       : 450,
     height      : 450,
     plain       : true,
     border      : false,

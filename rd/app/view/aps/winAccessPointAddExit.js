@@ -5,7 +5,7 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
     draggable:  true,
     resizable:  true,
     title:      'New Access Point Exit',
-    width:      530,
+    width:      550,
     height:     530,
     plain:      true,
     border:     false,
@@ -27,7 +27,9 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
         'Rd.view.components.cmbDynamicDetail',
         'Rd.view.components.cmbRealm',
         'Rd.view.components.cmbOpenVpnServers',
-        'Rd.view.aps.vcAccessPointExitPoint'
+        'Rd.view.aps.vcAccessPointExitPoint',
+        'Rd.view.aps.cmbApProfileUpstreamList',
+        'Rd.view.aps.tagAccessPointEntryPoints'
     ],
     controller  : 'vcAccessPointExitPoint',
     initComponent: function() {
@@ -71,18 +73,65 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
         //If the bridge is already defined; we will not list it again
         if(found_bridge == true){
             var radios = [
-                        { boxLabel: i18n("sTagged_Ethernet_bridge"),    name: 'exit_type', inputValue: 'tagged_bridge',checked: true},
-                        { boxLabel: i18n("sNAT_plus_DHCP"),             name: 'exit_type', inputValue: 'nat' },
-                        { boxLabel: i18n("sCaptive_Portal"),            name: 'exit_type', inputValue: 'captive_portal' },
-                        { boxLabel: i18n('sOpenVPN_Bridge'),            name: 'exit_type', inputValue: 'openvpn_bridge' }
-                    ];
+                    { 
+                        boxLabel: "<i class=\"fa fa-tag\"></i> "+'Layer2 Tagged Ethernet Bridge',   
+                        name    : 'exit_type', 
+                        inputValue: 'tagged_bridge'
+                    },
+                    { 
+                        boxLabel: "<i class=\"fa fa-tag\"></i> "+'Layer3 Tagged Ethernet Bridge',   
+                        name    : 'exit_type', 
+                        inputValue: 'tagged_bridge_l3' 
+                    },
+                    { 
+                        boxLabel: "<i class=\"fa fa-arrows-alt\"></i> "+i18n("sNAT_plus_DHCP"),
+                        name    : 'exit_type', 
+                        inputValue: 'nat' 
+                    },
+                    {   
+                        boxLabel:"<i class=\"fa fa-key\"></i> "+i18n("sCaptive_Portal"),
+                        name    : 'exit_type', 
+                        inputValue: 'captive_portal' 
+                    },
+                    { 
+                        boxLabel: "<i class=\"fa fa-quote-right\"></i> "+i18n('sOpenVPN_Bridge'),
+                        name: 'exit_type', 
+                        inputValue: 'openvpn_bridge' 
+                    }     
+                ];
         }else{
             var radios = [
-                    { boxLabel: i18n("sEthernet_bridge"),          name: 'exit_type', inputValue: 'bridge',checked: true },
-                    { boxLabel: i18n("sTagged_Ethernet_bridge"),   name: 'exit_type', inputValue: 'tagged_bridge'},
-                    { boxLabel: i18n("sNAT_plus_DHCP"),            name: 'exit_type', inputValue: 'nat' },
-                    { boxLabel: i18n("sCaptive_Portal"),           name: 'exit_type', inputValue: 'captive_portal' },
-                    { boxLabel: i18n('sOpenVPN_Bridge'),           name: 'exit_type', inputValue: 'openvpn_bridge' }
+                    { 
+                        boxLabel: "<i class=\"fa fa-bars\"></i> "+i18n("sEthernet_bridge"),          
+                        name    : 'exit_type', 
+                        inputValue: 'bridge',
+                        checked: true 
+                    },              
+                    { 
+                        boxLabel: "<i class=\"fa fa-tag\"></i> "+'Layer2 Tagged Ethernet Bridge',   
+                        name    : 'exit_type', 
+                        inputValue: 'tagged_bridge'
+                    },
+                    { 
+                        boxLabel: "<i class=\"fa fa-tag\"></i> "+'Layer3 Tagged Ethernet Bridge',   
+                        name    : 'exit_type', 
+                        inputValue: 'tagged_bridge_l3' 
+                    },
+                    { 
+                        boxLabel: "<i class=\"fa fa-arrows-alt\"></i> "+i18n("sNAT_plus_DHCP"),
+                        name    : 'exit_type', 
+                        inputValue: 'nat' 
+                    },
+                    {   
+                        boxLabel:"<i class=\"fa fa-key\"></i> "+i18n("sCaptive_Portal"),
+                        name    : 'exit_type', 
+                        inputValue: 'captive_portal' 
+                    },
+                    { 
+                        boxLabel: "<i class=\"fa fa-quote-right\"></i> "+i18n('sOpenVPN_Bridge'),
+                        name: 'exit_type', 
+                        inputValue: 'openvpn_bridge' 
+                   }     
                 ];
         }
 
@@ -106,8 +155,9 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
             items:[{
                 xtype       : 'radiogroup',
                 fieldLabel  : i18n("sExit_point_type"),
-                columns     : 1,
+                columns     : 2,
                 vertical    : true,
+                itemId      : 'rgrpExitType',
                 items       : radios
             }],
             buttons: buttons
@@ -121,12 +171,12 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
         var me      = this;
 
         //Set the combo
-        var cmbConnectWith = Ext.create('Rd.view.aps.cmbAccessPointEntryPoints',{
+        var tagConnectWith = Ext.create('Rd.view.aps.tagAccessPointEntryPoints',{
             labelClsExtra   : 'lblRdReq'
         });
  
-        cmbConnectWith.getStore().getProxy().setExtraParam('ap_profile_id',me.apProfileId);
-        cmbConnectWith.getStore().load();
+        tagConnectWith.getStore().getProxy().setExtraParam('ap_profile_id',me.apProfileId);
+        tagConnectWith.getStore().load();
         
 
         var frmData = Ext.create('Ext.form.Panel',{
@@ -206,7 +256,7 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                     allowBlank  : false,
                                     blankText   : i18n("sSupply_a_value")
                                 },
-                                cmbConnectWith,
+                                tagConnectWith,
                                 {
                                     itemId      : 'chkNasClient',
                                     xtype       : 'checkbox',      
@@ -245,6 +295,75 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                     xtype       : 'cmbOpenVpnServers',
                                     labelClsExtra: 'lblRdReq',
                                     allowBlank  : false
+                                },
+                                
+                                //-----------------------------
+                                //-Layer 3 Tagged VLAN Options-
+                                // #rgrpProtocol #txtIpaddr #txtNetmask #txtGateway #txtDns1 #txtDns2
+                                //-----------------------------
+                                {
+                                    xtype       : 'radiogroup',
+                                    fieldLabel  : 'Protocol',
+                                    vertical    : true,
+                                    itemId      : 'rgrpProtocol',
+                                    labelClsExtra: 'lblRdReq',
+                                    listeners   : {
+							            change  : 'onRgrpProtocolChange'
+							        },
+                                    items: [
+                                        { boxLabel: 'DHCP',     name: 'proto', inputValue: 'dhcp', checked: true },
+                                        { boxLabel: 'Static',   name: 'proto', inputValue: 'static'}
+                                    ]
+                                },
+                                {
+                                    itemId      : 'txtIpaddr',
+                                    xtype       : 'textfield',
+                                    fieldLabel  : i18n('sIP_Address'),
+                                    name        : 'ipaddr',
+                                    allowBlank  : false,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    labelClsExtra: 'lblRdReq',
+                                    vtype       : 'IPAddress'
+                                },
+                                {
+                                    itemId      : 'txtNetmask',
+                                    xtype       : 'textfield',
+                                    fieldLabel  : 'Netmask',
+                                    name        : 'netmask',
+                                    allowBlank  : false,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    labelClsExtra: 'lblRdReq',
+                                    vtype       : 'IPAddress'
+                                },
+                                {
+                                    itemId      : 'txtGateway',
+                                    xtype       : 'textfield',
+                                    fieldLabel  : 'Gateway',
+                                    name        : 'gateway',
+                                    allowBlank  : false,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    labelClsExtra: 'lblRdReq',
+                                    vtype       : 'IPAddress'
+                                },
+                                {
+                                    itemId      : 'txtDns1',
+                                    xtype       : 'textfield',
+                                    fieldLabel  : 'DNS Primary',
+                                    name        : 'dns_1',
+                                    allowBlank  : true,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    labelClsExtra: 'lblRd',
+                                    vtype       : 'IPAddress'
+                                },
+                                {
+                                    itemId      : 'txtDns2',
+                                    xtype       : 'textfield',
+                                    fieldLabel  : 'DNS Secondary',
+                                    name        : 'dns_2',
+                                    allowBlank  : true,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    labelClsExtra: 'lblRd',
+                                    vtype       : 'IPAddress'
                                 }
                             ]
                         },
@@ -479,6 +598,21 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                                     allowBlank  : true,
                                                     labelClsExtra: 'lblRd'
                                                  }
+                                            ]
+                                        },
+                                        {
+                                            title       : 'Upstream Interface',
+                                            layout      : 'anchor',
+                                            defaults    : {
+                                                    anchor: '100%'
+                                            },
+                                            items       :[
+                                                {
+                                                   xtype            : 'cmbApProfileUpstreamList',
+                                                   ap_profile_id    : me.apProfileId,
+                                                   labelClsExtra    : 'lblRdReq',
+                                                   value            : 0
+                                                }     
                                             ]
                                         }
                                     ]
