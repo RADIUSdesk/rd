@@ -5,8 +5,8 @@
 $config['ApProfiles']['captive_portal']['radius_1']         = '198.27.111.78'; // This will be the public IP Address of the FreeRADIUS / RADIUSdesk
 //$config['ApProfiles']['captive_portal']['radius_2']         = '198.27.111.78'; //Optional second fallback RADIUS
 $config['ApProfiles']['captive_portal']['radius_secret']    = 'testing123'; //Change this to the common site wide secret used by Dynamic RADIUS Clients
-//Use DNS name in ual_url to look more professional / or IP Address 
-$config['ApProfiles']['captive_portal']['uam_url']          = 'http://198.27.111.78/cake3/rd_cake/dynamic-details/chilli-browser-detect/'; 
+//Use DNS name in ual_url to look more professional / or IP Address
+$config['ApProfiles']['captive_portal']['uam_url']          = 'http://198.27.111.78/cake3/rd_cake/dynamic-details/chilli-browser-detect/';
 $config['ApProfiles']['captive_portal']['uam_secret']       = 'greatsecret'; //Usually you will not change this value
 
 //$config['ApProfiles']['captive_portal']['walled_garden'] = "www.radiusdesk.com,www.google.com"; //Optional
@@ -29,9 +29,9 @@ $config['common_ap_settings']['tz_value']	        = 'SAST-2'; 	//Take the name f
 
 //Gateway specific tweaks
 $config['common_ap_settings']['gw_dhcp_timeout']  = 120;	//
-$config['common_ap_settings']['gw_use_previous']  = true;	//	
+$config['common_ap_settings']['gw_use_previous']  = true;	//
 $config['common_ap_settings']['gw_auto_reboot']   = true;	//
-$config['common_ap_settings']['gw_auto_reboot_time']   = 600;	//		
+$config['common_ap_settings']['gw_auto_reboot_time']   = 600;	//
 
 
 
@@ -39,12 +39,12 @@ $config['common_ap_settings']['gw_auto_reboot_time']   = 600;	//
 $config['ApProfiles']['hardware'] = array();
 
 $config['ApProfiles']['hardware'][0]      = array(
-		'name' 		            => __('Dragino MS14'),   	
+		'name' 		            => __('Dragino MS14'),
 		'id'    	            => 'dragino',
 		'active'                => true,
 		'radios'	            => 1,
 		'eth_br'	            => 'eth0 eth1',
-		
+
 		'radio0_disabled'       => 0,
 		'radio0_band'           => '24',
         'radio0_channel_two'    => '8',
@@ -62,16 +62,16 @@ $config['ApProfiles']['hardware'][0]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )	
+        )
 );
 
 $config['ApProfiles']['hardware'][1]      = array(
-		'name' 		            => __('TpLink 841'),   	
+		'name' 		            => __('TpLink 841'),
 		'id'    	            => 'tl_841',
 		'active'                => true,
 		'radios'	            => 1,
 		'eth_br'	            => 'eth0 eth1',
-		
+
 		'radio0_disabled'       => 0,
 		'radio0_band'           => '24',
         'radio0_channel_two'    => '8',
@@ -89,17 +89,17 @@ $config['ApProfiles']['hardware'][1]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )	
+        )
 );
 
 
 $config['ApProfiles']['hardware'][2]      = array(
-		'name' 		=> __('TP-Link WDR3500 (Dual Radio)'),	
+		'name' 		=> __('TP-Link WDR3500 (Dual Radio)'),
 		'id'    	=> 'tl_wdr3500',
-		'radios'	=> 2, 
+		'radios'	=> 2,
 		'active'    => true,
 		'eth_br'	=> 'eth0 eth1',
-		
+
 		'radio0_disabled'       => 0,
         'radio0_band'           => '24',
         'radio0_channel_two'    => '8',
@@ -118,7 +118,7 @@ $config['ApProfiles']['hardware'][2]      = array(
             'TX-STBC',
             'DSSS_CCK-40'
         ),
-        
+
         'radio1_disabled'       => 0,
         'radio1_band'           => '5',
         'radio1_channel_five'   => '44',
@@ -135,16 +135,16 @@ $config['ApProfiles']['hardware'][2]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )		
+        )
 );
 
 $config['ApProfiles']['hardware'][3]      = array(
-		'name' 		=> __('TP-Link WDR3600 (Dual Radio)'),	
+		'name' 		=> __('TP-Link WDR3600 (Dual Radio)'),
 		'id'    	=> 'tl_wdr3600',
-		'radios'	=> 2, 
+		'radios'	=> 2,
 		'active'    => true,
 		'eth_br'	=> 'eth0 eth1',
-		
+
 		'radio0_disabled'       => 0,
         'radio0_band'           => '24',
         'radio0_channel_two'    => '8',
@@ -163,7 +163,7 @@ $config['ApProfiles']['hardware'][3]      = array(
             'TX-STBC',
             'DSSS_CCK-40'
         ),
-        
+
         'radio1_disabled'       => 0,
         'radio1_band'           => '5',
         'radio1_channel_five'   => '44',
@@ -186,10 +186,10 @@ $config['ApProfiles']['hardware'][3]      = array(
 
 
 $config['ApProfiles']['hardware'][4]      = array(
-		'name' 		            => __('Generic 1 Radio'),	
+		'name' 		            => __('Generic 1 Radio'),
 		'id'    	            => 'genoneradio',
-		'radios'	            => 1, 
-		'active'                => true, 
+		'radios'	            => 1,
+		'active'                => true,
 		'max_power'             => '18',
 		'eth_br'	            => 'eth0',
         'radio0_disabled'       => 0,
@@ -218,7 +218,7 @@ $config['ApProfiles']['hardware'][5]      = array(
         'radios'                => 2,
         'active'    	        => true,
         'eth_br'                => 'eth0',
-        
+
         'radio0_disabled'       => 0,
         'radio0_band'           => '24',
         'radio0_channel_two'    => '8',
@@ -237,7 +237,7 @@ $config['ApProfiles']['hardware'][5]      = array(
             'TX-STBC',
             'DSSS_CCK-40'
         ),
-        
+
         'radio1_disabled'       => 0,
         'radio1_band'           => '5',
         'radio1_channel_five'   => '44',
@@ -258,12 +258,12 @@ $config['ApProfiles']['hardware'][5]      = array(
 );
 
 $config['ApProfiles']['hardware'][6]      = array(
-		'name' 		            => __('ZBT WE1526'),   	
+		'name' 		            => __('ZBT WE1526'),
 		'id'    	            => 'zbt_we1526',
 		'active'                => true,
 		'radios'	            => 1,
 		'eth_br'	            => 'eth0 eth1',
-		
+
 		'radio0_disabled'       => 0,
 		'radio0_band'           => '24',
         'radio0_channel_two'    => '8',
@@ -281,17 +281,17 @@ $config['ApProfiles']['hardware'][6]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )	
+        )
 );
 
 
 $config['ApProfiles']['hardware'][7]      = array(
-		'name' 		            => __('ZBT WE2026'),   	
+		'name' 		            => __('ZBT WE2026'),
 		'id'    	            => 'zbt_we2026',
 		'active'                => true,
 		'radios'	            => 1,
 		'eth_br'	            => 'eth0.1',
-		
+
 		'radio0_disabled'       => 0,
 		'radio0_band'           => '24',
         'radio0_channel_two'    => '8',
@@ -309,16 +309,16 @@ $config['ApProfiles']['hardware'][7]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )	
+        )
 );
 
 $config['ApProfiles']['hardware'][8]      = array(
-		'name' 		            => __('ZBT WE3826'),   	
+		'name' 		            => __('ZBT WE3826'),
 		'id'    	            => 'zbt_we2826',
 		'active'                => true,
 		'radios'	            => 1,
 		'eth_br'	            => 'eth0.1',
-		
+
 		'radio0_disabled'       => 0,
 		'radio0_band'           => '24',
         'radio0_channel_two'    => '8',
@@ -336,7 +336,7 @@ $config['ApProfiles']['hardware'][8]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )	
+        )
 );
 
 
@@ -364,7 +364,7 @@ $config['ApProfiles']['hardware'][9]      = array(
         'RX-STBC1',
         'TX-STBC',
         'DSSS_CCK-40'
-    )	
+    )
 );
 
 $config['ApProfiles']['hardware'][10]      = array(
@@ -391,7 +391,7 @@ $config['ApProfiles']['hardware'][10]      = array(
         'RX-STBC1',
         'TX-STBC',
         'DSSS_CCK-40'
-    )	
+    )
 );
 
 
@@ -419,7 +419,7 @@ $config['ApProfiles']['hardware'][11]      = array(
         'RX-STBC1',
         'TX-STBC',
         'DSSS_CCK-40'
-    )	
+    )
 );
 
 $config['ApProfiles']['hardware'][12]      = array(
@@ -446,7 +446,7 @@ $config['ApProfiles']['hardware'][12]      = array(
         'RX-STBC1',
         'TX-STBC',
         'DSSS_CCK-40'
-    )	
+    )
 );
 
 $config['ApProfiles']['hardware'][13]      = array(
@@ -473,17 +473,17 @@ $config['ApProfiles']['hardware'][13]      = array(
         'RX-STBC1',
         'TX-STBC',
         'DSSS_CCK-40'
-    )	
+    )
 );
 
 $config['ApProfiles']['hardware'][14]      = array(
-        'name' 		            => __('Yuncore  XD3200'),	
+        'name' 		            => __('Yuncore  XD3200'),
 		'id'    	            => 'yc_xd3200',
-		'radios'	            => 2, 
+		'radios'	            => 2,
         'active'    	        => true,
         'device_type'           => 'ac', //Options are 'standard' (if left out) or 'ac' for AC devices, more options to follow
         'eth_br'                => 'eth0',
-        
+
         'radio0_disabled'       => 0,
         'radio0_band'           => '5',
         'radio0_channel_five'   => '44',
@@ -497,9 +497,9 @@ $config['ApProfiles']['hardware'][14]      = array(
         'radio0_beacon_int'     => 100,
         'radio0_disable_b'      => true,
         'radio0_ht_capab'       => array(
-           
+
         ),
-        
+
         'radio1_disabled'       => 0,
         'radio1_band'           => '24',
         'radio1_channel_two'    => '1',
@@ -517,6 +517,51 @@ $config['ApProfiles']['hardware'][14]      = array(
             'TX-STBC',
             'DSSS_CCK-40'
         )
+);
+
+$config['ApProfiles']['hardware'][15]      = array(
+        'name'                  => __('Open Mesh MR1750'),
+        'id'                    => 'om_mr1750',
+        'radios'                => 2,
+        'active'    	        	=> true,
+        'eth_br'                => 'eth0',
+
+        'radio0_disabled'       => 0,
+        'radio0_band'           => '5',
+        'radio0_channel_five'   => '44',
+        'radio0_hwmode'         => '11a',
+        'radio0_htmode'         => 'HT20',
+        'radio0_txpower'        => '18',
+        'radio0_diversity'      => true,
+        'radio0_distance'       => '300',
+        'radio0_noscan'         => false,
+        'radio0_ldpc'           => true,
+        'radio0_beacon_int'     => 100,
+        'radio0_ht_capab'       => array(
+            'SHORT-GI-40',
+            'RX-STBC1',
+            'TX-STBC',
+            'DSSS_CCK-40'
+			  ),
+
+				'radio1_disabled'       => 0,
+				'radio1_band'           => '24',
+				'radio1_channel_two'    => '8',
+				'radio1_hwmode'         => '11g',
+				'radio1_htmode'         => 'HT20',
+				'radio1_txpower'        => '18',
+				'radio1_diversity'      => true,
+				'radio1_distance'       => '300',
+				'radio1_noscan'         => false,
+				'radio1_ldpc'           => true,
+				'radio1_beacon_int'     => 100,
+				'radio1_disable_b'      => true,
+				'radio1_ht_capab'       => array(
+						'SHORT-GI-40',
+						'RX-STBC1',
+						'TX-STBC',
+						'DSSS_CCK-40'
+				)
 );
 
 
@@ -1170,5 +1215,3 @@ $config['ApProfiles']['countries'] = array(
 	array( 'id' => 'ZM', 'name' => 'Zambia'),
 	array( 'id' => 'ZW', 'name' => 'Zimbabwe'),
 );
-
-
