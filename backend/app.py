@@ -83,7 +83,7 @@ def get_node_config(mac):
             if network['interface'] == 'lan':
                 networks.remove(network)
                 continue
-            if '26' in network['note']:
+            if 'comment' in network and '26' in network['comment']:
                 ifname = network['options']['ifname']
                 network['options']['ifname'] = 'eth0 eth1 ' + ifname
     return out
