@@ -1,1 +1,4 @@
+.ropeproject/
 login
+backend/pid
+*__pycache__*

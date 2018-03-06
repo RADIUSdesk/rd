@@ -1,0 +1,6 @@
+apistar              # API REST Framework,does HTML too.
+meinheld
+gunicorn
+sqlalchemy
+pymysql
+requests
