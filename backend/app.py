@@ -71,21 +71,29 @@ def get_all_node_settings(session: sqlalchemy_backend.Session) -> typing.List[No
     return [Node.NodeSetting(record) for record in queryset]
 
 
-def get_node_config(mac):
-    r = requests.post('http://web:80/cake2/rd_cake/nodes/get_config_for_node.json', params = {'mac':mac})
+def get_node_config(mac, gateway=None):
+    params = {'mac': mac}
+    if gateway:
+        params['gateway'] = gateway
+    r = requests.get('http://web:80/cake2/rd_cake/nodes/get_config_for_node.json', params=params)
     out = r.json()
-
     print(out)
 
-    if mac == "78-A3-51-0B-BC-CA":
+    if mac == "AC-86-74-89-9B-60":
         networks = out['config_settings']['network']
         for network in networks:
             if network['interface'] == 'lan':
                 networks.remove(network)
                 continue
-            if 'comment' in network and '26' in network['comment']:
+            if 'comment' in network and '36' in network['comment']:
                 ifname = network['options']['ifname']
-                network['options']['ifname'] = 'eth0 eth1 ' + ifname
+                network['options']['ifname'] = 'eth0 ' + ifname
+    if 'config_settings' in out:
+        networks = out['config_settings']['network']
+        for network in networks:
+            if 'comment' in network:
+                del network['comment']
+
     return out
 
 routes = [
