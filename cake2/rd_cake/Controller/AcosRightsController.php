@@ -6,14 +6,14 @@ class AcosRightsController extends AppController {
     public $name       = 'AcosRights';
     public $components = array('Acl','Aa');
     public $aco_ap     = 'Access Providers';
-    protected $base    = "Access Providers/Controllers/AcosRights/";   //This is required for Aa component  
-    
+    protected $base    = "Access Providers/Controllers/AcosRights/";   //This is required for Aa component
+
     //-------- BASIC CRUD -------------------------------
     public function index(){
 
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
-        } 
+        }
 
         $id = null;
         if(isset($this->request->query['node'])){
@@ -23,7 +23,7 @@ class AcosRightsController extends AppController {
                 $id = $this->request->query['node'];
             }
         }
-      
+
         //We only will list the first level of nodes
         $q_r = $this->Acl->Aco->find('all',array('conditions' => array('Aco.parent_id' => $id), 'recursive' => 0));
 
@@ -40,9 +40,9 @@ class AcosRightsController extends AppController {
                 $leaf       = true;
                 $icon_cls   = 'list';
             }
-            array_push($items,array('id' => $id, 'alias' => $alias,'leaf' => $leaf,'comment' => $comment, 'iconCls' => $icon_cls)); 
+            array_push($items,array('id' => $id, 'alias' => $alias,'leaf' => $leaf,'comment' => $comment, 'iconCls' => $icon_cls));
         }
-            
+
         $this->set(array(
             'items' => $items,
             'success' => true,
@@ -72,7 +72,7 @@ class AcosRightsController extends AppController {
                 $id = $this->request->query['node'];
             }
         }
-      
+
         //We only will list the first level of nodes
         $q_r = $this->Acl->Aco->find('all',array('conditions' => array('Aco.parent_id' => $id), 'recursive' => 0));
 
@@ -99,7 +99,7 @@ class AcosRightsController extends AppController {
             $allowed    = false;
             $group_right= '';   //default for branches
             $icon_cls   = '';
-        
+
 
             if($this->Acl->Aco->childCount($id) == 0){
                 $leaf = true;
@@ -124,7 +124,7 @@ class AcosRightsController extends AppController {
                     array('id' => $id, 'alias' => $alias,'leaf' => $leaf,'comment' => $comment,'allowed' => $allowed, 'iconCls' => $icon_cls));
             }
         }
-            
+
         $this->set(array(
             'items' => $items,
             'success' => true,
@@ -137,12 +137,12 @@ class AcosRightsController extends AppController {
 
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
-        } 
-    
+        }
+
         if ($this->request->is('post')) {
             $this->Acl->Aco->create();
             if($this->request->data['parent_id'] == 0){
-                $this->request->data['parent_id'] = null;            
+                $this->request->data['parent_id'] = null;
             }
 
             if($this->Acl->Aco->save($this->request->data)){
@@ -162,7 +162,7 @@ class AcosRightsController extends AppController {
 
         if ($this->request->is('post')) {
             if($this->request->data['parent_id'] == 0){
-                $this->request->data['parent_id'] = null;            
+                $this->request->data['parent_id'] = null;
             }
 
             if($this->request->data['id'] == 0){
@@ -207,7 +207,7 @@ class AcosRightsController extends AppController {
         if($this->data['allowed'] == true){
             $this->Acl->allow(array('model' => $model, 'foreign_key' => $fk_id),$this->_return_aco_path($id));
         }
-        
+
         $this->set(array(
                     'success' => true,
                     '_serialize' => array('success')
@@ -229,7 +229,7 @@ class AcosRightsController extends AppController {
     public function delete(){
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
-        } 
+        }
 
         if(isset($this->data['id'])){   //Single item delete
 

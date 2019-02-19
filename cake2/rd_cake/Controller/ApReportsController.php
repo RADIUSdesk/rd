@@ -4,13 +4,13 @@ class ApReportsController extends AppController {
     public $name    	= 'ApReports';
 	public $components  = array('Aa','MacVendors','Formatter','TimeCalculations');
     public  $uses    	= array(
-		'Ap',					
+		'Ap',
 		'ApLoad',		'ApStation',	'ApSystem',
 		'ApProfileEntry',
 		'ApSetting',	'ApAction', 'ApProfileExit',
 		'ApProfileSetting'
 	);
-	
+
     public function submit_report(){
 
         //Source the vendors file and keep in memory
@@ -29,14 +29,14 @@ class ApReportsController extends AppController {
             '_serialize' => array('items','success')
         ));
     }
-    
+
     //______ AP View ______________
-       
+
     //List of SSIDs (Entry Points) defined for Access Point
     public function view_entry_points(){
-    
+
         $items = array(array('id' => 0,'name' => '(All)'));
-    
+
         if(isset($this->request->query['ap_id'])){
             $this->Ap->contain();
             $q_r = $this->Ap->findById($this->request->query['ap_id']);
@@ -54,7 +54,7 @@ class ApReportsController extends AppController {
                 $name   = $ent['ApProfileEntry']['name'];
                 array_push($items,array('id' => $id,'name' => $name));
             }
-         
+
         }
         $this->set(array(
             'items'   => $items,
@@ -62,24 +62,24 @@ class ApReportsController extends AppController {
             '_serialize' => array('items','success')
         ));
     }
-    
+
     //Overview of Access Point Hardware and Firmware
     public function view_overview(){
         $data = array();
         if(isset($this->request->query['ap_id'])){
             $q_r = $this->Ap->findById($this->request->query['ap_id']);
-          
+
             if(count($q_r['ApSystem'])>0){
-                $data['components'][0]['name'] = "Device"; 
+                $data['components'][0]['name'] = "Device";
                 $hardware_and_firmware = $this->_build_cpu_settings($q_r['ApSystem'],0);
                 $data['components'][0]['items'] = $hardware_and_firmware;
             }
-            
+
             if(array_key_exists('load_1',$q_r['ApLoad'])){
                 $mem_and_system = array();
                 //Is this device up or down
                 $ap_profile_id  = $q_r['Ap']['ap_profile_id'];
-			
+
 			    $l_contact      = $q_r['Ap']['last_contact'];
 			    //Get the 'dead_after' value
 		        $dead_after = $this->_get_dead_after($ap_profile_id);
@@ -93,54 +93,54 @@ class ApReportsController extends AppController {
                         $state = 'up';
                     }
                 }
-                
+
                 if($state == 'up'){
                     $lc = $this->TimeCalculations->time_elapsed_string($q_r['Ap']["last_contact"]);
                     array_push($mem_and_system, array('description' => 'Last contact','value' => $lc,'style' => 'rdOk'));
-                } 
-                
+                }
+
                 if($state == 'down'){
                     $lc = $this->TimeCalculations->time_elapsed_string($q_r['Ap']["last_contact"]);
                     array_push($mem_and_system, array('description' => 'Last contact','value' => $lc,'style' => 'rdWarn'));
-                } 
-                
+                }
+
                 if($state == 'never'){
                     array_push($mem_and_system, array('description' => 'Last contact','value' => "Never before",'style' => 'rdInfo'));
-                } 
-                
+                }
+
                 //Get the load Memory etc
                 $cpu_load   = $q_r['ApLoad']['load_2'];
                 array_push($mem_and_system, array('description' => 'Load','value' => $cpu_load,'style' => 'rdInfo' ));
                 $mem_total  = $this->Formatter->formatted_bytes($q_r['ApLoad']['mem_total']);
-                
+
                 $mem_free   = $this->Formatter->formatted_bytes($q_r['ApLoad']['mem_free']);
                 array_push($mem_and_system, array('description' => 'Memory','value' => "Total $mem_total/Free $mem_free",'style' => 'rdInfo' ));
                 $uptime     = $q_r['ApLoad']['uptime'];
                 array_push($mem_and_system, array('description' => 'Uptime','value' => $uptime,'style' => 'rdInfo' ));
                 $system_time= $q_r['ApLoad']['system_time'];
-                array_push($mem_and_system, array('description' => 'System time','value' => $system_time,'style' => 'rdInfo' )); 
+                array_push($mem_and_system, array('description' => 'System time','value' => $system_time,'style' => 'rdInfo' ));
                 array_push($mem_and_system, array('description' => 'IP','value' => $q_r['Ap']['last_contact_from_ip'],'style' => 'rdInfo' ));
-                
+
                 $data['components'][1]['name'] = "System";
-                $data['components'][1]['items'] = $mem_and_system;               
+                $data['components'][1]['items'] = $mem_and_system;
             }
-            
+
             if(count($q_r['ApWifiSetting'])>0){
                 $radio_zero_items = $this->_build_radio_settings($q_r['ApWifiSetting'],0);
                 if(count($radio_zero_items) > 0){
                     $data['components'][2]['name'] = "Radio 0";
-                    $data['components'][2]['items'] = $radio_zero_items; 
+                    $data['components'][2]['items'] = $radio_zero_items;
                 }
-                
+
                 $radio_one_items = $this->_build_radio_settings($q_r['ApWifiSetting'],1);
                  if(count($radio_one_items) > 0){
                     $data['components'][3]['name'] = "Radio 1";
-                    $data['components'][3]['items'] = $radio_one_items ; 
+                    $data['components'][3]['items'] = $radio_one_items ;
                 }
-            }           
+            }
             $data['img']    = $q_r['Ap']['hardware'];
             $data['name']   = $q_r['Ap']['name'];
-            $data['model']  = $q_r['Ap']['mac'];                   
+            $data['model']  = $q_r['Ap']['mac'];
         }
          $this->set(array(
             'data'   => $data,
@@ -148,34 +148,34 @@ class ApReportsController extends AppController {
             '_serialize' => array('data','success')
         ));
     }
-      
+
     //Chart for AccessPoint Data Usage
     public function view_data_usage(){
-    
-        $ap_id      = $this->request->query['ap_id'];  
-        
+
+        $ap_id      = $this->request->query['ap_id'];
+
         $items      = array();
         $totalIn    = 0;
         $totalOut   = 0;
         $totalInOut = 0;
-         
+
         $time_span = 'hour';
         if(isset($this->request->query['timespan'])){
             $time_span = $this->request->query['timespan'];
         }
-        
+
         $ap_profile_entry_id = 0;
         if(isset($this->request->query['entry_id'])){
             $ap_profile_entry_id = $this->request->query['entry_id'];
         }
-        
+
         if($time_span == 'week'){
             $span       = 7;
             $unit       = 'days';
             $slot       = (60*60)*24;//A day
             $start_time = time();
         }
-        
+
         if($time_span == 'day'){
             $span       = 24;
             $unit       = 'hours';
@@ -184,45 +184,45 @@ class ApReportsController extends AppController {
            //$start_time = time();
            $start_time  = mktime(date("H"), 0, 0);
         }
-        
+
         if($time_span == 'hour'){
             $span       = 4;
             $unit       = 'quater_hours';
             $slot       = (60*15);//15 minutes
             $start_time = time();
-            
+
         }
-        
+
         $carry_overs = array();
-        
+
         for ($x = 0; $x <= $span; $x++) {
-                     
+
             if($time_span == 'week'){
                 $beginOfPeriod  = strtotime("midnight", $start_time);
                 $endOfPeriod    = strtotime("tomorrow", $beginOfPeriod) - 1;
                 $unit           = "$x Day";
             }
-            
+
             if($time_span == 'day'){
                 $beginOfPeriod  = $start_time-$slot;
                 $endOfPeriod    = $start_time;
                 $unit           = "$x Hour";
             }
-            
+
             if($time_span == 'hour'){
                 $beginOfPeriod  = $start_time-$slot;
                 $endOfPeriod    = $start_time;
                 $unit           = ($x * 15)." Min";
             }
-            
+
             $start_time     = $start_time - $slot;
-            
+
             //print("=========\n");
             //print(date("Y-m-d H:i:s", $beginOfPeriod)." ".date("Y-m-d H:i:s", $endOfPeriod)."\n");
-            
+
             $tx_bytes = 0;
             $rx_bytes = 0;
-            
+
             foreach($carry_overs as $co){
                 //print_r($co);
                 if($co['started'] <= $beginOfPeriod){
@@ -231,18 +231,18 @@ class ApReportsController extends AppController {
                     $rx_bytes = $rx_bytes + $co['rx_for_period'];
                 }
             }
-            
-            
-            $conditions = array( 
+
+
+            $conditions = array(
                 'ApStation.ap_id'           => $ap_id,
                 'ApStation.modified >='     => date("Y-m-d H:i:s", $beginOfPeriod),
                 'ApStation.modified <='     => date("Y-m-d H:i:s", $endOfPeriod)
             );
-           
+
             if($ap_profile_entry_id != 0){
                 array_push($conditions,array('ApStation.ap_profile_entry_id' => $ap_profile_entry_id));
             }
-           
+
             $q_s = $this->ApStation->find('all',array(
                 'conditions'    => $conditions,
                 'fields'        => array(
@@ -253,7 +253,7 @@ class ApReportsController extends AppController {
                     'modified'
                 )
             ));
-                        
+
             foreach($q_s as $i){
                 //We need to determine if the created and modified stamps fall within this slot
                 if(strtotime($i['ApStation']['created']) >= $beginOfPeriod){
@@ -271,19 +271,19 @@ class ApReportsController extends AppController {
                     $rx_per_second = ($i['ApStation']['rx_bytes']) / $time_period;
                     //Now we know the bytes per second we can multiply it with the period in the slot we occupied
                     $slot_period   = $end - $beginOfPeriod;
-                    
+
                     $tx_for_period = intval($tx_per_second * $slot_period);
                     $rx_for_period = intval($rx_per_second * $slot_period);
-                    array_push($carry_overs, array('started' => $start,'tx_for_period' => $tx_for_period, 'rx_for_period' => $rx_for_period));   
+                    array_push($carry_overs, array('started' => $start,'tx_for_period' => $tx_for_period, 'rx_for_period' => $rx_for_period));
                     $tx_bytes = $tx_bytes + $tx_for_period;
-                    $rx_bytes = $rx_bytes + $rx_for_period;    
+                    $rx_bytes = $rx_bytes + $rx_for_period;
                 }
             }
-            array_push($items,array('id' => $x,'time_unit' => "$unit",'tx_bytes' => $tx_bytes,'rx_bytes' => $rx_bytes));           
+            array_push($items,array('id' => $x,'time_unit' => "$unit",'tx_bytes' => $tx_bytes,'rx_bytes' => $rx_bytes));
             $totalIn    = $totalIn+$rx_bytes;
             $totalOut   = $totalOut+$tx_bytes;
-            $totalInOut = $totalOut+($tx_bytes+$rx_bytes); 
-        } 
+            $totalInOut = $totalOut+($tx_bytes+$rx_bytes);
+        }
         $this->set(array(
             'items'   => $items,
             'success' => true,
@@ -293,31 +293,31 @@ class ApReportsController extends AppController {
             '_serialize' => array('items','success','totalIn','totalOut','totalInOut')
         ));
     }
-    
+
     //Chart for AccessPiont Connected users
     public function view_connected_users(){
-    
+
         $totalUsers = 0;
-        $items      = array(); 
-        $ap_id      = $this->request->query['ap_id'];    
+        $items      = array();
+        $ap_id      = $this->request->query['ap_id'];
         $time_span = 'hour';
-        
+
         if(isset($this->request->query['timespan'])){
             $time_span = $this->request->query['timespan'];
         }
-        
+
         $ap_profile_entry_id = 0;
         if(isset($this->request->query['entry_id'])){
             $ap_profile_entry_id = $this->request->query['entry_id'];
         }
-        
+
         if($time_span == 'week'){
             $span       = 7;
             $unit       = 'days';
             $slot       = (60*60)*24;//A day
             $start_time = time();
         }
-        
+
         if($time_span == 'day'){
             $span       = 24;
             $unit       = 'hours';
@@ -326,46 +326,46 @@ class ApReportsController extends AppController {
            //$start_time = time();
            $start_time  = mktime(date("H"), 0, 0);
         }
-        
+
         if($time_span == 'hour'){
             $span       = 4;
             $unit       = 'quater_hours';
             $slot       = (60*15);//15 minutes
             $start_time = time();
-            
+
         }
-        
+
         $carry_overs = array();
-        
+
         $master_mac_count = array();
-        
+
         for ($x = 0; $x <= $span; $x++) {
-                     
+
             if($time_span == 'week'){
                 $beginOfPeriod  = strtotime("midnight", $start_time);
                 $endOfPeriod    = strtotime("tomorrow", $beginOfPeriod) - 1;
                 $unit           = "$x Day";
             }
-            
+
             if($time_span == 'day'){
                 $beginOfPeriod  = $start_time-$slot;
                 $endOfPeriod    = $start_time;
                 $unit           = "$x Hour";
             }
-            
+
             if($time_span == 'hour'){
                 $beginOfPeriod  = $start_time-$slot;
                 $endOfPeriod    = $start_time;
                 $unit           = ($x * 15)." Min";
             }
-            
+
             $start_time     = $start_time - $slot;
-            
+
            // print("=========\n");
           //  print(date("Y-m-d H:i:s", $beginOfPeriod)." ".date("Y-m-d H:i:s", $endOfPeriod)."\n");
-            
+
             $mac_count = array();
-            
+
             foreach($carry_overs as $co){
                 //print_r($co);
                 if($co['started'] <= $beginOfPeriod){
@@ -374,17 +374,17 @@ class ApReportsController extends AppController {
                    $mac_count[$mac] = '';
                 }
             }
-            
-            $conditions = array( 
+
+            $conditions = array(
                 'ApStation.ap_id'           => $ap_id,
                 'ApStation.modified >='     => date("Y-m-d H:i:s", $beginOfPeriod),
                 'ApStation.modified <='     => date("Y-m-d H:i:s", $endOfPeriod)
             );
-           
+
             if($ap_profile_entry_id != 0){
                 array_push($conditions,array('ApStation.ap_profile_entry_id' => $ap_profile_entry_id));
             }
-            
+
             $this->ApStation->contain();
             $q_s = $this->ApStation->find('all',array(
                 'conditions'    => $conditions,
@@ -393,25 +393,25 @@ class ApReportsController extends AppController {
                     'created',
                     'modified'
                 )
-            ));    
-                        
+            ));
+
             foreach($q_s as $i){
                 $mac                    = $i['ApStation']['mac'];
                 $mac_count[$mac]        = '';
                 $master_mac_count[$mac] = '';
-                if(strtotime($i['ApStation']['created']) <= $beginOfPeriod){    
-                    $start  = strtotime($i['ApStation']['created']); 
-                    array_push($carry_overs, array('started' => $start,'mac' => $mac));      
+                if(strtotime($i['ApStation']['created']) <= $beginOfPeriod){
+                    $start  = strtotime($i['ApStation']['created']);
+                    array_push($carry_overs, array('started' => $start,'mac' => $mac));
                 }
-            } 
+            }
             $users = count($mac_count);
-            array_push($items,array('id' => $x,'time_unit' => "$unit",'users' => $users));           
-            
-                
-        } 
-        
+            array_push($items,array('id' => $x,'time_unit' => "$unit",'users' => $users));
+
+
+        }
+
         $totalUsers    = count($master_mac_count);
-        
+
         $this->set(array(
             'items'         => $items,
             'success'       => true,
@@ -419,10 +419,10 @@ class ApReportsController extends AppController {
             '_serialize' => array('items','success','totalUsers')
         ));
     }
-    
+
     //------- END AP View ---------------
 
-	
+
     public function view_entries(){
 
 		$user = $this->Aa->user_for_token($this);
@@ -443,7 +443,7 @@ class ApReportsController extends AppController {
 		$modified 	= $this->_get_timespan();
 		$ap_id      = $this->request->query['ap_id'];
 		$id         = 1;
-		
+
 		$this->Ap->contain('ApProfile.ApProfileEntry');
 		$q_ap       = $this->Ap->findById($ap_id);
 		foreach($q_ap['ApProfile']['ApProfileEntry'] as $entry){
@@ -460,9 +460,9 @@ class ApReportsController extends AppController {
                 )
             ));
 		    //print_r($q_s);
-		    
+
 		    if($q_s){
-		    
+
 		        foreach($q_s as $s){
 		           // print_r($s);
 		            $mac = $s['ApStation']['mac'];
@@ -482,7 +482,7 @@ class ApReportsController extends AppController {
                     ));
                     $t_bytes    = $q_t[0]['tx_bytes'];
                     $r_bytes    = $q_t[0]['rx_bytes'];
-                    $signal_avg = round($q_t[0]['signal_avg']); 
+                    $signal_avg = round($q_t[0]['signal_avg']);
                     if($signal_avg < -95){
                         $signal_avg_bar = 0.01;
                     }
@@ -493,7 +493,7 @@ class ApReportsController extends AppController {
                     if($signal_avg > -35){
                         $signal_avg_bar = 1;
                     }
-                    
+
                     //Get the latest entry
 				    $this->ApStation->contain();
                     $lastCreated = $this->ApStation->find('first', array(
@@ -519,15 +519,15 @@ class ApReportsController extends AppController {
                     if($signal > -35){
                         $signal_bar = 1;
                     }
-                    
+
                      array_push($items,array(
                         'id'                => $id,
-                        'name'              => $entry_name, 
-                        'ap_profile_entry_id'=> $ap_profile_entry_id, 
+                        'name'              => $entry_name,
+                        'ap_profile_entry_id'=> $ap_profile_entry_id,
                         'mac'               => $mac,
                         'vendor'            => $lastCreated['ApStation']['vendor'],
                         'tx_bytes'          => $t_bytes,
-                        'rx_bytes'          => $r_bytes, 
+                        'rx_bytes'          => $r_bytes,
                         'signal_avg'        => $signal_avg ,
                         'signal_avg_bar'    => $signal_avg_bar,
                         'signal_bar'        => $signal_bar,
@@ -547,15 +547,15 @@ class ApReportsController extends AppController {
                     ));
                     $id++;
 		        }
-		        
+
 	        }else{
 	             array_push($items,array(
                         'id'                => $id,
-                        'name'              => $entry_name, 
-                        'ap_profile_entry_id'=> $ap_profile_entry_id, 
+                        'name'              => $entry_name,
+                        'ap_profile_entry_id'=> $ap_profile_entry_id,
                         'mac'               => 'N/A',
                         'tx_bytes'          => 0,
-                        'rx_bytes'          => 0, 
+                        'rx_bytes'          => 0,
                         'signal_avg'        => null ,
                         'signal_bar'        => 'N/A' ,
                         'signal_avg_bar'    => 'N/A',
@@ -566,9 +566,9 @@ class ApReportsController extends AppController {
                         'vendor'            => 'N/A'
                     ));
                     $id++;
-	        }		
+	        }
 		}
-		 
+
         $this->set(array(
             'items' => $items,
             'success' => true,
@@ -608,13 +608,13 @@ class ApReportsController extends AppController {
                 }
             }
         }
-        
-        
+
+
         //--- Check if the 'vpn_info' array is in the data ----
         $this->log('AP: Checking for vpn_info in log', 'debug');
         if(array_key_exists('vpn_info',$this->request->data)){
-            $this->log('AP: Found vpn_info', 'debug');    
-            $openvpn_server_client = ClassRegistry::init('OpenvpnServerClient');  
+            $this->log('AP: Found vpn_info', 'debug');
+            $openvpn_server_client = ClassRegistry::init('OpenvpnServerClient');
             foreach($this->request->data['vpn_info'] as $vpn_i){
                 $vpn_gw_list = $vpn_i['vpn_gateways'];
                 foreach($vpn_gw_list as $gw){
@@ -622,16 +622,16 @@ class ApReportsController extends AppController {
                     $state          = $gw['state'];
                     $timestamp      = $gw['timestamp'];
                     $date           = date('Y-m-d H:i:s',$timestamp);
-                    
+
                     $d              = array();
                     $d['id']        = $vpn_client_id;
                     $d['last_contact_to_server'] =  $date;
                     $d['state']     = $state;
-                    $openvpn_server_client->save($d); 
-                }    
-            }  
+                    $openvpn_server_client->save($d);
+                }
+            }
         }
-        
+
         //--- Check if the 'system_info' array is in the data ----
         $this->log('AP: Checking for system_info in log', 'debug');
         if(array_key_exists('system_info',$this->request->data)){
@@ -642,7 +642,7 @@ class ApReportsController extends AppController {
                 $this->log('AP: Locating the node with MAC '.$id, 'debug');
                 $this->Ap->contain();
                 $q_r = $this->Ap->findByMac($id);
-                if($q_r){ 
+                if($q_r){
                     $ap_id          = $q_r['Ap']['id'];
                     $ap_profile_id  = $q_r['Ap']['ap_profile_id'];
                     $this->log('Ap: The ap id of '.$id.' is '.$ap_id, 'debug');
@@ -652,22 +652,22 @@ class ApReportsController extends AppController {
                 }else{
                     $this->log('AP: ap with MAC '.$id.' was not found', 'debug');
                 }
-            }  
+            }
         }
-        
+
 /*
         //See if there are any heartbeats associated with the NAS Clients of Cavtive Portals defined for this Access Point
-        if($ap_profile_id){ 
+        if($ap_profile_id){
             $this->_update_any_nas_heartbeats($ap_profile_id);
         }
-*/      
+*/
 		//--- Finally we may have some commands waiting for the nodes----
 		//--- We assume $this->request->data['network_info'][0]['eth0'] will contain one of the nodes of the mesh
 		$items = false;
-		
+
 		if(array_key_exists('network_info',$this->request->data)){
             $this->log('AP: Looking for commands waiting for this mesh', 'debug');
-            
+
 			$id 	= $this->_format_mac($this->request->data['network_info'][0]['eth0']);
 			$this->Ap->contain();
 		    $q_r 	= $this->Ap->findByMac($id);
@@ -676,7 +676,7 @@ class ApReportsController extends AppController {
 		        $ap_id          = $q_r['Ap']['id'];
 		        $ap_profile_id  = $q_r['Ap']['ap_profile_id'];
 				$this->ApAction->contain('Ap');
-				$q_r = $this->ApAction->find('all', 
+				$q_r = $this->ApAction->find('all',
 					array('conditions' => array('Ap.ap_profile_id' => $ap_profile_id,'ApAction.status' => 'awaiting')
 				)); //Only awaiting actions
 				foreach($q_r as $i){
@@ -692,8 +692,8 @@ class ApReportsController extends AppController {
                 $this->log('AP: Node with MAC '.$id.' was not found', 'debug');
             }
 		}
-		
-		return $items;       
+
+		return $items;
     }
 
     private function _do_radio_interfaces($ap_profile_id,$ap_id,$interfaces){
@@ -731,17 +731,17 @@ class ApReportsController extends AppController {
                                 $old_rx = $q_mac['ApStation']['rx_bytes'];
                                 if(($data['tx_bytes'] >= $old_tx)&($data['rx_bytes'] >= $old_rx)){
                                     $data['id'] =  $q_mac['ApStation']['id'];
-                                    $new_flag = false;   
+                                    $new_flag = false;
                                 }
                             }
                             if($new_flag){
                                 $this->ApStation->create();
-                            }   
+                            }
                             $this->ApStation->save($data);
                         }
-                    }      
-                    
-                }  
+                    }
+
+                }
             }
         }
     }
@@ -774,13 +774,13 @@ class ApReportsController extends AppController {
         ));
 
         $new_flag = true;
-        if($n_l){  
+        if($n_l){
 		    $data['id'] =  $n_l['ApLoad']['id'];
-		    $new_flag 	= false;   
+		    $new_flag 	= false;
         }
         if($new_flag){
             $this->ApLoad->create();
-        }   
+        }
         $this->ApLoad->save($data);
     }
 
@@ -796,10 +796,10 @@ class ApReportsController extends AppController {
             $this->log('AP: ApSystem info exists - Update if needed', 'debug');
             //We will check the value of DISTRIB_REVISION
             $dist_rev = false;
-            if(array_key_exists('release',$info)){ 
+            if(array_key_exists('release',$info)){
                 $release_array = explode("\n",$info['release']);
-                foreach($release_array as $r){  
-                    $this->log("AP: There are ".$r, 'debug'); 
+                foreach($release_array as $r){
+                    $this->log("AP: There are ".$r, 'debug');
                     $r_entry    = explode('=',$r);
                     $elements   = count($r_entry);
                     if($elements == 2){
@@ -808,17 +808,17 @@ class ApReportsController extends AppController {
                             $dist_rev = $value;
                             $this->log('AP: Submitted DISTRIB_REVISION '.$dist_rev, 'debug');
                             break;
-                        }                
+                        }
                     }
                 }
             }
 
             //Find the current  DISTRIB_REVISION
-            $q_r = $this->ApSystem->find('first', array('conditions' => 
+            $q_r = $this->ApSystem->find('first', array('conditions' =>
                         array(
                             'ApSystem.ap_id'    => $ap_id,
                             'ApSystem.name'     => 'DISTRIB_REVISION'
-            )));        
+            )));
             if($q_r){
                 $current = $q_r['ApSystem']['value'];
 
@@ -850,10 +850,10 @@ class ApReportsController extends AppController {
         }
 
         //--
-        if(array_key_exists('release',$info)){ 
+        if(array_key_exists('release',$info)){
             $release_array = explode("\n",$info['release']);
-            foreach($release_array as $r){  
-               // $this->log("There are ".$r, 'debug'); 
+            foreach($release_array as $r){
+               // $this->log("There are ".$r, 'debug');
                 $r_entry    = explode('=',$r);
                 $elements   = count($r_entry);
                 if($elements == 2){
@@ -867,22 +867,22 @@ class ApReportsController extends AppController {
                     $this->ApSystem->save($d);
                 }
             }
-        }           
+        }
     }
-      
+
     private function _update_any_nas_heartbeats($mesh_id){
         $this->MeshExit->contain('MeshExitCaptivePortal');
         //Only captive portal types
         $q_r = $this->MeshExit->find('all', array('conditions' => array('MeshExit.mesh_id' => $mesh_id, 'MeshExit.type' => 'captive_portal')));
-        
+
         if($q_r){
             $na = ClassRegistry::init('Na');
             $na->contain();
             foreach($q_r as $i){
                 if(array_key_exists('radius_nasid',$i['MeshExitCaptivePortal'] )){
                     $nas_id = $i['MeshExitCaptivePortal']['radius_nasid'];
-                    $n_q    = $na->find('first', 
-                        array('conditions' => 
+                    $n_q    = $na->find('first',
+                        array('conditions' =>
                             array(
                                 'Na.nasidentifier'  => $nas_id,
                                 'Na.type'           => 'CoovaChilli-Heartbeat',
@@ -892,9 +892,9 @@ class ApReportsController extends AppController {
                     if($n_q){
                         $na->id = $n_q['Na']['id'];
                         $na->saveField('last_contact', date('Y-m-d H:i:s'));
-                    }  
-                }    
-            } 
+                    }
+                }
+            }
         }
     }
 
@@ -954,7 +954,7 @@ class ApReportsController extends AppController {
     }
 
     private function _lookup_vendor($mac){
-        //Convert the MAC to be in the same format as the file 
+        //Convert the MAC to be in the same format as the file
         $mac    = strtoupper($mac);
         $pieces = explode(":", $mac);
 
@@ -970,10 +970,10 @@ class ApReportsController extends AppController {
                 $vendor = preg_replace("/$big_match\s?/","",$i);
                 $vendor = preg_replace( "{[ \t]+}", ' ', $vendor );
                 $vendor = rtrim($vendor);
-                return $vendor;   
+                return $vendor;
             }
         }
-       
+
         if(!$big_match_found){
             foreach($lines as $i){
                 if(preg_match("/^$small_match/",$i)){
@@ -996,7 +996,7 @@ class ApReportsController extends AppController {
             'conditions'    => array(
                 'ApProfileSetting.ap_profile_id' => $ap_profile_id
             )
-        )); 
+        ));
         if($n_s){
             $dead_after = $n_s['ApProfileSetting']['heartbeat_dead_after'];
         }
@@ -1005,11 +1005,11 @@ class ApReportsController extends AppController {
 
 	private function _make_hardware_lookup(){
 		$hardware = array();
-		Configure::load('ApProfiles');        
+		Configure::load('ApProfiles');
 	    $hw   = Configure::read('ApProfiles.hardware');
 	    foreach($hw as $h){
 	        $id     = $h['id'];
-	        $name   = $h['name']; 
+	        $name   = $h['name'];
 	        $hardware["$id"]= $name;
 	    }
 		return $hardware;
@@ -1042,7 +1042,7 @@ class ApReportsController extends AppController {
         }
 		return $modified;
 	}
-	
+
     private function _build_cpu_settings($system_settings){
         $return_array = array();
         $find_these = array(
@@ -1052,7 +1052,7 @@ class ApReportsController extends AppController {
             'DISTRIB_RELEASE',
             'DISTRIB_REVISION'
         );
-        
+
         foreach($system_settings as $i){
             $name = $i['name'];
             if (in_array($name, $find_these)) {
@@ -1076,11 +1076,11 @@ class ApReportsController extends AppController {
         }
         return $return_array;
     }
-    
+
     private function _build_radio_settings($radio_data,$nr=0){
-    
+
         $return_array = array();
-    
+
         $find_these = array(
             'radio'.$nr.'_band',
             'radio'.$nr.'_htmode',
@@ -1088,8 +1088,8 @@ class ApReportsController extends AppController {
             'radio'.$nr.'_disabled',
             'radio'.$nr.'_channel_two',
             'radio'.$nr.'_channel_five'
-        ); 
-    
+        );
+
         foreach($radio_data as $i){
             $name = $i['name'];
             if (in_array($name, $find_these)) {
@@ -1115,21 +1115,21 @@ class ApReportsController extends AppController {
                 //HT-Mode
                 if($name ==  'radio'.$nr.'_htmode'){
                     array_push($return_array, array('description' => 'HT-Mode','value' => $value,'style' => 'rdInfo'));
-                }                
+                }
                 //HT-Mode
                 if($name ==  'radio'.$nr.'_txpower'){
                     array_push($return_array, array('description' => 'Power','value' => $value.'dBm','style' => 'rdInfo'));
-                }               
+                }
                 //Channel(2.4)
                 if($name ==  'radio'.$nr.'_channel_two'){
                     array_push($return_array, array('description' => 'Channel','value' => $value,'style' => 'rdInfo'));
-                }              
+                }
                 //Channel(5)
                 if($name ==  'radio'.$nr.'_channel_five'){
                     array_push($return_array, array('description' => 'Channel','value' => $value,'style' => 'rdInfo'));
-                }   
+                }
             }
-        }     
+        }
         return $return_array;
     }
 }

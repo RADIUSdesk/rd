@@ -4,15 +4,15 @@ class MacVendorsComponent extends Component {
 
    // private $vendor_file     = APP.DS."Setup".DS."Scripts".DS."mac_lookup.txt";
    // private $vendor_list     = file($vendor_file);
-    
+
 
     public function vendorFor($mac){
 
-        //Convert the MAC to be in the same format as the file 
+        //Convert the MAC to be in the same format as the file
         $mac    = strtoupper($mac);
         $mac    = str_replace(":","-",$mac); //Change the mac addy to be seperated with "-"
         $pieces = explode("-", $mac);
-        
+
 
 		$vendor_file        = APP.DS."Setup".DS."Scripts".DS."mac_lookup.txt";
         $this->vendor_list  = file($vendor_file);
@@ -29,10 +29,10 @@ class MacVendorsComponent extends Component {
                 $vendor = preg_replace("/$big_match\s?/","",$i);
                 $vendor = preg_replace( "{[ \t]+}", ' ', $vendor );
                 $vendor = rtrim($vendor);
-                return $vendor;   
+                return $vendor;
             }
         }
-       
+
         if(!$big_match_found){
             foreach($lines as $i){
                 if(preg_match("/^$small_match/",$i)){
@@ -45,6 +45,6 @@ class MacVendorsComponent extends Component {
             }
         }
         $vendor = "Unkown";
-    } 
+    }
 }
 ?>

@@ -2,7 +2,7 @@
 //----------------------------------------------------------
 //---- Author: Dirk van der Walt
 //---- License: GPL v3
-//---- Description: 
+//---- Description:
 //---- Date: 06-05-2014
 //------------------------------------------------------------
 
@@ -21,20 +21,20 @@ class PayuComponent extends Component {
         //---Location of radclient----
         $this->settings = Configure::read('payu');
 
-        // 1. Building the Soap array  of data to send    
-        $setTransactionArray            = array();    
+        // 1. Building the Soap array  of data to send
+        $setTransactionArray            = array();
         $setTransactionArray['Api']     = $this->settings['apiVersion'];
         $setTransactionArray['Safekey'] = $this->settings['safeKey'];
         $setTransactionArray['TransactionType'] = 'PAYMENT';
 
         //---Additional information---
-        $setTransactionArray['AdditionalInformation']['merchantReference']        = $data['merchantReference'];    
+        $setTransactionArray['AdditionalInformation']['merchantReference']        = $data['merchantReference'];
         $setTransactionArray['AdditionalInformation']['cancelUrl']                = $data['cancelUrl'];
         $setTransactionArray['AdditionalInformation']['returnUrl']                = $data['returnUrl'];
 	    $setTransactionArray['AdditionalInformation']['supportedPaymentMethods']  = 'CREDITCARD';
         $setTransactionArray['AdditionalInformation']['notificationUrl']          = $this->settings['notificationUrl'];
 
-        //---Basket---  
+        //---Basket---
         $setTransactionArray['Basket']['description']       = $data['description'];
         $setTransactionArray['Basket']['amountInCents']     = $data['amountInCents'];
         $setTransactionArray['Basket']['currencyCode']      = 'ZAR';
@@ -46,7 +46,7 @@ class PayuComponent extends Component {
         $setTransactionArray['Customer']['mobile']          = $data['mobile'];
 
 
-         // 2. Creating a XML header 
+         // 2. Creating a XML header
         $headerXml = '<wsse:Security SOAP-ENV:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">';
         $headerXml .= '<wsse:UsernameToken wsu:Id="UsernameToken-9" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">';
         $headerXml .= '<wsse:Username>'.$this->settings['soapUsername'].'</wsse:Username>';
@@ -55,31 +55,31 @@ class PayuComponent extends Component {
         $headerXml .= '</wsse:Security>';
         $headerbody = new SoapVar($headerXml, XSD_ANYXML, null, null, null);
 
-        // 3. Create Soap Header.        
-        $ns         = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'; //Namespace of the WS. 
-        $header     = new SOAPHeader($ns, 'Security', $headerbody, true);        
+        // 3. Create Soap Header.
+        $ns         = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'; //Namespace of the WS.
+        $header     = new SOAPHeader($ns, 'Security', $headerbody, true);
 
         // 4. Make new instance of the PHP Soap client
-        $soap_client= new SoapClient($this->settings['soapWdslUrl'], array("trace" => 1, "exception" => 0)); 
+        $soap_client= new SoapClient($this->settings['soapWdslUrl'], array("trace" => 1, "exception" => 0));
 
-        // 5. Set the Headers of soap client. 
-        $soap_client->__setSoapHeaders($header); 
+        // 5. Set the Headers of soap client.
+        $soap_client->__setSoapHeaders($header);
 
         // 6. Do the setTransaction soap call to PayU
-        $soapCallResult = $soap_client->setTransaction($setTransactionArray); 
+        $soapCallResult = $soap_client->setTransaction($setTransactionArray);
 
         // 7. Decode the Soap Call Result
         $returnData = json_decode(json_encode($soapCallResult),true);
 
 
-        if( 
-            isset($returnData['return']['successful'])&& 
-            ($returnData['return']['successful'] === true)&& 
+        if(
+            isset($returnData['return']['successful'])&&
+            ($returnData['return']['successful'] === true)&&
             isset($returnData['return']['payUReference'])
         ){
 
             return array('success' => true, 'payUReference' =>$returnData['return']['payUReference']);
-               
+
         }else{
             //TODO Here we need to tell them what whent wrong!
             $this->log("PAYU: ".$returnData['return']['displayMessage']);
@@ -110,23 +110,23 @@ class PayuComponent extends Component {
         $headerXml .= '</wsse:Security>';
         $headerbody = new SoapVar($headerXml, XSD_ANYXML, null, null, null);
 
-        // 3. Create Soap Header.        
-        $ns = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'; //Namespace of the WS. 
-        $header = new SOAPHeader($ns, 'Security', $headerbody, true);        
+        // 3. Create Soap Header.
+        $ns = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'; //Namespace of the WS.
+        $header = new SOAPHeader($ns, 'Security', $headerbody, true);
 
         // 4. Make new instance of the PHP Soap client
-        $soap_client = new SoapClient($this->settings['soapWdslUrl'], array("trace" => 1, "exception" => 0)); 
+        $soap_client = new SoapClient($this->settings['soapWdslUrl'], array("trace" => 1, "exception" => 0));
 
-        // 5. Set the Headers of soap client. 
-        $soap_client->__setSoapHeaders($header); 
+        // 5. Set the Headers of soap client.
+        $soap_client->__setSoapHeaders($header);
 
         // 6. Do the setTransaction soap call to PayU
-        $soapCallResult = $soap_client->getTransaction($soapDataArray); 
+        $soapCallResult = $soap_client->getTransaction($soapDataArray);
 
         // 7. Decode the Soap Call Result
         $returnData = json_decode(json_encode($soapCallResult),true);
 
-        return $returnData;         
+        return $returnData;
 
     }
 

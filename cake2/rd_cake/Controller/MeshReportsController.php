@@ -17,12 +17,12 @@ class MeshReportsController extends AppController {
 	private	$dark_blue	= '#0a3cf6';	//Blue until dead time then grey
 	private	$grey	 	= '#505351';	//Green until dead time then grey
 	private	$blue_grey	= '#adbcf6';	//Blue until dead time then blue_grey
-	private $yellow		= '#f8d908'; 
+	private $yellow		= '#f8d908';
 	private $thickness  = 9;
 	private $gw_size	= 20;
 	private $node_size	= 10;
 
-	
+
     public function submit_report(){
 
         //Source the vendors file and keep in memory
@@ -59,8 +59,8 @@ class MeshReportsController extends AppController {
 		}
 
 		//Create a hardware lookup for proper names of hardware
-	    $hardware = $this->_make_hardware_lookup();    
-	
+	    $hardware = $this->_make_hardware_lookup();
+
 		$items 		= array();
 		$mesh_id 	= $this->request->query['mesh_id'];
 
@@ -70,7 +70,7 @@ class MeshReportsController extends AppController {
 		//Find all the nodes for this mesh with their Neighbors
 		$this->Node->contain('NodeNeighbor');
 		$q_r 		= $this->Node->find('all',array('conditions' => array('Node.mesh_id' => $mesh_id)));
-	
+
 		$grey_list		= array(); //List of nodes with no neighbors
 		//===No Nodes found===
 		if(!($q_r)){
@@ -93,7 +93,7 @@ class MeshReportsController extends AppController {
 		$opacity		= 1;	//The older a line is the more opacity it will have (tend to zero)
 		$cut_off		= 3 * $dead_after;//Three times ater it will turn red
 		$no_neighbors  	= true; 	//If none of the nodes has neighbor entries this will stay true
-		
+
 
 		foreach($q_r as $i){
 
@@ -104,7 +104,7 @@ class MeshReportsController extends AppController {
 			$hw_human	= $hardware["$hw_id"]; 	//Human name for Hardware
 			$type		= 'node';
 
-			//=== Determine if this node is a gataway node or not === 
+			//=== Determine if this node is a gataway node or not ===
 			$gw			= 'yes'; 				//Make it by default a gateway node (if there are only one node)
 			if(count($i['NodeNeighbor'])>0){
 				$gw = $i['NodeNeighbor'][0]['gateway']; //Check if this is a gateway ('yes' or 'no')
@@ -123,7 +123,7 @@ class MeshReportsController extends AppController {
                     $state = 'up';
                 }
             }
-			
+
 			//===Specify the color based on the state + gw type
 			if($state == 'never'){
 				$color	= $this->blue;	//Default
@@ -162,7 +162,7 @@ class MeshReportsController extends AppController {
 			$i['Node']['gateway']	= $gw;
 			$node_data				= $i['Node'];
 
-			
+
 			if(count($i['NodeNeighbor']) == 0){	//We handle nodes without any entries as blue nodes
 
 				$specific_data = array(
@@ -190,7 +190,7 @@ class MeshReportsController extends AppController {
 
 					$green_cut	= $now - $dead_after;
 					$grey_cut	= $now - $cut_off;
-					
+
 					if($last >= $green_cut){
 						$c = $this->green;
 
@@ -203,7 +203,7 @@ class MeshReportsController extends AppController {
 						$green_range 	= $now - $green_cut;
 						$green_percent	= ($last- $green_cut)/$green_range;
 						$o_val			= ($green_percent * 0.5)+0.5;
-						$o_val			= round($o_val,2);	
+						$o_val			= round($o_val,2);
 					}elseif(($last >= $grey_cut)&&($last <= $green_cut)){
 
 						//How clear the line must be
@@ -217,14 +217,14 @@ class MeshReportsController extends AppController {
 						$grey_range 	= $green_cut - $grey_cut;
 						$grey_percent	= ($last- $grey_cut)/$grey_range;
 						$o_val			= ($grey_percent * 0.5)+0.5;
-						$o_val			= round($o_val,2);	
+						$o_val			= round($o_val,2);
 					}else{
 						$weight			= 0;
 						$o_val			= 0;
 						$c				= $this->grey; //Default
 					}
 
-					array_push($adjacencies,array( 
+					array_push($adjacencies,array(
 						'nodeTo' 	=> $n['neighbor_id'],
 						'data' 		=> array(
 							'$color'	=> $c,
@@ -303,8 +303,8 @@ class MeshReportsController extends AppController {
 		$connections	= array();
 
 		//Create a hardware lookup for proper names of hardware
-	    $hardware = $this->_make_hardware_lookup();        
-	   
+	    $hardware = $this->_make_hardware_lookup();
+
         //Find all the nodes for this mesh
         $mesh_id = $this->request->query['mesh_id'];
 
@@ -367,7 +367,7 @@ class MeshReportsController extends AppController {
 						//What color the line must be
 						$green_cut	= $now - $dead_after;
 						$grey_cut	= $now - $cut_off;
-						
+
 						if($last >= $green_cut){
 
 							$c = $this->green;
@@ -379,7 +379,7 @@ class MeshReportsController extends AppController {
 							$green_range 	= $now - $green_cut;
 							$green_percent	= ($last- $green_cut)/$green_range;
 							$o_val			= ($green_percent * 0.5)+0.5;
-							$o_val			= round($o_val,2);	
+							$o_val			= round($o_val,2);
 						}else{
 							//How clear the line must be
 							$c 				= $this->grey;
@@ -389,9 +389,9 @@ class MeshReportsController extends AppController {
 							$grey_range 	= $green_cut - $grey_cut;
 							$grey_percent	= ($last- $grey_cut)/$grey_range;
 							$o_val			= ($grey_percent * 0.5)+0.5;
-							$o_val			= round($o_val,2);	
+							$o_val			= round($o_val,2);
 						}
-						
+
 						array_push($connections,array(
 							'from' 	=> array(
 								'lat'	=> $from_lat,
@@ -426,7 +426,7 @@ class MeshReportsController extends AppController {
             }
 
             $i['Node']['l_contact_human' ] = $l_contact_human;
-            
+
 			$i['Node']['state'] 	= $state;
 			$i['Node']['hw_human'] 	= $hw_human;
 			$i['Node']['lng']		= $i['Node']['lon'];
@@ -464,7 +464,7 @@ class MeshReportsController extends AppController {
 		$modified 	= $this->_get_timespan();
 
 
-       
+
         //Find all the entries for this mesh
         $mesh_id = $this->request->query['mesh_id'];
         $this->MeshEntry->contain();
@@ -480,10 +480,10 @@ class MeshReportsController extends AppController {
         $this->node_lookup = array();
         foreach($q_nodes as $n){
             $n_id   = $n['Node']['id'];
-            $n_name = $n['Node']['name'];               
+            $n_name = $n['Node']['name'];
             $this->node_lookup[$n_id] = $n_name;
         }
-    
+
 
         //Find all the distinct MACs for this Mesh entry...
         foreach($q_r as $i){
@@ -521,7 +521,7 @@ class MeshReportsController extends AppController {
                    // print_r($q_t);
                     $t_bytes    = $q_t[0]['tx_bytes'];
                     $r_bytes    = $q_t[0]['rx_bytes'];
-                    $signal_avg = round($q_t[0]['signal_avg']); 
+                    $signal_avg = round($q_t[0]['signal_avg']);
                     if($signal_avg < -95){
                         $signal_avg_bar = 0.01;
                     }
@@ -557,17 +557,17 @@ class MeshReportsController extends AppController {
                     if($signal > -35){
                         $signal_bar = 1;
                     }
-                    
+
                     $last_node_id = $lastCreated['NodeStation']['node_id'];
 
                     array_push($items,array(
                         'id'                => $id,
-                        'name'              => $entry_name, 
-                        'mesh_entry_id'     => $mesh_entry_id, 
+                        'name'              => $entry_name,
+                        'mesh_entry_id'     => $mesh_entry_id,
                         'mac'               => $mac,
                         'vendor'            => $lastCreated['NodeStation']['vendor'],
                         'tx_bytes'          => $t_bytes,
-                        'rx_bytes'          => $r_bytes, 
+                        'rx_bytes'          => $r_bytes,
                         'signal_avg'        => $signal_avg ,
                         'signal_avg_bar'    => $signal_avg_bar,
                         'signal_bar'        => $signal_bar,
@@ -592,11 +592,11 @@ class MeshReportsController extends AppController {
             }else{
                  array_push($items,array(
                         'id'                => $id,
-                        'name'              => $entry_name, 
-                        'mesh_entry_id'     => $mesh_entry_id, 
+                        'name'              => $entry_name,
+                        'mesh_entry_id'     => $mesh_entry_id,
                         'mac'               => 'N/A',
                         'tx_bytes'          => 0,
-                        'rx_bytes'          => 0, 
+                        'rx_bytes'          => 0,
                         'signal_avg'        => null ,
                         'signal_bar'        => 'N/A' ,
                         'signal_avg_bar'    => 'N/A',
@@ -609,7 +609,7 @@ class MeshReportsController extends AppController {
                     $id++;
 
 
-            }            
+            }
         }
 
         $this->set(array(
@@ -650,8 +650,8 @@ class MeshReportsController extends AppController {
 
 		//Get the 'dead_after' value
 		$dead_after = $this->_get_dead_after($mesh_id);
-       
-        //Create a lookup of all the entries for this mesh 
+
+        //Create a lookup of all the entries for this mesh
         $this->MeshEntry->contain();
         $q_entries = $this->MeshEntry->find('all',array('conditions' => array(
             'MeshEntry.mesh_id' => $mesh_id
@@ -660,11 +660,11 @@ class MeshReportsController extends AppController {
         $this->entry_lookup = array();
         foreach($q_entries as $e){
             $e_id   = $e['MeshEntry']['id'];
-            $e_name = $e['MeshEntry']['name'];               
+            $e_name = $e['MeshEntry']['name'];
             $this->entry_lookup[$e_id] = $e_name;
         }
 
-        
+
         //Find all the distinct MACs for this Mesh node...
         foreach($q_r as $i){
             $node_id    = $i['Node']['id'];
@@ -675,9 +675,9 @@ class MeshReportsController extends AppController {
                 $l_contact_human = null;
                 $state = 'never';
             }else{
-            
+
                 $l_contact_human = $this->TimeCalculations->time_elapsed_string($l_contact);
-                
+
                 $last_timestamp = strtotime($l_contact);
                 if($last_timestamp+$dead_after <= time()){
                     $state = 'down';
@@ -718,7 +718,7 @@ class MeshReportsController extends AppController {
                    // print_r($q_t);
                     $t_bytes    = $q_t[0]['tx_bytes'];
                     $r_bytes    = $q_t[0]['rx_bytes'];
-                    $signal_avg = round($q_t[0]['signal_avg']); 
+                    $signal_avg = round($q_t[0]['signal_avg']);
                     if($signal_avg < -95){
                         $signal_avg_bar = 0.01;
                     }
@@ -754,17 +754,17 @@ class MeshReportsController extends AppController {
                     if($signal > -35){
                         $signal_bar = 1;
                     }
-                    
+
                     $last_mesh_entry_id = $lastCreated['NodeStation']['mesh_entry_id'];
 
                     array_push($items,array(
                         'id'                => $id,
-                        'name'              => $node_name, 
-                        'node_id'           => $node_id, 
+                        'name'              => $node_name,
+                        'node_id'           => $node_id,
                         'mac'               => $mac,
                         'vendor'            => $lastCreated['NodeStation']['vendor'],
                         'tx_bytes'          => $t_bytes,
-                        'rx_bytes'          => $r_bytes, 
+                        'rx_bytes'          => $r_bytes,
                         'signal_avg'        => $signal_avg ,
                         'signal_avg_bar'    => $signal_avg_bar,
                         'signal_bar'        => $signal_bar,
@@ -792,11 +792,11 @@ class MeshReportsController extends AppController {
             }else{
                  array_push($items,array(
                         'id'                => $id,
-                        'name'              => $node_name, 
-                        'mesh_entry_id'     => $node_id, 
+                        'name'              => $node_name,
+                        'mesh_entry_id'     => $node_id,
                         'mac'               => 'N/A',
                         'tx_bytes'          => 0,
-                        'rx_bytes'          => 0, 
+                        'rx_bytes'          => 0,
                         'signal_avg'        => null ,
                         'signal_bar'        => 'N/A' ,
                         'signal_avg_bar'    => 'N/A',
@@ -810,7 +810,7 @@ class MeshReportsController extends AppController {
                         'state'             => $state
                     ));
                     $id++;
-            }            
+            }
         }
 
         $this->set(array(
@@ -860,7 +860,7 @@ class MeshReportsController extends AppController {
             $node_name  = $k['Node']['name'];
 			$node_lookup[$node_id]=$node_name;
 		}
-        
+
         //Find all the distinct MACs for this Mesh node...
         foreach($q_r as $i){
             $node_id    = $i['Node']['id'];
@@ -873,7 +873,7 @@ class MeshReportsController extends AppController {
                 $state = 'never';
             }else{
                 $l_contact_human = $this->TimeCalculations->time_elapsed_string($l_contact);
-                
+
 				$this->NodeSetting->contain();
                 $last_timestamp = strtotime($l_contact);
                 if($last_timestamp+$dead_after <= time()){
@@ -918,7 +918,7 @@ class MeshReportsController extends AppController {
                    // print_r($q_t);
                     $t_bytes    = $q_t[0]['tx_bytes'];
                     $r_bytes    = $q_t[0]['rx_bytes'];
-                    $signal_avg = round($q_t[0]['signal_avg']); 
+                    $signal_avg = round($q_t[0]['signal_avg']);
                     if($signal_avg < -95){
                         $signal_avg_bar = 0.01;
                     }
@@ -954,14 +954,14 @@ class MeshReportsController extends AppController {
                     if($signal > -35){
                         $signal_bar = 1;
                     }
-                   
+
                     array_push($items,array(
                         'id'                => $id,
-                        'name'              => $node_name, 
-                        'node_id'           => $node_id, 
+                        'name'              => $node_name,
+                        'node_id'           => $node_id,
                         'mac'               => $mac,
                         'tx_bytes'          => $t_bytes,
-                        'rx_bytes'          => $r_bytes, 
+                        'rx_bytes'          => $r_bytes,
                         'signal_avg'        => $signal_avg ,
                         'signal_avg_bar'    => $signal_avg_bar,
                         'signal_bar'        => $signal_bar,
@@ -990,11 +990,11 @@ class MeshReportsController extends AppController {
 
                  array_push($items,array(
                         'id'                => $id,
-                        'name'              => $node_name, 
-                        'node_id'     		=> $node_id, 
+                        'name'              => $node_name,
+                        'node_id'     		=> $node_id,
                         'mac'               => 'N/A',
                         'tx_bytes'          => 0,
-                        'rx_bytes'          => 0, 
+                        'rx_bytes'          => 0,
                         'signal_avg'        => null ,
                         'signal_bar'        => 'N/A' ,
                         'signal_avg_bar'    => 'N/A',
@@ -1008,7 +1008,7 @@ class MeshReportsController extends AppController {
                         'state'             => $state
                     ));
                     $id++;
-            }            
+            }
 
 			//--- END FOUND ANY?---
 
@@ -1041,7 +1041,7 @@ class MeshReportsController extends AppController {
 
 		$items 		= array();
 		$mesh_id 	= $this->request->query['mesh_id'];
-		
+
 		$do_gateway = true;
 
 		//Get the 'dead_after' value
@@ -1051,8 +1051,8 @@ class MeshReportsController extends AppController {
 		$q_r 		= $this->Node->find('all', array('conditions' => array('Node.mesh_id' => $mesh_id )));
 
 		//Create a hardware lookup for proper names of hardware
-	    $hardware 	= $this->_make_hardware_lookup(); 
-		
+	    $hardware 	= $this->_make_hardware_lookup();
+
 		foreach($q_r as $i){
 
 			$l_contact  = $i['Node']['last_contact'];
@@ -1061,9 +1061,9 @@ class MeshReportsController extends AppController {
 
 			//===Determine when last did we saw this node (never / up / down) ====
 			if($l_contact == null){
-                $state = 'never';  
+                $state = 'never';
                 $i['Node']['last_contact_human'] = $l_contact;
-                
+
             }else{
                 $last_timestamp = strtotime($l_contact);
                 if($last_timestamp+$dead_after <= time()){
@@ -1071,10 +1071,10 @@ class MeshReportsController extends AppController {
                 }else{
                     $state = 'up';
                 }
-                
+
                 //Make it easy for us to understand
                 $i['Node']['last_contact_human'] = $this->TimeCalculations->time_elapsed_string($l_contact);
-                
+
             }
 
 			//=== add extra info to node data ===
@@ -1084,7 +1084,7 @@ class MeshReportsController extends AppController {
 			unset($i['NodeLoad']['id']);		//Else the node's ID is just wrong!
 			$load_data				= $i['NodeLoad'];
 			$this_data 				= array_merge((array)$node_data,(array)$load_data);
-		
+
 			$system_data			= array();
 			foreach($i['NodeSystem'] as $ns){
 				$group 	= $ns['group'];
@@ -1097,7 +1097,7 @@ class MeshReportsController extends AppController {
 				}
 				array_push($system_data[$group],$k);
 
-			}	
+			}
 			$this_data 	= array_merge((array)$this_data,(array)$system_data);
 
 			//Merge the last command (if present)
@@ -1107,13 +1107,13 @@ class MeshReportsController extends AppController {
 				$this_data['last_cmd'] 			= $last_action['command'];
 				$this_data['last_cmd_status'] 	= $last_action['status'];
 			}
-			
+
 			$gateway = 'yes';
 			if(count($i['NodeNeighbor'])>0){
 			    $gateway = $i['NodeNeighbor'][0]['gateway'];
 			}
 			$this_data['gateway'] = $gateway;
-					
+
 			if($gateway == 'yes'){
 			    //See if there are any Openvpn connections
 			    $this->OpenvpnServerClient->contain('OpenvpnServer');
@@ -1122,7 +1122,7 @@ class MeshReportsController extends AppController {
 			        if($do_gateway == true){ //This will ensure we only to it once per mesh :-)
 			            $this_data['openvpn_list'] = array();
 			            foreach($q_vpn as $vpn){
-			                $vpn_name           = $vpn['OpenvpnServer']['name']; 
+			                $vpn_name           = $vpn['OpenvpnServer']['name'];
 			                $vpn_description    = $vpn['OpenvpnServer']['description'];
 			                $last_contact_to_server  = $vpn['OpenvpnServerClient']['last_contact_to_server'];
 			                if($last_contact_to_server != null){
@@ -1143,12 +1143,12 @@ class MeshReportsController extends AppController {
 			        }
 			    }
 			}
-			
-			
+
+
 
 			array_push($items,$this_data);
 		}
-	
+
 		$this->set(array(
             'items' => $items,
             'success' => true,
@@ -1166,7 +1166,7 @@ class MeshReportsController extends AppController {
 		foreach($this->request->data['nodes'] as $n){
 			$node_id	= $n['id'];
 			$this->NodeAction->contain();
-			$already = $this->NodeAction->find('count', array('conditions' => 
+			$already = $this->NodeAction->find('count', array('conditions' =>
 				array('NodeAction.command' => 'reboot','NodeAction.node_id' => $node_id, 'NodeAction.status' => 'awaiting' )
 			));
 
@@ -1217,12 +1217,12 @@ class MeshReportsController extends AppController {
                 }
             }
         }
-        
+
         //--- Check if the 'vpn_info' array is in the data ----
         $this->log('MESH: Checking for vpn_info in log', 'debug');
         if(array_key_exists('vpn_info',$this->request->data)){
-            $this->log('MESH: Found vpn_info', 'debug');    
-            $openvpn_server_client = ClassRegistry::init('OpenvpnServerClient');  
+            $this->log('MESH: Found vpn_info', 'debug');
+            $openvpn_server_client = ClassRegistry::init('OpenvpnServerClient');
             foreach($this->request->data['vpn_info'] as $vpn_i){
                 $vpn_gw_list = $vpn_i['vpn_gateways'];
                 foreach($vpn_gw_list as $gw){
@@ -1230,17 +1230,17 @@ class MeshReportsController extends AppController {
                     $vpn_state      = $gw['state'];
                     $timestamp      = $gw['timestamp'];
                     $date           = date('Y-m-d H:i:s',$timestamp);
-                    
+
                     $d              = array();
                     $d['id']        = $vpn_client_id;
                     $d['last_contact_to_server'] =  $date;
                     $d['state']     = $vpn_state;
-                    $openvpn_server_client->save($d); 
-                }    
-            }  
+                    $openvpn_server_client->save($d);
+                }
+            }
         }
 
-       
+
         //--- Check if the 'system_info' array is in the data ----
         $this->log('Checking for system_info in log', 'debug');
 	$m_id = false;
@@ -1252,7 +1252,7 @@ class MeshReportsController extends AppController {
                 $this->log('Locating the node with MAC '.$id, 'debug');
                 $this->Node->contain();
                 $q_r = $this->Node->findByMac($id);
-                if($q_r){ 
+                if($q_r){
                     $node_id    = $q_r['Node']['id'];
                     $m_id    	= $q_r['Node']['mesh_id'];
                     $this->log('The node id of '.$id.' is '.$node_id, 'debug');
@@ -1262,14 +1262,14 @@ class MeshReportsController extends AppController {
                 }else{
                     $this->log('Node with MAC '.$id.' was not found', 'debug');
                 }
-            }  
+            }
         }
-        
+
         //See if there are any heartbeats associated with the Mesh these nodes belong to (For the captive portals)
-        if($m_id){ 
+        if($m_id){
             $this->_update_any_nas_heartbeats($m_id);
         }
-        
+
 
 		//----- Check if the 'vis' array is in the data ----
 		$this->log('Checking for vis info in log', 'debug');
@@ -1332,7 +1332,7 @@ class MeshReportsController extends AppController {
 						}
 					}
                 }
-            }  
+            }
 		}
 
 		//--- Finally we may have some commands waiting for the nodes----
@@ -1349,7 +1349,7 @@ class MeshReportsController extends AppController {
 		        $node_id = $q_r['Node']['id'];
 		        $mesh_id = $q_r['Node']['mesh_id'];
 				$this->NodeAction->contain('Node');
-				$q_r = $this->NodeAction->find('all', 
+				$q_r = $this->NodeAction->find('all',
 					array('conditions' => array('Node.mesh_id' => $mesh_id,'NodeAction.status' => 'awaiting')
 				)); //Only awaiting actions
 				foreach($q_r as $i){
@@ -1366,7 +1366,7 @@ class MeshReportsController extends AppController {
             }
 		}
 
-		return $items;       
+		return $items;
     }
 
     private function _do_radio_interfaces($mesh_id,$node_id,$interfaces){
@@ -1404,12 +1404,12 @@ class MeshReportsController extends AppController {
                                 $old_rx = $q_mac['NodeStation']['rx_bytes'];
                                 if(($data['tx_bytes'] >= $old_tx)&($data['rx_bytes'] >= $old_rx)){
                                     $data['id'] =  $q_mac['NodeStation']['id'];
-                                    $new_flag = false;   
+                                    $new_flag = false;
                                 }
                             }
                             if($new_flag){
                                 $this->NodeStation->create();
-                            }   
+                            }
                             $this->NodeStation->save($data);
                         }
                     }
@@ -1436,16 +1436,16 @@ class MeshReportsController extends AppController {
                                 $old_rx = $q_mac['NodeIbssConnection']['rx_bytes'];
                                 if(($data['tx_bytes'] >= $old_tx)&($data['rx_bytes'] >= $old_rx)){
                                     $data['id'] =  $q_mac['NodeIbssConnection']['id'];
-                                    $new_flag = false;   
+                                    $new_flag = false;
                                 }
                             }
                             if($new_flag){
-                                $this->NodeIbssConnection->create(); 
-                            }    
+                                $this->NodeIbssConnection->create();
+                            }
                             $this->NodeIbssConnection->save($data);
                      }
                 }
-                    
+
             }
         }
     }
@@ -1478,13 +1478,13 @@ class MeshReportsController extends AppController {
         ));
 
         $new_flag = true;
-        if($n_l){  
+        if($n_l){
 		    $data['id'] =  $n_l['NodeLoad']['id'];
-		    $new_flag 	= false;   
+		    $new_flag 	= false;
         }
         if($new_flag){
             $this->NodeLoad->create();
-        }   
+        }
         $this->NodeLoad->save($data);
     }
 
@@ -1500,10 +1500,10 @@ class MeshReportsController extends AppController {
             $this->log('NodeSystem info exists - Update if needed', 'debug');
             //We will check the value of DISTRIB_REVISION
             $dist_rev = false;
-            if(array_key_exists('release',$info)){ 
+            if(array_key_exists('release',$info)){
                 $release_array = explode("\n",$info['release']);
-                foreach($release_array as $r){  
-                    $this->log("There are ".$r, 'debug'); 
+                foreach($release_array as $r){
+                    $this->log("There are ".$r, 'debug');
                     $r_entry    = explode('=',$r);
                     $elements   = count($r_entry);
                     if($elements == 2){
@@ -1513,17 +1513,17 @@ class MeshReportsController extends AppController {
                             $this->log('Submitted DISTRIB_REVISION '.$dist_rev, 'debug');
                             break;
                         }
-                        
+
                     }
                 }
             }
 
             //Find the current  DISTRIB_REVISION
-            $q_r = $this->NodeSystem->find('first', array('conditions' => 
+            $q_r = $this->NodeSystem->find('first', array('conditions' =>
                         array(
                             'NodeSystem.node_id'    => $node_id,
                             'NodeSystem.name'       => 'DISTRIB_REVISION'
-            )));        
+            )));
             if($q_r){
                 $current = $q_r['NodeSystem']['value'];
 
@@ -1555,11 +1555,11 @@ class MeshReportsController extends AppController {
         }
 
         //--
-        if(array_key_exists('release',$info)){ 
+        if(array_key_exists('release',$info)){
 
             $release_array = explode("\n",$info['release']);
-            foreach($release_array as $r){  
-               // $this->log("There are ".$r, 'debug'); 
+            foreach($release_array as $r){
+               // $this->log("There are ".$r, 'debug');
                 $r_entry    = explode('=',$r);
                 $elements   = count($r_entry);
                 if($elements == 2){
@@ -1573,14 +1573,14 @@ class MeshReportsController extends AppController {
                     $this->NodeSystem->save($d);
                 }
             }
-        }           
+        }
     }
-      
+
     private function _update_any_nas_heartbeats($mesh_id){
         $this->MeshExit->contain('MeshExitCaptivePortal');
         //Only captive portal types
         $q_r = $this->MeshExit->find('all', array('conditions' => array('MeshExit.mesh_id' => $mesh_id, 'MeshExit.type' => 'captive_portal')));
-        
+
         $this->log("**Updating hearbeats on the NAS for mesh $mesh_id**", 'debug');
         if($q_r){
             $na = ClassRegistry::init('Na');
@@ -1589,8 +1589,8 @@ class MeshReportsController extends AppController {
         	$this->log('Found a captive portal on the mesh', 'debug');
                 if(array_key_exists('radius_nasid',$i['MeshExitCaptivePortal'] )){
                     $nas_id = $i['MeshExitCaptivePortal']['radius_nasid'];
-                    $n_q    = $na->find('first', 
-                        array('conditions' => 
+                    $n_q    = $na->find('first',
+                        array('conditions' =>
                             array(
                                 'Na.nasidentifier'  => $nas_id,
                                 'Na.type'           => 'CoovaChilli-Heartbeat',
@@ -1600,9 +1600,9 @@ class MeshReportsController extends AppController {
                     if($n_q){
                         $na->id = $n_q['Na']['id'];
                         $na->saveField('last_contact', date('Y-m-d H:i:s'));
-                    }  
-                }    
-            } 
+                    }
+                }
+            }
         }
     }
 
@@ -1660,7 +1660,7 @@ class MeshReportsController extends AppController {
     }
 
     private function _lookup_vendor($mac){
-        //Convert the MAC to be in the same format as the file 
+        //Convert the MAC to be in the same format as the file
         $mac    = strtoupper($mac);
         $pieces = explode(":", $mac);
 
@@ -1676,10 +1676,10 @@ class MeshReportsController extends AppController {
                 $vendor = preg_replace("/$big_match\s?/","",$i);
                 $vendor = preg_replace( "{[ \t]+}", ' ', $vendor );
                 $vendor = rtrim($vendor);
-                return $vendor;   
+                return $vendor;
             }
         }
-       
+
         if(!$big_match_found){
             foreach($lines as $i){
                 if(preg_match("/^$small_match/",$i)){
@@ -1702,7 +1702,7 @@ class MeshReportsController extends AppController {
             'conditions'    => array(
                 'NodeSetting.mesh_id' => $mesh_id
             )
-        )); 
+        ));
         if($n_s){
             $dead_after = $n_s['NodeSetting']['heartbeat_dead_after'];
         }
@@ -1711,11 +1711,11 @@ class MeshReportsController extends AppController {
 
 	private function _make_hardware_lookup(){
 		$hardware = array();
-		Configure::load('MESHdesk');        
+		Configure::load('MESHdesk');
 	    $hw   = Configure::read('hardware');
 	    foreach($hw as $h){
 	        $id     = $h['id'];
-	        $name   = $h['name']; 
+	        $name   = $h['name'];
 	        $hardware["$id"]= $name;
 	    }
 		return $hardware;

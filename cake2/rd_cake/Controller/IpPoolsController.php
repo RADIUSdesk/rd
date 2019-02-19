@@ -26,8 +26,8 @@ class IpPoolsController extends AppController {
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
         }
- 
-        $c = $this->_build_common_query(); 
+
+        $c = $this->_build_common_query();
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -44,7 +44,7 @@ class IpPoolsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
         $items  = array();
 
@@ -54,10 +54,10 @@ class IpPoolsController extends AppController {
                 if(array_key_exists($field,$i['IpPool'])){
                     $row["$field"]= $i['IpPool']["$field"];
                 }
-            } 
+            }
             array_push($items,$row);
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -89,7 +89,7 @@ class IpPoolsController extends AppController {
             '_serialize' => array('items','success')
         ));
 	}
- 
+
     public function add_pool() {
 
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
@@ -100,7 +100,7 @@ class IpPoolsController extends AppController {
 		$junk_trigger = 300; //We limit the trigger to 300 to prevent the user from creating havoc
 
 		//print_r($this->request->data);
-		
+
 
 		$this->{$this->modelClass}->create();
 
@@ -125,7 +125,7 @@ class IpPoolsController extends AppController {
 			$data['pool_name'] 			= $name;
 			$data['framedipaddress'] 	= $current_ip;
 
-			$count 	= $this->{$this->modelClass}->find('count', 
+			$count 	= $this->{$this->modelClass}->find('count',
 				array('conditions' => array('IpPool.pool_name' => $name, 'IpPool.framedipaddress' => $current_ip))
 			);
 			if($count ==0){ //If already there we silently ignore it...
@@ -142,7 +142,7 @@ class IpPoolsController extends AppController {
 			$data['pool_name'] 			= $name;
 			$data['framedipaddress'] 	= $current_ip;
 
-			$count 	= $this->{$this->modelClass}->find('count', 
+			$count 	= $this->{$this->modelClass}->find('count',
 				array('conditions' => array('IpPool.pool_name' => $name, 'IpPool.framedipaddress' => $current_ip))
 			);
 			if($count ==0){ //If already there we silently ignore it...
@@ -166,7 +166,7 @@ class IpPoolsController extends AppController {
 		//First check so we don't add doubles
 		$name  	= $this->request->data['name'];
 		$ip		= $this->request->data['ip'];
-		
+
 
 		$count 	= $this->{$this->modelClass}->find('count', array('conditions' => array('IpPool.pool_name' => $name, 'IpPool.framedipaddress' => $ip)));
 		if($count > 0){
@@ -174,7 +174,7 @@ class IpPoolsController extends AppController {
 	            'success'   => false,
 	            'message'   => array('message' => "IP Already listed"),
 	            '_serialize' => array('success','message')
-	        ));	
+	        ));
 
 		}else{
 
@@ -187,7 +187,7 @@ class IpPoolsController extends AppController {
 		        'success' => true,
 		        '_serialize' => array('success')
 		    ));
-		} 
+		}
 	}
 
     public function delete($id = null) {
@@ -195,7 +195,7 @@ class IpPoolsController extends AppController {
 		if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
        	}
- 
+
        	if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
@@ -206,7 +206,7 @@ class IpPoolsController extends AppController {
             $message = "Single item ".$this->data['id'];
             $this->{$this->modelClass}->id = $this->data['id'];
             $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
                 $this->{$this->modelClass}->id = $d['id'];
@@ -233,7 +233,7 @@ class IpPoolsController extends AppController {
 		if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
        	}
-		
+
 		if ($this->request->is('post')) {
 		 	//Unfortunately there are many check items which means they will not be in the POST if unchecked
             //so we have to check for them
@@ -290,7 +290,7 @@ class IpPoolsController extends AppController {
 			if($this->request->data['username'] != ''){
 				$username = $this->request->data['username'];
 				$entry_id = $this->request->data['id'];
-				
+
 				$q_r = $this->{$this->modelClass}->find('all', array('conditions' => array('IpPool.username' => $username)));
 
 				if($q_r){
@@ -303,7 +303,7 @@ class IpPoolsController extends AppController {
 								'_serialize' => array('success','message')
 							));
 							return;
-						}					
+						}
 					}
 				}
 			}
@@ -311,7 +311,7 @@ class IpPoolsController extends AppController {
 			if($this->request->data['callingstationid'] != ''){
 				$callingstationid 	= $this->request->data['callingstationid'];
 				$entry_id 			= $this->request->data['id'];
-				
+
 				$q_r = $this->{$this->modelClass}->find('all', array('conditions' => array('IpPool.callingstationid' => $callingstationid)));
 
 				if($q_r){
@@ -324,21 +324,21 @@ class IpPoolsController extends AppController {
 								'_serialize' => array('success','message')
 							));
 							return;
-						}					
+						}
 					}
 				}
 			}
-			
+
 
             if ($this->{$this->modelClass}->save($this->request->data)) {
-				
+
 				//If there is a user attached, we need to also add this IP back to the user
 				if($permanent_user_id){
 					$d = array();
 					$d['id'] 		= $permanent_user_id;
 					$d['static_ip'] = $this->request->data['framedipaddress'];
 					$this->PermanentUser->save($d);
-				}	
+				}
                	$this->set(array(
                     'success' => true,
                     '_serialize' => array('success')
@@ -370,7 +370,7 @@ class IpPoolsController extends AppController {
 						return;
 					}
 				}
-			}else{	
+			}else{
 				$q_r		= $this->{$this->modelClass}->find('first', array('conditions' => array('IpPool.username' => $username)));
 				if($q_r){
 					$data 		= array();
@@ -400,43 +400,43 @@ class IpPoolsController extends AppController {
             $menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
 					array(
-                        'xtype'     => 'button', 
-                        'glyph'     => Configure::read('icnReload'), 
-                    'scale'     => 'large', 
-                    'itemId'    => 'reload',      
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnReload'),
+                    'scale'     => 'large',
+                    'itemId'    => 'reload',
                     'tooltip'   => __('Reload')
                 ),
                 array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnAdd'), 
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')
                 ),
                 array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnDelete'), 
-                    'scale'     => 'large', 
-                    'itemId'    => 'delete',   
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
+                    'itemId'    => 'delete',
                     'tooltip'   => __('Delete')
                 ),
                 array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnEdit'), 
-                    'scale'     => 'large', 
-                    'itemId'    => 'edit',     
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
+                    'itemId'    => 'edit',
                     'tooltip'   => __('Edit')
                 )
             )),
-            array('xtype' => 'buttongroup','title' => __('Document'), 'width' => 100, 'items' => array(  
+            array('xtype' => 'buttongroup','title' => __('Document'), 'width' => 100, 'items' => array(
                 array(
                     'xtype'     => 'button',
-                    'glyph'     => Configure::read('icnCsv'), 
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'glyph'     => Configure::read('icnCsv'),
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')
                 ),
-            ))   
+            ))
         );
 
         $this->set(array(
@@ -450,7 +450,7 @@ class IpPoolsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -461,10 +461,10 @@ class IpPoolsController extends AppController {
         $sort   = 'IpPool.expiry_time';
         $dir    = 'DESC';
 
-        if(isset($this->request->query['sort'])){   
+        if(isset($this->request->query['sort'])){
             $sort = $this->modelClass.'.'.$this->request->query['sort'];
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -488,7 +488,7 @@ class IpPoolsController extends AppController {
                 }
             }
         }
-        //====== END REQUEST FILTER ====    
+        //====== END REQUEST FILTER ====
         return $c;
 	}
 
@@ -510,5 +510,5 @@ class IpPoolsController extends AppController {
         $next_ip = $octet_1.'.'.$octet_2.'.'.$octet_3.'.'.$octet_4;
         return $next_ip;
     }
-    
+
 }

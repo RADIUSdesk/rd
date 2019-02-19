@@ -8,7 +8,7 @@ class ApProfilesController extends AppController {
     public $uses        = array('ApProfile','User','DynamicClient','DynamicPair','DynamicClientRealm','Realm','OpenvpnServer','OpenvpnServerClient');
     protected $base     = "Access Providers/Controllers/ApProfiles/";
     protected $itemNote = 'ApProfileNote';
-    
+
     //____ BASIC CRUD Manager ________
     public function index(){
 
@@ -19,7 +19,7 @@ class ApProfilesController extends AppController {
         }
         $user_id    = $user['id'];
 
-        $c = $this->_build_common_query($user); 
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -36,7 +36,7 @@ class ApProfilesController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
 
         $items      = array();
@@ -64,33 +64,33 @@ class ApProfilesController extends AppController {
 			foreach($i['Ap'] as $ap){
 			    //Get the 'dead_after' value
 			    $dead_after = $this->_get_dead_after($ap['ap_profile_id']);
-			
+
 				$l_contact  = $ap['last_contact'];
 				//===Determine when last did we saw this ap (never / up / down) ====
 				$last_timestamp = strtotime($l_contact);
 	            if($last_timestamp+$dead_after <= $now){
 	                $aps_down++;
 	            }else{
-					$aps_up++;  
+					$aps_up++;
 	            }
 				$ap_count++;
 			}
 
             array_push($items,array(
-                'id'                    => $i['ApProfile']['id'], 
+                'id'                    => $i['ApProfile']['id'],
                 'name'                  => $i['ApProfile']['name'],
 				'available_to_siblings' => $i['ApProfile']['available_to_siblings'],
                 'ap_count'              => $ap_count,
                 'aps_up'                => $aps_up,
                 'aps_down'              => $aps_down,
-                'owner'                 => $owner_tree, 
+                'owner'                 => $owner_tree,
                 'notes'                 => $notes_flag,
                 'update'                => $action_flags['update'],
                 'delete'                => $action_flags['delete'],
                 'view'                  => $action_flags['view'],
             ));
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -99,8 +99,8 @@ class ApProfilesController extends AppController {
             '_serialize' => array('items','success','totalCount')
         ));
     }
-    
-    
+
+
     public function add() {
 
         //__ Authentication + Authorization __
@@ -155,7 +155,7 @@ class ApProfilesController extends AppController {
 
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item           = $this->{$this->modelClass}->findById($this->data['id']);
             $owner_id       = $item['ApProfile']['user_id'];
             $profile_name   = $item['ApProfile']['name'];
@@ -170,7 +170,7 @@ class ApProfilesController extends AppController {
                 $this->{$this->modelClass}->id = $this->data['id'];
                 $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -204,7 +204,7 @@ class ApProfilesController extends AppController {
             ));
         }
 	}
-	
+
 	//====== Notes ===============
 	 public function note_index(){
 
@@ -218,7 +218,7 @@ class ApProfilesController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $pc_id = $this->request->query['for_id'];
-            $q_r    = $this->{$this->modelClass}->{$this->itemNote}->find('all', 
+            $q_r    = $this->{$this->modelClass}->{$this->itemNote}->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('ApProfileNote.ap_profile_id' => $pc_id)
@@ -231,8 +231,8 @@ class ApProfilesController extends AppController {
                     $afs        = $this->_get_action_flags($owner_id,$user);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => $afs['delete']
@@ -240,7 +240,7 @@ class ApProfilesController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -271,7 +271,7 @@ class ApProfilesController extends AppController {
 
         $success    = false;
         $msg        = array('message' => __('Could not create note'));
-        $this->{$this->modelClass}->{$this->itemNote}->Note->create(); 
+        $this->{$this->modelClass}->{$this->itemNote}->Note->create();
         //print_r($this->request->data);
         if ($this->{$this->modelClass}->{$this->itemNote}->Note->save($this->request->data)) {
             $d                      = array();
@@ -314,7 +314,7 @@ class ApProfilesController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->{$this->modelClass}->{$this->itemNote}->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -328,7 +328,7 @@ class ApProfilesController extends AppController {
                 $this->{$this->modelClass}->ApProfileNote->Note->id = $this->data['id'];
                 $this->{$this->modelClass}->ApProfileNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -345,7 +345,7 @@ class ApProfilesController extends AppController {
                     $this->{$this->modelClass}->{$this->itemNote}->Note->id = $d['id'];
                     $this->{$this->modelClass}->{$this->itemNote}->Note->delete($d['id'],true);
                 }
-   
+
             }
         }
 
@@ -362,9 +362,9 @@ class ApProfilesController extends AppController {
             ));
         }
     }
-	
-	
-	
+
+
+
 	//======= AP Profile entries ============
     public function ap_profile_entries_index(){
 
@@ -381,12 +381,12 @@ class ApProfilesController extends AppController {
         $q_r            = $entry->find('all',array('conditions' => array('ApProfileEntry.ap_profile_id' => $ap_profile_id)));
 
         foreach($q_r as $m){
-            $connected_to_exit = true;   
+            $connected_to_exit = true;
             if(count($m['ApProfileExitApProfileEntry']) == 0){
                 $connected_to_exit = false;
             }
-   
-            array_push($items,array( 
+
+            array_push($items,array(
                 'id'            => $m['ApProfileEntry']['id'],
                 'ap_profile_id' => $m['ApProfileEntry']['ap_profile_id'],
                 'name'          => $m['ApProfileEntry']['name'],
@@ -416,7 +416,7 @@ class ApProfilesController extends AppController {
             return;
         }
 
-        $entry = ClassRegistry::init('ApProfileEntry'); 
+        $entry = ClassRegistry::init('ApProfileEntry');
         $entry->create();
         if ($entry->save($this->request->data)) {
             $this->set(array(
@@ -460,7 +460,7 @@ class ApProfilesController extends AppController {
                     '_serialize' => array('success')
                 ));
             }
-        } 
+        }
     }
 
     public function ap_profile_entry_view(){
@@ -474,13 +474,13 @@ class ApProfilesController extends AppController {
 
         $id    = $this->request->query['entry_id'];
         $q_r   = $entry->findById($id);
-        
-        if($q_r['ApProfileEntry']['macfilter'] != 'disable'){ 
+
+        if($q_r['ApProfileEntry']['macfilter'] != 'disable'){
             $pu = ClassRegistry::init('PermanentUser');
             $pu->contain();
             $q = $pu->findById($q_r['ApProfileEntry']['permanent_user_id']);
             if($q){
-                $q_r['ApProfileEntry']['username'] = $q['PermanentUser']['username'];    
+                $q_r['ApProfileEntry']['username'] = $q['PermanentUser']['username'];
             }else{
                 $q_r['ApProfileEntry']['username'] = "!!!User Missing!!!";
             }
@@ -507,10 +507,10 @@ class ApProfilesController extends AppController {
 
         $user_id    = $user['id'];
         $fail_flag  = false;
-        $entry      = ClassRegistry::init('ApProfileEntry'); 
+        $entry      = ClassRegistry::init('ApProfileEntry');
 
 	    if(isset($this->data['id'])){   //Single item delete
-            $message = "Single item ".$this->data['id']; 
+            $message = "Single item ".$this->data['id'];
             $entry->id = $this->data['id'];
             $entry->delete($entry->id, true);
         }else{                          //Assume multiple item delete
@@ -518,13 +518,13 @@ class ApProfilesController extends AppController {
                     $entry->id = $d['id'];
                     $entry->delete($entry->id, true);
             }
-        }  
+        }
         $this->set(array(
             'success' => true,
             '_serialize' => array('success')
         ));
     }
-    
+
     //======= AP Profile exits ============
     public function ap_profile_exits_index(){
 
@@ -548,7 +548,7 @@ class ApProfilesController extends AppController {
                 array_push($exit_entries,array('name' => $m_e_ent['ApProfileEntry']['name']));
             }
 
-            array_push($items,array( 
+            array_push($items,array(
                 'id'            => $m['ApProfileExit']['id'],
                 'ap_profile_id' => $m['ApProfileExit']['ap_profile_id'],
                 'type'          => $m['ApProfileExit']['type'],
@@ -574,53 +574,53 @@ class ApProfilesController extends AppController {
        // exit;
 
         $entry_point    = ClassRegistry::init('ApProfileExitApProfileEntry');
-        $exit           = ClassRegistry::init('ApProfileExit'); 
+        $exit           = ClassRegistry::init('ApProfileExit');
         $exit->create();
-        
-        if($this->request->data['type'] == 'captive_portal'){ 
+
+        if($this->request->data['type'] == 'captive_portal'){
             if(isset($this->request->data['auto_dynamic_client'])){
                 $this->request->data['auto_dynamic_client'] = 1;
-                
+
                 //Get a list of realms if the person selected a list - If it is empty that's fine
                 $count      = 0;
                 $this->request->data['realm_list'] = ""; //Prime it
                 if (array_key_exists('realm_ids', $this->request->data)) {
                     foreach($this->request->data['realm_ids'] as $r){
                         if($count == 0){
-                            $this->request->data['realm_list'] = $this->request->data['realm_ids'][$count]; 
+                            $this->request->data['realm_list'] = $this->request->data['realm_ids'][$count];
                         }else{
                             $this->request->data['realm_list'] = $this->request->data['realm_list'].",".$this->request->data['realm_ids'][$count];
-                        }  
+                        }
                         $count++;
                     }
                 }
-                
+
             }else{
                 $this->request->data['auto_dynamic_client'] = 0;
             }
-            
+
             if(isset($this->request->data['auto_login_page'])){
                 $this->request->data['auto_login_page'] = 1;
             }else{
                 $this->request->data['auto_login_page'] = 0;
             }
         }
-        
+
         if ($exit->save($this->request->data)) {
-            $new_id         = $exit->id;     
+            $new_id         = $exit->id;
             $ap_profile_id  = $this->request->data['ap_profile_id'];
-            
+
             //---- openvpn_bridge -----
             if($this->request->data['type'] == 'openvpn_bridge'){
-                
+
                 $server_id  = $this->request->data['openvpn_server_id'];
                 $q_s        = $this->OpenvpnServer->findById($server_id);
                 $next_ip    = $q_s['OpenvpnServer']['vpn_bridge_start_address'];
-                
+
                 $ap         = ClassRegistry::init('Ap');
                 $ap->contain();
                 $q_aps      = $ap->find('all',array('conditions' =>array('Ap.ap_profile_id' =>$ap_profile_id )));
- 
+
                 //We need to add a VPN entry for all the existing ones so we do not need to add them again
                 foreach($q_aps as $ap){
                     $ap_id = $ap['Ap']['id'];
@@ -641,15 +641,15 @@ class ApProfilesController extends AppController {
                     $d_new['ap_profile_id']     = $ap_profile_id;
                     $d_new['ap_profile_exit_id']= $new_id;
                     $d_new['ap_id']             = $ap['Ap']['id'];
-                    
+
                     $this->OpenvpnServerClient->create();
                     $this->OpenvpnServerClient->save($d_new);
                 }
             }
             //---- END openvpn_bridge ------
-            
-            
-            
+
+
+
 
             //===== Captive Portal ==========
             if($this->request->data['type'] == 'captive_portal'){
@@ -708,7 +708,7 @@ class ApProfilesController extends AppController {
 
             //Only if empty was not specified
             if((!$empty_flag)&&(count($entry_ids)>0)){
-                foreach($entry_ids as $id){	
+                foreach($entry_ids as $id){
                     $data = array();
                     $data['ApProfileExitApProfileEntry']['ap_profile_exit_id']  = $new_id;
                     $data['ApProfileExitApProfileEntry']['ap_profile_entry_id'] = $id;
@@ -744,22 +744,22 @@ class ApProfilesController extends AppController {
 
             $entry_point    = ClassRegistry::init('ApProfileExitApProfileEntry');
             $exit           = ClassRegistry::init('ApProfileExit');
-            
-            
+
+
             //---- openvpn_bridge -----
             if($this->request->data['type'] == 'openvpn_bridge'){
-                
+
                 $server_id  = $this->request->data['openvpn_server_id'];
-                
+
                 //We will only do the following if the selected OpenvpnServer changed
                 $exit->contain();
                 $q_exit             = $exit->findById($this->request->data['id']);
                 $current_server_id  = $q_exit['ApProfileExit']['openvpn_server_id'];
                 $server_id          = $this->request->data['openvpn_server_id'];
                 $ap_profile_exit_id = $this->request->data['id'];
-                
+
                 if($current_server_id !== $server_id){
-                    //Update current list 
+                    //Update current list
                     $this->OpenvpnServerClient->contain();
                     $current_aps = $this->OpenvpnServerClient->find('all',
                         array('conditions' =>array(
@@ -768,9 +768,9 @@ class ApProfilesController extends AppController {
                             'OpenvpnServerClient.ap_profile_exit_id'    => $ap_profile_exit_id,
                         ))
                     );
-                    
+
                     $q_r        = $this->OpenvpnServer->findById($server_id);
-                        
+
                     foreach($current_aps as $ap){
                         $next_ip            = $q_r['OpenvpnServer']['vpn_bridge_start_address'];
                         $not_available      = true;
@@ -782,18 +782,18 @@ class ApProfilesController extends AppController {
                             }else{
                                 $next_ip = $this->_get_next_ip($next_ip);
                             }
-                        }      
+                        }
                         //Update the record
                         $d_apdate                       = array();
                         $d_update['id']                 = $ap['OpenvpnServerClient']['id'];
                         $d_update['openvpn_server_id']  = $server_id;
                         $d_update['ip_address']         = $next_ip;
                         $this->OpenvpnServerClient->save($d_update);
-                    }          
-                }            
+                    }
+                }
             }
             //---- END openvpn_bridge ------
-            
+
 
             //===== Captive Portal ==========
             //== First see if we can save the captive portal data ====
@@ -803,9 +803,9 @@ class ApProfilesController extends AppController {
                 $cp_data        = $this->request->data;
                 $ap_profile_exit_id   = $this->request->data['id'];
                 $q_r            = $captive_portal->find(
-                                    'first',array('conditions' => 
+                                    'first',array('conditions' =>
                                         array('ApProfileExitCaptivePortal.ap_profile_exit_id' => $ap_profile_exit_id)
-                                ));               
+                                ));
                 if($q_r){
                     $cp_id = $q_r['ApProfileExitCaptivePortal']['id'];
                     $cp_data['id'] = $cp_id;
@@ -841,37 +841,37 @@ class ApProfilesController extends AppController {
                 }
             }
             //==== End of Captive Portal ====
-            
+
             $this->request->data['realm_list'] = ""; //Prime it
-            
-            if($this->request->data['type'] == 'captive_portal'){ 
+
+            if($this->request->data['type'] == 'captive_portal'){
                 if(isset($this->request->data['auto_dynamic_client'])){
                     $this->request->data['auto_dynamic_client'] = 1;
-                    
+
                     //Get a list of realms if the person selected a list - If it is empty that's fine
                     $count      = 0;
                     if (array_key_exists('realm_ids', $this->request->data)) {
                         foreach($this->request->data['realm_ids'] as $r){
                             if($count == 0){
-                                $this->request->data['realm_list'] = $this->request->data['realm_ids'][$count]; 
+                                $this->request->data['realm_list'] = $this->request->data['realm_ids'][$count];
                             }else{
                                 $this->request->data['realm_list'] = $this->request->data['realm_list'].",".$this->request->data['realm_ids'][$count];
-                            }  
+                            }
                             $count++;
                         }
-                    }   
-                    
+                    }
+
                 }else{
                     $this->request->data['auto_dynamic_client'] = 0;
                 }
-                
+
                 if(isset($this->request->data['auto_login_page'])){
                     $this->request->data['auto_login_page'] = 1;
                 }else{
                     $this->request->data['auto_login_page'] = 0;
                 }
             }
-            
+
 
             // If the form data can be validated and saved...
             if ($exit->save($this->request->data)) {
@@ -914,16 +914,16 @@ class ApProfilesController extends AppController {
                     '_serialize' => array('success')
                 ));
             }
-        } 
+        }
     }
-    
+
     public function ap_profile_exit_add_defaults(){
         $user = $this->_ap_right_check();
         if(!$user){
             return;
         }
-        
-        Configure::load('ApProfiles'); 
+
+        Configure::load('ApProfiles');
         $data = Configure::read('ApProfiles.captive_portal'); //Read the defaults
         $this->set(array(
             'data'     => $data,
@@ -931,9 +931,9 @@ class ApProfilesController extends AppController {
             '_serialize'=> array('success', 'data')
         ));
     }
-    
+
     public function ap_experimental_check(){
-        Configure::load('RadiusDesk'); 
+        Configure::load('RadiusDesk');
         $active = Configure::read('experimental.active'); //Read the defaults
         $this->set(array(
             'active'     => $active,
@@ -955,7 +955,7 @@ class ApProfilesController extends AppController {
         $id    = $this->request->query['exit_id'];
         $q_r   = $exit->findById($id);
 
-       
+
         //Get the realm list
         if($q_r['ApProfileExit']['realm_list'] != ''){
             $pieces = explode(",", $q_r['ApProfileExit']['realm_list']);
@@ -998,7 +998,7 @@ class ApProfilesController extends AppController {
             $q_r['ApProfileExit']['proxy_auth_username']      = $q_r['ApProfileExitCaptivePortal']['proxy_auth_username'];
             $q_r['ApProfileExit']['proxy_auth_password']      = $q_r['ApProfileExitCaptivePortal']['proxy_auth_password'];
             $q_r['ApProfileExit']['coova_optional']  = $q_r['ApProfileExitCaptivePortal']['coova_optional'];
-            
+
             //DNS settings
             $q_r['ApProfileExit']['dns_manual']      = $q_r['ApProfileExitCaptivePortal']['dns_manual'];
             $q_r['ApProfileExit']['dns1']            = $q_r['ApProfileExitCaptivePortal']['dns1'];
@@ -1008,7 +1008,7 @@ class ApProfilesController extends AppController {
             $q_r['ApProfileExit']['dnsdesk']         = $q_r['ApProfileExitCaptivePortal']['dnsdesk'];
 
         }
-        
+
         if($q_r['DynamicDetail']){
            $q_r['ApProfileExit']['dynamic_detail'] =  $q_r['DynamicDetail']['name'];
         }
@@ -1023,17 +1023,17 @@ class ApProfilesController extends AppController {
             '_serialize'=> array('success', 'data')
         ));
     }
-    
+
     public function ap_profile_exit_upstream_list(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
         }
-          
+
         $items  = [
             ['name'=> 'LAN (Ethernet0)', 'id' => 0 ]
         ];
-        
+
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -1056,11 +1056,11 @@ class ApProfilesController extends AppController {
 
         $user_id    = $user['id'];
         $fail_flag  = false;
-        $exit       = ClassRegistry::init('ApProfileExit'); 
+        $exit       = ClassRegistry::init('ApProfileExit');
 
 	    if(isset($this->data['id'])){   //Single item delete
-            $message = "Single item ".$this->data['id']; 
-            
+            $message = "Single item ".$this->data['id'];
+
             $exit->contain('ApProfile');
             $id                 = $this->data['id'];
             $q_r                = $exit->findById($this->data['id']);
@@ -1075,8 +1075,8 @@ class ApProfilesController extends AppController {
                             'DynamicPair.name' => 'nasid',
                         ), true);
                 }
-            }     
-            
+            }
+
             $exit->id = $this->data['id'];
             $exit->delete($exit->id, true);
         }else{                          //Assume multiple item delete
@@ -1095,11 +1095,11 @@ class ApProfilesController extends AppController {
                                 'DynamicPair.name' => 'nasid',
                             ), true);
                     }
-                }          
+                }
                 $exit->id = $d['id'];
                 $exit->delete($exit->id, true);
             }
-        }  
+        }
         $this->set(array(
             'success' => true,
             '_serialize' => array('success')
@@ -1126,7 +1126,7 @@ class ApProfilesController extends AppController {
         $entry      = ClassRegistry::init('ApProfileEntry');
 
         $entry->contain('ApProfileExitApProfileEntry');
-        $ent_q_r    = $entry->find('all',array('conditions' => array('ApProfileEntry.ap_profile_id' => $ap_profile_id))); 
+        $ent_q_r    = $entry->find('all',array('conditions' => array('ApProfileEntry.ap_profile_id' => $ap_profile_id)));
         //print_r($ent_q_r);
 
         $items = array();
@@ -1140,7 +1140,7 @@ class ApProfilesController extends AppController {
                 array_push($items,array('id' => $id, 'name' => $n));
             }
 
-            //if $exit_id is set; we add it 
+            //if $exit_id is set; we add it
             if($exit_id){
                 if(count($i['ApProfileExitApProfileEntry'])> 0){
                     if($i['ApProfileExitApProfileEntry'][0]['ap_profile_exit_id'] == $exit_id){
@@ -1157,8 +1157,8 @@ class ApProfilesController extends AppController {
             '_serialize' => array('items','success')
         ));
     }
-    
-    
+
+
     //====== Common AP settings ================
     //-- View common node settings --
     public function ap_common_settings_view(){
@@ -1168,18 +1168,18 @@ class ApProfilesController extends AppController {
             return;
         }
 
-        $id         = $this->request->query['ap_profile_id']; 
-		Configure::load('ApProfiles'); 
+        $id         = $this->request->query['ap_profile_id'];
+		Configure::load('ApProfiles');
         $data       = Configure::read('common_ap_settings'); //Read the defaults
         $setting    = ClassRegistry::init('ApProfileSetting');
         $setting->contain();
 
         //Timezone lists
-        $tz_list    = Configure::read('ApProfiles.timezones'); 
+        $tz_list    = Configure::read('ApProfiles.timezones');
         $q_r = $setting->find('first', array('conditions' => array('ApProfileSetting.ap_profile_id' => $id)));
-        if($q_r){  
+        if($q_r){
             //print_r($q_r);
-            $data = $q_r['ApProfileSetting']; 
+            $data = $q_r['ApProfileSetting'];
             //We need to find if possible the number for the timezone
             foreach($tz_list as $i){
                 if($q_r['ApProfileSetting']['tz_name'] == $i['name']){
@@ -1216,7 +1216,7 @@ class ApProfilesController extends AppController {
 
             //Try to find the timezone and its value
             Configure::load('ApProfiles');
-            $tz_list    = Configure::read('ApProfiles.timezones'); 
+            $tz_list    = Configure::read('ApProfiles.timezones');
             foreach($tz_list as $j){
                 if($j['id'] == $this->request->data['timezone']){
                     $this->request->data['tz_name'] = $j['name'];
@@ -1224,7 +1224,7 @@ class ApProfilesController extends AppController {
                     break;
                 }
             }
-            
+
             $ap_profile_id = $this->request->data['ap_profile_id'];
             //See if there is not already a setting entry
             $setting    = ClassRegistry::init('ApProfileSetting');
@@ -1233,7 +1233,7 @@ class ApProfilesController extends AppController {
 
             if($q_r){
                 $this->request->data['id'] = $q_r['ApProfileSetting']['id']; //Set the ID
-				//Check if the value of 
+				//Check if the value of
 				////if($this->request->data['password'] != $q_r['ApProfileSetting']['password']){ //!!Create a new has regardless!!
 					//Create a new hash
 					$new_pwd = $this->_make_linux_password($this->request->data['password']);
@@ -1250,7 +1250,7 @@ class ApProfilesController extends AppController {
             }
         }
     }
-    
+
     //=== APs Special ====
      public function advanced_settings_for_model(){
         $data = array();
@@ -1324,7 +1324,7 @@ class ApProfilesController extends AppController {
                 }
             }
         }
-        
+
         $this->set(array(
             'data' => $data,
             'success' => true,
@@ -1332,7 +1332,7 @@ class ApProfilesController extends AppController {
         ));
     }
 
-    
+
     //=== APs CRUD ===
     public function ap_profile_ap_index(){
 
@@ -1348,37 +1348,37 @@ class ApProfilesController extends AppController {
         $q_r            = $ap->find('all',array('conditions' => array('Ap.ap_profile_id' => $ap_profile_id)));
 
         //Create a hardware lookup for proper names of hardware
-        $hardware = array();  
-		Configure::load('ApProfiles');      
+        $hardware = array();
+		Configure::load('ApProfiles');
         $hw   = Configure::read('ApProfiles.hardware');
         foreach($hw as $h){
             $id     = $h['id'];
-            $name   = $h['name']; 
+            $name   = $h['name'];
             $hardware["$id"]= $name;
         }
 
 		//Check if we need to show the override on the power
 		$ap_setting	= ClassRegistry::init('ApProfileSetting');
 		$ap_setting->contain();
-		
+
 		App::uses('GeoIpLocation', 'GeoIp.Model');
         $GeoIpLocation = new GeoIpLocation();
 
         foreach($q_r as $m){
-        
+
             $m['Ap']['last_contact_human']  = $this->TimeCalculations->time_elapsed_string($m['Ap']["last_contact"]);
-            
-            //----              
+
+            //----
             //Some defaults:
             $country_code = '';
             $country_name = '';
             $city         = '';
             $postal_code  = '';
-            
+
             if($m['Ap']['last_contact_from_ip'] != null){
-          
+
                 $location = $GeoIpLocation->find($m['Ap']['last_contact_from_ip']);
-                
+
                 if(array_key_exists('GeoIpLocation',$location)){
                     if($location['GeoIpLocation']['country_code'] != ''){
                         $country_code = utf8_encode($location['GeoIpLocation']['country_code']);
@@ -1393,17 +1393,17 @@ class ApProfilesController extends AppController {
                         $postal_code = utf8_encode($location['GeoIpLocation']['postal_code']);
                     }
                 }
-            }   
-            //----  
-            
-            
+            }
+            //----
 
-            array_push($items,array( 
+
+
+            array_push($items,array(
                 'id'                    => $m['Ap']['id'],
                 'ap_profile_id'         => $m['Ap']['ap_profile_id'],
                 'name'                  => $m['Ap']['name'],
                 'description'           => $m['Ap']['description'],
-                'mac'                   => $m['Ap']['mac'],      
+                'mac'                   => $m['Ap']['mac'],
                 'hardware'	            => $m['Ap']['hardware'],
                 'last_contact_from_ip'	=> $m['Ap']['last_contact_from_ip'],
                 'on_public_maps'	    => $m['Ap']['on_public_maps'],
@@ -1431,32 +1431,32 @@ class ApProfilesController extends AppController {
         if(!$user){
             return;
         }
-     
+
         $ap             = ClassRegistry::init('Ap');
         $wifi_setting   = ClassRegistry::init('ApWifiSetting');
-        
+
         //Get the ApProfile so we can get the user_id nd available_to_siblings for the said ap_profile
         $ap_profile_id  = $this->request->data['ap_profile_id'];
-        $this->ApProfile->contain();   
+        $this->ApProfile->contain();
         $ap_profile     = $this->ApProfile->findById($ap_profile_id);
         $user_id        = $ap_profile['ApProfile']['user_id'];
         $a_to_s         = $ap_profile['ApProfile']['available_to_siblings'];
         $ap_profile_name= $ap_profile['ApProfile']['name'];
         $ap_profile_name= preg_replace('/\s+/', '_', $ap_profile_name);
-        
+
         $ap->create();
         if ($ap->save($this->request->data)) {
 
             $new_id = $ap->id;
-            
+
 			//Check if it was submitted through the attach  ap window - then remove the unknown_ap with mac = mac
 			if(array_key_exists('rem_unknown', $this->request->data)) {
 				$unknown_ap   = ClassRegistry::init('UnknownAp');
 				$mac			= $this->request->data['mac'];
  				$unknown_ap->deleteAll(array('UnknownAp.mac' => $mac), true);
 			}
-			
-			//__ OpenVPN Bridges _____	
+
+			//__ OpenVPN Bridges _____
 			$exit  = ClassRegistry::init('ApProfileExit');
 			//Find out if there are Exit points that is of type 'openvpn_bridge' for this ap_profile
 			$exit->contain('OpenvpnServer');
@@ -1466,22 +1466,22 @@ class ApProfilesController extends AppController {
 			        'ApProfileExit.type'            => 'openvpn_bridge',
 			    ))
 		    );
-		    
+
 		    foreach($q_e_vpnb as $e){
 		        //Get the OpenvpnServer's detail of reach
 		        $vpn_server_id  = $e['OpenvpnServer']['id'];
 		        $exit_id        = $e['ApProfileExit']['id'];
-		        
+
 		        $d_vpn_c                        = array();
                 $d_vpn_c['mesh_ap_profile']     = 'ap_profile';
                 $d_vpn_c['openvpn_server_id']   = $vpn_server_id;
                 $d_vpn_c['ap_profile_id']       = $ap_profile_id;
                 $d_vpn_c['ap_profile_exit_id']  = $exit_id;
                 $d_vpn_c['ap_id']               = $new_id;
-            
+
                 $next_ip        = $e['OpenvpnServer']['vpn_bridge_start_address'];
                 $not_available  = true;
-                
+
                 while($not_available){
                     if($this->_check_if_available($vpn_server_id,$next_ip)){
                         $d_vpn_c['ip_address'] = $next_ip;
@@ -1490,17 +1490,17 @@ class ApProfilesController extends AppController {
                     }else{
                         $next_ip = $this->_get_next_ip($next_ip);
                     }
-                }   
+                }
                 $this->OpenvpnServerClient->create();
-                $this->OpenvpnServerClient->save($d_vpn_c); 
-		    }	
+                $this->OpenvpnServerClient->save($d_vpn_c);
+		    }
 			//__ END OpenVPN Bridges ___
-			
-			
-			//______________________________________________________________________			
+
+
+			//______________________________________________________________________
 	        //We need to see if there are captive portals defined on the ap_profile
-	        //_______________________________________________________________________   
-	        $this->ApProfile->ApProfileExit->contain('ApProfileExitCaptivePortal');    
+	        //_______________________________________________________________________
+	        $this->ApProfile->ApProfileExit->contain('ApProfileExitCaptivePortal');
 	        $q_exits    = $this->ApProfile->ApProfileExit->find('all',
 	            array('conditions' => array(
 	                'ApProfileExit.ap_profile_id'   => $ap_profile_id,
@@ -1508,43 +1508,43 @@ class ApProfilesController extends AppController {
 	            ))
 	        );
 	        foreach($q_exits as $qe){
-	            	        
+
 	            $exit_id = $qe['ApProfileExit']['id'];
-	            
+
 	            $name_no_spaces = $this->request->data['name'];
 	            $name_no_spaces = preg_replace('/\s+/', '_', $name_no_spaces);
-	            
-	            
-	            $dc_data                            = array();       	            
+
+
+	            $dc_data                            = array();
 	            $dc_data['user_id']                 = $user_id;
 	            $dc_data['available_to_siblings']   = $a_to_s;
 	            $dc_data['nasidentifier']           = $ap_profile_name.'_'.$name_no_spaces.'_cp_'.$exit_id;
 	            $dc_data['realm_list']              = $qe['ApProfileExit']['realm_list'];
-	            
+
 	            if($qe['ApProfileExit']['auto_dynamic_client'] == 1){  //It has to be enabled
 	                $this->_add_dynamic($dc_data);
 	            }
-	            
+
 	            if($qe['ApProfileExit']['auto_login_page'] == 1){  //It has to be enabled
 	                $dc_data['dynamic_detail_id'] = $qe['ApProfileExit']['dynamic_detail_id'];
 	                $this->_add_dynamic_pair($dc_data);
 	            }
 	        }
 	        //_______________________________________________________________________
-	
-			
-   
+
+
+
             //---------Add WiFi settings for this ap ------
             //--Clean up--
             $n_id = $new_id;
-            
+
             //Check if the radio0_enable is perhaps missing
             if(array_key_exists('radio0_enable', $this->request->data)) {
                 $this->request->data['radio0_disabled'] = 0;
             }else{
                 $this->request->data['radio0_disabled'] = 1;
             }
-        
+
             //Check for radio1 -> First we need to be sure there are a radio1!
             if(array_key_exists('radio1_band', $this->request->data)) {
                 if(array_key_exists('radio1_enable', $this->request->data)) {
@@ -1553,9 +1553,9 @@ class ApProfilesController extends AppController {
                     $this->request->data['radio1_disabled'] = 1;
                 }
             }
-            
+
             foreach(array_keys($this->request->data) as $key){
-                if(preg_match('/^radio\d+_(disabled|band|channel|htmode|txpower|diversity|distance|noscan|ht_capab|ldpc|beacon_int|disable_b)/',$key)){            
+                if(preg_match('/^radio\d+_(disabled|band|channel|htmode|txpower|diversity|distance|noscan|ht_capab|ldpc|beacon_int|disable_b)/',$key)){
                     if(preg_match('/^radio\d+_ht_capab/',$key)){
                         $pieces = explode("\n", $this->request->data["$key"]);
                         foreach($pieces as $p){
@@ -1567,7 +1567,7 @@ class ApProfilesController extends AppController {
                             $wifi_setting->save($d_setting);
                             $wifi_setting->id = null;
                         }
-                        
+
                     }else{
                         $wifi_setting->create();
                         $d_setting = array();
@@ -1595,7 +1595,7 @@ class ApProfilesController extends AppController {
             ));
         }
     }
-    
+
     public function ap_profile_ap_delete(){
 
        if (!$this->request->is('post')) {
@@ -1610,10 +1610,10 @@ class ApProfilesController extends AppController {
 
         $user_id    = $user['id'];
         $fail_flag  = false;
-        $ap       = ClassRegistry::init('Ap'); 
+        $ap       = ClassRegistry::init('Ap');
 
 	    if(isset($this->data['id'])){   //Single item delete
-            $message            = "Single item ".$this->data['id']; 
+            $message            = "Single item ".$this->data['id'];
             $ap->id             = $this->data['id'];
             $ap->contain('ApProfile');
             $q_r                = $ap->findById($this->data['id']);
@@ -1628,7 +1628,7 @@ class ApProfilesController extends AppController {
                                 'DynamicPair.value LIKE' => "$ap_profile_name".'_'.$ap_name."_cp_%",
                                 'DynamicPair.name' => 'nasid',
                             ), true);
-            }       
+            }
             $ap->delete($ap->id, true);
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
@@ -1646,17 +1646,17 @@ class ApProfilesController extends AppController {
                                 'DynamicPair.value LIKE' => "$ap_profile_name".'_'.$ap_name."_cp_%",
                                 'DynamicPair.name' => 'nasid',
                             ), true);
-                    }       
+                    }
                     $ap->delete($ap->id, true);
             }
-        }  
+        }
         $this->set(array(
             'success' => true,
             '_serialize' => array('success')
         ));
     }
-    
-    
+
+
     public function ap_profile_ap_edit(){
 
 		$user = $this->_ap_right_check();
@@ -1681,7 +1681,7 @@ class ApProfilesController extends AppController {
 					$ap->delete($current_ap_id, true);
 					$move_ap_profiles = true;
 				}
-				
+
 				//See if we have a change in the name of the AP
 				$old_name = $q_r['Ap']['name'];
 				$new_name = $this->request->data['name'];
@@ -1690,9 +1690,9 @@ class ApProfilesController extends AppController {
 				    $ap_profile_name = preg_replace('/\s+/', '_', $ap_profile_name);
 				    $this->_change_dynamic_shortname($ap_profile_name,$old_name,$new_name); //This is on the NAS Devices
 			    }
-			    		
+
 			}
-     
+
             if(true){
            // if ($ap->save($this->request->data)) {
           /*      $new_id = $ap->id;
@@ -1706,14 +1706,14 @@ class ApProfilesController extends AppController {
                 //--Clean up--
                 $a_id = $this->request->data['id'];
                 $wifi_setting->deleteAll(array('ApWifiSetting.ap_id' => $a_id), true);
-                
+
                 //Check if the radio0_enable is perhaps missing
                 if(array_key_exists('radio0_enable', $this->request->data)) {
                     $this->request->data['radio0_disabled'] = 0;
                 }else{
                     $this->request->data['radio0_disabled'] = 1;
                 }
-            
+
                 //Check for radio1 -> First we need to be sure there are a radio1!
                 if(array_key_exists('radio1_band', $this->request->data)) {
                     if(array_key_exists('radio1_enable', $this->request->data)) {
@@ -1722,10 +1722,10 @@ class ApProfilesController extends AppController {
                         $this->request->data['radio1_disabled'] = 1;
                     }
                 }
-                            
+
                 foreach(array_keys($this->request->data) as $key){
                     if(preg_match('/^radio\d+_(disabled|band|channel|htmode|txpower|diversity|distance|noscan|ht_capab|ldpc|beacon_int|disable_b)/',$key)){
-                        
+
                         if(preg_match('/^radio\d+_ht_capab/',$key)){
                             $pieces = explode("\n", $this->request->data["$key"]);
                             foreach($pieces as $p){
@@ -1764,9 +1764,9 @@ class ApProfilesController extends AppController {
                     '_serialize' => array('errors','success','message')
                 ));
             }
-        } 
+        }
     }
-    
+
      public function ap_profile_ap_view(){
 
         $user = $this->_ap_right_check();
@@ -1779,7 +1779,7 @@ class ApProfilesController extends AppController {
 
         $id    = $this->request->query['ap_id'];
         $q_r   = $ap->findById($id);
- 
+
 
         //Return the Advanced WiFi Settings...
         if(count($q_r['ApWifiSetting'])>0){
@@ -1787,23 +1787,23 @@ class ApProfilesController extends AppController {
             $radio1_flag    = false;
             $r0_ht_capab    = array();
             $r1_ht_capab    = array();
-            
+
             $r0_enable      = true;
             $r1_enable      = true;
-            
+
             foreach($q_r['ApWifiSetting'] as $s){
                 $s_name     = $s['name'];
                 $s_value    = $s['value'];
                 if($s_name == 'radio1_txpower'){
                     $radio1_flag = true;
                 }
-                
+
                 if(($s_name == "radio0_disabled")&&($s_value == '1')){
-                    $r0_enable = false;   
+                    $r0_enable = false;
                 }
-                
+
                 if(($s_name == "radio1_disabled")&&($s_value == '1')){
-                    $r1_enable= false;   
+                    $r1_enable= false;
                 }
 
                 if(!(preg_match('/^radio\d+_ht_capab/',$s_name))){
@@ -1826,8 +1826,8 @@ class ApProfilesController extends AppController {
                 $q_r['Ap']['radio1_enable'] = $r1_enable;
             }
         }else{
-        
-            Configure::load('ApProfiles'); 
+
+            Configure::load('ApProfiles');
             $hardware_list 	= Configure::read('ApProfiles.hardware'); //Read the defaults
 		    foreach($hardware_list as $i){
 			    if($i['id'] == $hardware){
@@ -1853,8 +1853,8 @@ class ApProfilesController extends AppController {
             '_serialize'=> array('success', 'data')
         ));
     }
-   
-	
+
+
 	private function _find_parents($id){
 
         $this->User->contain();//No dependencies
@@ -1893,12 +1893,12 @@ class ApProfilesController extends AppController {
         return false;
     }
 
-  
+
     function _build_common_query($user){
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -1920,7 +1920,7 @@ class ApProfilesController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -1929,13 +1929,13 @@ class ApProfilesController extends AppController {
         if(isset($this->request->query['filter'])){
             $filter = json_decode($this->request->query['filter']);
             foreach($filter as $f){
-            
+
                 $f = $this->GridFilter->xformFilter($f);
-            
+
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -1973,21 +1973,21 @@ class ApProfilesController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }       
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
-    
+
     private function _get_action_flags($owner_id,$user){
         if($user['group_name'] == Configure::read('group.admin')){  //Admin
             return array('update' => true, 'delete' => true, 'view' => true);
         }
 
-        
+
 
         if($user['group_name'] == Configure::read('group.ap')){  //AP
             $user_id = $user['id'];
@@ -2020,14 +2020,14 @@ class ApProfilesController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true, 'view' => true);
                 }
-            }  
+            }
         }
     }
-    
+
     private function _make_linux_password($pwd){
 		return exec("openssl passwd -1 $pwd");
 	}
-    
+
     private function _get_dead_after($ap_profile_id){
 		Configure::load('ApProfiles');
 		$data 		= Configure::read('common_ap_settings'); //Read the defaults
@@ -2036,13 +2036,13 @@ class ApProfilesController extends AppController {
             'conditions'    => array(
                 'ApProfileSetting.ap_profile_id' => $ap_profile_id
             )
-        )); 
+        ));
         if($ap_s){
             $dead_after = $ap_s['ApProfileSetting']['heartbeat_dead_after'];
         }
 		return $dead_after;
 	}
-	
+
 	//----- Menus ------------------------
     public function menu_for_grid(){
 
@@ -2059,20 +2059,20 @@ class ApProfilesController extends AppController {
 
             $menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
-                     array( 
-                        'xtype'     =>  'splitbutton',  
-                        'glyph'     => Configure::read('icnReload'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'reload',   
+                     array(
+                        'xtype'     =>  'splitbutton',
+                        'glyph'     => Configure::read('icnReload'),
+                        'scale'     => 'large',
+                        'itemId'    => 'reload',
                         'tooltip'   => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
@@ -2084,7 +2084,7 @@ class ApProfilesController extends AppController {
                 array('xtype' => 'buttongroup','title' => __('Document'), 'width' => 100, 'items' => array(
                     array('xtype' => 'button', 'glyph' => Configure::read('icnNote'),'scale' => 'large', 'itemId' => 'note',    'tooltip'=> __('Add notes')),
                 ))
-                
+
             );
         }
 
@@ -2095,20 +2095,20 @@ class ApProfilesController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array( 
-                'xtype'     =>  'splitbutton',  
-                'glyph'     => Configure::read('icnReload'),   
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+            array_push($action_group,array(
+                'xtype'     =>  'splitbutton',
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload'),
-                    'menu'  => array( 
-                        'items' => array( 
+                    'menu'  => array(
+                        'items' => array(
                             '<b class="menu-title">'.__('Reload every').':</b>',
                             array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                             array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                             array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                             array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                           
+
                         )
                     )
             	)
@@ -2118,41 +2118,41 @@ class ApProfilesController extends AppController {
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnAdd'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',     
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnDelete'),  
-                    'scale'     => 'large', 
-                    'itemId'    => 'delete', 
-                    'disabled'  => true, 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
+                    'itemId'    => 'delete',
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
 			//Edit
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'ap_profile_entry_edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnEdit'),  
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,  
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
-                        'glyph'     => Configure::read('icnNote'),     
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',      
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 
@@ -2167,7 +2167,7 @@ class ApProfilesController extends AppController {
             '_serialize'    => array('items','success')
         ));
     }
-    
+
      public function menu_for_entries_grid(){
 
         $user = $this->Aa->user_for_token($this);
@@ -2188,7 +2188,7 @@ class ApProfilesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph'     => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph'     => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
                 ))
-                
+
             );
         }
 
@@ -2202,7 +2202,7 @@ class ApProfilesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph'     => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph'     => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
                 ))
-                
+
             );
         }
 
@@ -2233,7 +2233,7 @@ class ApProfilesController extends AppController {
                     array('xtype' => 'button', 'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'glyph' => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
                 ))
-                
+
             );
         }
 
@@ -2247,7 +2247,7 @@ class ApProfilesController extends AppController {
             array('xtype' => 'button', 'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
             array('xtype' => 'button', 'glyph' => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
                 ))
-                
+
             );
         }
 
@@ -2257,7 +2257,7 @@ class ApProfilesController extends AppController {
             '_serialize'    => array('items','success')
         ));
     }
-    
+
     public function menu_for_aps_grid(){
 
         $user = $this->Aa->user_for_token($this);
@@ -2273,21 +2273,21 @@ class ApProfilesController extends AppController {
 
             $menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
-                 array( 
-                        'xtype'     =>  'splitbutton',  
+                 array(
+                        'xtype'     =>  'splitbutton',
                         'iconCls'   => 'b-reload',
-                        'glyph'     => Configure::read('icnReload'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'reload',   
+                        'glyph'     => Configure::read('icnReload'),
+                        'scale'     => 'large',
+                        'itemId'    => 'reload',
                         'tooltip'   => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
@@ -2296,10 +2296,10 @@ class ApProfilesController extends AppController {
             array('xtype' => 'button', 'glyph' => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
 			array('xtype' => 'button', 'glyph' => Configure::read('icnView'),'scale' => 'large', 'itemId' => 'view',      'tooltip'=> __('View')),
 			array('xtype' => 'button', 'glyph' => Configure::read('icnView'),'scale' => 'large', 'itemId' => 'view',      'tooltip'=> __('View')),
-			array('xtype' => 'button', 'glyph' => Configure::read('icnSpanner'),'scale' => 'large', 'itemId' => 'execute','tooltip'=> __('Execute')),	
+			array('xtype' => 'button', 'glyph' => Configure::read('icnSpanner'),'scale' => 'large', 'itemId' => 'execute','tooltip'=> __('Execute')),
 			array('xtype' => 'button', 'glyph' => Configure::read('icnPower'),'scale' => 'large', 'itemId' => 'restart','tooltip'=> __('Restart')),
                 ))
-    
+
             );
         }
 
@@ -2308,21 +2308,21 @@ class ApProfilesController extends AppController {
 
             $menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
-             array( 
-                        'xtype'     =>  'splitbutton',  
+             array(
+                        'xtype'     =>  'splitbutton',
                         'iconCls'   => 'b-reload',
-                        'glyph'     => Configure::read('icnReload'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'reload',   
+                        'glyph'     => Configure::read('icnReload'),
+                        'scale'     => 'large',
+                        'itemId'    => 'reload',
                         'tooltip'   => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
@@ -2331,10 +2331,10 @@ class ApProfilesController extends AppController {
             array('xtype' => 'button', 'glyph' => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
 			array('xtype' => 'button', 'glyph' => Configure::read('icnView'),'scale' => 'large', 'itemId' => 'view',      'tooltip'=> __('View')),
 			array('xtype' => 'button', 'glyph' => Configure::read('icnView'),'scale' => 'large', 'itemId' => 'view',      'tooltip'=> __('View')),
-			array('xtype' => 'button', 'glyph' => Configure::read('icnSpanner'),'scale' => 'large', 'itemId' => 'execute','tooltip'=> __('Execute')),	
+			array('xtype' => 'button', 'glyph' => Configure::read('icnSpanner'),'scale' => 'large', 'itemId' => 'execute','tooltip'=> __('Execute')),
 			array('xtype' => 'button', 'glyph' => Configure::read('icnPower'),'scale' => 'large', 'itemId' => 'restart','tooltip'=> __('Restart')),
                 ))
-    
+
             );
         }
 
@@ -2346,7 +2346,7 @@ class ApProfilesController extends AppController {
         ));
     }
 
-    
+
      public function menu_for_devices_grid(){
 
         $user = $this->Aa->user_for_token($this);
@@ -2368,7 +2368,7 @@ class ApProfilesController extends AppController {
                     array('xtype' => 'button', 'glyph' => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
 			////		array('xtype' => 'button','glyph'     => Configure::read('icnMap'),'scale' => 'large', 'itemId' => 'map',      'tooltip'=> __('Map'))
                 ))
-    
+
             );
         }
 
@@ -2383,19 +2383,19 @@ class ApProfilesController extends AppController {
                     array('xtype' => 'button', 'glyph' => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
 			////		array('xtype' => 'button','glyph'     => Configure::read('icnMap'),'scale' => 'large', 'itemId' => 'map',      'tooltip'=> __('Map'))
                 ))
-    
+
             );
         }
-        
+
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
             '_serialize'    => array('items','success')
         ));
     }
-    
+
     private function _add_dynamic($dc_data){
-    
+
         //--Formulate a name
         $dc_data['name'] = 'APdesk_'.$dc_data['nasidentifier'];
         $this->DynamicClient->create();
@@ -2412,38 +2412,38 @@ class ApProfilesController extends AppController {
                     $this->DynamicClientRealm->save($dcr);
                     $this->DynamicClientRealm->id = null;
                 }
-            }   
+            }
         }
     }
-    
+
     private function _add_dynamic_pair($nas_data){
         $this->DynamicPair->create();
         $data = array();
         $data['name']               = 'nasid';
         $data['value']              = $nas_data['nasidentifier'];
         $data['dynamic_detail_id']  = $nas_data['dynamic_detail_id'];
-        $data['priority']           = 1;  
+        $data['priority']           = 1;
         $this->DynamicPair->save($data);
     }
-    
-    private function _change_dynamic_shortname($ap_profile_name,$old_name,$new_name){ 
+
+    private function _change_dynamic_shortname($ap_profile_name,$old_name,$new_name){
         $search_for = $ap_profile_name.'_'.$old_name.'_cp_';
         $this->DynamicClient->contain();
         $q_r = $this->DynamicClient->find('all',array('conditions' => array('DynamicClient.nasidentifier LIKE' => "$search_for%")));
-        foreach($q_r as $n){  
+        foreach($q_r as $n){
             $current_name   = $n['DynamicClient']['nasidentifier'];
             $id             = $n['DynamicClient']['id'];
             $newname        = str_replace("$old_name","$new_name","$current_name");
             $d              = array();
             $d['id']        = $id;
             $d['nasidentifier'] = $newname;
-            $this->DynamicClient->save($d);            
-        }    
+            $this->DynamicClient->save($d);
+        }
     }
-    
+
      private function _check_if_available($openvpn_server_id,$ip){
         $count = $this->OpenvpnServerClient->find('count',
-            array('conditions' => 
+            array('conditions' =>
                 array(
                     'OpenvpnServerClient.openvpn_server_id' => $openvpn_server_id,
                     'OpenvpnServerClient.ip_address' => $ip,
@@ -2473,5 +2473,5 @@ class ApProfilesController extends AppController {
         $next_ip = $octet_1.'.'.$octet_2.'.'.$octet_3.'.'.$octet_4;
         return $next_ip;
     }
-    
+
 }

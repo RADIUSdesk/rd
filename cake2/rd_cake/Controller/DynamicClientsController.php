@@ -20,8 +20,8 @@ class DynamicClientsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -38,27 +38,27 @@ class DynamicClientsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
 
         $items      = array();
-        
+
         App::uses('GeoIpLocation', 'GeoIp.Model');
         $GeoIpLocation = new GeoIpLocation();
 
         foreach($q_r as $i){
-        
+
             $location = array();
             if($i['DynamicClient']['last_contact_ip'] != ''){
                 $location = $GeoIpLocation->find($i['DynamicClient']['last_contact_ip']);
             }
-                   
+
             //Some defaults:
             $country_code = '';
             $country_name = '';
             $city         = '';
             $postal_code  = '';
-            
+
             if(array_key_exists('GeoIpLocation',$location)){
                 if($location['GeoIpLocation']['country_code'] != ''){
                     $country_code = utf8_encode($location['GeoIpLocation']['country_code']);
@@ -73,11 +73,11 @@ class DynamicClientsController extends AppController {
                     $postal_code = utf8_encode($location['GeoIpLocation']['postal_code']);
                 }
             }
-        
-        
+
+
             $realms     = array();
             //Realms
-            foreach($i['DynamicClientRealm'] as $dcr){ 
+            foreach($i['DynamicClientRealm'] as $dcr){
                 if(!$this->_test_for_private_parent($dcr['Realm'],$user)){
 		            if(!array_key_exists('id',$dcr['Realm'])){
 			            $r_id = "undefined";
@@ -88,28 +88,28 @@ class DynamicClientsController extends AppController {
 			            $r_n = $dcr['Realm']['name'];
 			            $r_s = $dcr['Realm']['available_to_siblings'];
 		       }
-               array_push($realms, 
+               array_push($realms,
                     array(
                         'id'                    => $r_id,
                         'name'                  => $r_n,
                         'available_to_siblings' => $r_s
                     ));
                 }
-            } 
+            }
 
             $owner_id       = $i['DynamicClient']['user_id'];
             $owner_tree     = $this->_find_parents($owner_id);
             $action_flags   = $this->_get_action_flags($owner_id,$user);
-            
-            
+
+
             $i['DynamicClient']['country_code'] = $country_code;
             $i['DynamicClient']['country_name'] = $country_name;
             $i['DynamicClient']['city']         = $city;
-            $i['DynamicClient']['postal_code']  = $postal_code;   
+            $i['DynamicClient']['postal_code']  = $postal_code;
             if($i['DynamicClient']['last_contact'] != null){
                 $i['DynamicClient']['last_contact_human']    = $this->TimeCalculations->time_elapsed_string($i['DynamicClient']['last_contact']);
             }
-            
+
             //Create notes flag
             $notes_flag  = false;
             foreach($i['DynamicClientNote'] as $dcn){
@@ -118,18 +118,18 @@ class DynamicClientsController extends AppController {
                     break;
                 }
             }
-            
-             
+
+
             $i['DynamicClient']['notes']        = $notes_flag;
-             
+
             $i['DynamicClient']['owner']        = $owner_tree;
             $i['DynamicClient']['realms']       = $realms;
             $i['DynamicClient']['update']       = $action_flags['update'];
             $i['DynamicClient']['delete']       = $action_flags['delete'];
-         
+
             array_push($items,$i['DynamicClient']);
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -138,17 +138,17 @@ class DynamicClientsController extends AppController {
             '_serialize' => array('items','success','totalCount')
         ));
     }
-    
+
     public function clients_avail_for_map() {
-    
+
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
         if(!$user){
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -165,16 +165,16 @@ class DynamicClientsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
         $items  = array();
         foreach($q_r as $i){
             $id     = $i['DynamicClient']['id'];
-            $name   = $i['DynamicClient']['name'];  
+            $name   = $i['DynamicClient']['name'];
             $item = array('id' => $id,'name' => $name);
             array_push($items,$item);
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -182,10 +182,10 @@ class DynamicClientsController extends AppController {
             'totalCount' => $total,
             '_serialize' => array('items','success','totalCount')
         ));
-    
-    
-    
-    
+
+
+
+
     }
 
     public function add() {
@@ -196,12 +196,12 @@ class DynamicClientsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-        
+
         //Get the creator's id
         if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
             $this->request->data['user_id'] = $user_id;
         }
-         
+
         $check_items = array('active', 'available_to_siblings', 'on_public_maps', 'session_auto_close','data_limit_active');
         foreach($check_items as $ci){
             if(isset($this->request->data[$ci])){
@@ -210,7 +210,7 @@ class DynamicClientsController extends AppController {
                 $this->request->data[$ci] = 0;
             }
         }
-        
+
         $unknown_flag = false;
         //Check if it was an attach!
         if(array_key_exists('unknown_dynamic_client_id',$this->request->data)){
@@ -220,16 +220,16 @@ class DynamicClientsController extends AppController {
                 $unknown_flag   = true;
                 $nas_id         = $u['UnknownDynamicClient']['nasidentifier'];
                 $called         = $u['UnknownDynamicClient']['calledstationid'];
-                
+
                 $this->request->data['nasidentifier']   = $nas_id;
                 $this->request->data['calledstationid'] = $called;
             }
         }
-        
+
 
         $this->{$this->modelClass}->create();
         if ($this->{$this->modelClass}->save($this->request->data)) {
-        
+
             //Check if we need to add na_realms table
             if(isset($this->request->data['avail_for_all'])){
             //Available to all does not add any dynamic_client_realm entries
@@ -241,16 +241,16 @@ class DynamicClientsController extends AppController {
                         //-------------
                     }
                 }
-            }   
+            }
             $this->request->data['id'] = $this->{$this->modelClass}->id;
-            
+
             //If it was an unknown attach - remove the unknown
             if($unknown_flag){
                 $this->UnknownDynamicClient->id = $this->request->data['unknown_dynamic_client_id'];
                 $this->UnknownDynamicClient->delete($this->request->data['unknown_dynamic_client_id'], true);
             }
-            
-            
+
+
             $this->set(array(
                 'success' => true,
                 'data'      => $this->request->data,
@@ -320,7 +320,7 @@ class DynamicClientsController extends AppController {
             $check_items = array(
 				'active', 'available_to_siblings', 'on_public_maps', 'session_auto_close','data_limit_active'
 			);
-			
+
             foreach($check_items as $i){
                 if(isset($this->request->data[$i])){
                     $this->request->data[$i] = 1;
@@ -337,8 +337,8 @@ class DynamicClientsController extends AppController {
             }
         }
     }
-    
-    
+
+
      public function view(){
 
         //__ Authentication + Authorization __
@@ -348,7 +348,7 @@ class DynamicClientsController extends AppController {
         }
         $user_id    = $user['id'];
         $items = array();
-        
+
         if(isset($this->request->query['dynamic_client_id'])){
 
             $this->{$this->modelClass}->contain();
@@ -366,8 +366,8 @@ class DynamicClientsController extends AppController {
         ));
 
     }
-    
-    
+
+
     public function view_photo(){
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
@@ -405,7 +405,7 @@ class DynamicClientsController extends AppController {
 
         //Now add....
         $data['photo_file_name']  = $unique.'.'.$path_parts['extension'];
-       
+
         $this->{$this->modelClass}->id = $this->request->data['id'];
        // $this->{$this->modelClass}->saveField('photo_file_name', $unique.'.'.$path_parts['extension']);
         if($this->{$this->modelClass}->saveField('photo_file_name', $unique.'.'.$path_parts['extension'])){
@@ -421,8 +421,8 @@ class DynamicClientsController extends AppController {
         $this->set('json_return',$json_return);
     }
 
-    
-    
+
+
     //____ Notes ______
      public function note_index(){
 
@@ -436,7 +436,7 @@ class DynamicClientsController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $na_id  = $this->request->query['for_id'];
-            $q_r    = $this->DynamicClient->DynamicClientNote->find('all', 
+            $q_r    = $this->DynamicClient->DynamicClientNote->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('DynamicClientNote.dynamic_client_id' => $na_id)
@@ -449,8 +449,8 @@ class DynamicClientsController extends AppController {
                     $afs        = $this->_get_action_flags($owner_id,$user);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => $afs['delete']
@@ -458,7 +458,7 @@ class DynamicClientsController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -489,7 +489,7 @@ class DynamicClientsController extends AppController {
 
         $success    = false;
         $msg        = array('message' => __('Could not create note'));
-        $this->DynamicClient->DynamicClientNote->Note->create(); 
+        $this->DynamicClient->DynamicClientNote->Note->create();
         //print_r($this->request->data);
         if ($this->DynamicClient->DynamicClientNote->Note->save($this->request->data)) {
             $d                      = array();
@@ -532,7 +532,7 @@ class DynamicClientsController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->DynamicClient->DynamicClientNote->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -546,7 +546,7 @@ class DynamicClientsController extends AppController {
                 $this->DynamicClient->DynamicClientNote->Note->id = $this->data['id'];
                 $this->DynamicClient->DynamicClientNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -563,7 +563,7 @@ class DynamicClientsController extends AppController {
                     $this->DynamicClient->DynamicClientNote->Note->id = $d['id'];
                     $this->DynamicClient->DynamicClientNote->Note->delete($d['id'],true);
                 }
-   
+
             }
         }
 
@@ -646,10 +646,10 @@ class DynamicClientsController extends AppController {
 
         $this->UserSetting = ClassRegistry::init('UserSetting');
 
-        if(array_key_exists('zoom',$this->request->data)){        
+        if(array_key_exists('zoom',$this->request->data)){
             $q_r = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'dynamic_client_map_zoom')));
             if(!empty($q_r)){
-                $this->UserSetting->id = $q_r['UserSetting']['id'];    
+                $this->UserSetting->id = $q_r['UserSetting']['id'];
                 $this->UserSetting->saveField('value', $this->request->data['zoom']);
             }else{
                 $d['UserSetting']['user_id']= $user_id;
@@ -661,10 +661,10 @@ class DynamicClientsController extends AppController {
             }
         }
 
-        if(array_key_exists('type',$this->request->data)){        
+        if(array_key_exists('type',$this->request->data)){
             $q_r = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'dynamic_client_map_type')));
             if(!empty($q_r)){
-                $this->UserSetting->id = $q_r['UserSetting']['id'];    
+                $this->UserSetting->id = $q_r['UserSetting']['id'];
                 $this->UserSetting->saveField('value', $this->request->data['type']);
             }else{
                 $d['UserSetting']['user_id']= $user_id;
@@ -676,10 +676,10 @@ class DynamicClientsController extends AppController {
             }
         }
 
-        if(array_key_exists('lat',$this->request->data)){        
+        if(array_key_exists('lat',$this->request->data)){
             $q_r = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'dynamic_client_map_lat')));
             if(!empty($q_r)){
-                $this->UserSetting->id = $q_r['UserSetting']['id'];    
+                $this->UserSetting->id = $q_r['UserSetting']['id'];
                 $this->UserSetting->saveField('value', $this->request->data['lat']);
             }else{
                 $d['UserSetting']['user_id']= $user_id;
@@ -692,10 +692,10 @@ class DynamicClientsController extends AppController {
             }
         }
 
-        if(array_key_exists('lng',$this->request->data)){        
+        if(array_key_exists('lng',$this->request->data)){
             $q_r = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'dynamic_client_map_lng')));
             if(!empty($q_r)){
-                $this->UserSetting->id = $q_r['UserSetting']['id'];    
+                $this->UserSetting->id = $q_r['UserSetting']['id'];
                 $this->UserSetting->saveField('value', $this->request->data['lng']);
             }else{
                 $d['UserSetting']['user_id']= $user_id;
@@ -754,7 +754,7 @@ class DynamicClientsController extends AppController {
                 '_serialize' => array('success')
         ));
     }
-    
+
 
     //----- Menus ------------------------
     public function menu_for_grid(){
@@ -766,8 +766,8 @@ class DynamicClientsController extends AppController {
 
         //Empty by default
         $menu = array();
-       
-        $shared_secret = "(Please specify one)"; 
+
+        $shared_secret = "(Please specify one)";
         if(Configure::read('DynamicClients.shared_secret')){
             $shared_secret = Configure::read('DynamicClients.shared_secret');
         }
@@ -778,14 +778,14 @@ class DynamicClientsController extends AppController {
             $menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                    array( 'xtype' =>  'splitbutton',  'glyph'     => Configure::read('icnReload'),'scale'   => 'large', 'itemId'    => 'reload',   'tooltip'    => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
@@ -811,14 +811,14 @@ class DynamicClientsController extends AppController {
             $action_group   = array();
 
             array_push($action_group,array( 'xtype' =>  'splitbutton',  'glyph'     => Configure::read('icnReload'),'scale'   => 'large', 'itemId'    => 'reload',   'tooltip'    => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ));
@@ -826,34 +826,34 @@ class DynamicClientsController extends AppController {
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-add',
-                    'glyph'     => Configure::read('icnAdd'),      
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),   
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),     
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
@@ -866,9 +866,9 @@ class DynamicClientsController extends AppController {
                     array('xtype' => 'button','glyph'=> Configure::read('icnMap'),'scale' => 'large', 'itemId' => 'map',   'tooltip'=> __('Map')),
                 )),
                 array(
-                    'xtype'     => 'buttongroup', 
+                    'xtype'     => 'buttongroup',
                     'width'     => 300,
-                    'title'     => '<span class="txtBlue"><i class="fa  fa-lightbulb-o"></i> Site Wide Shared Secret</span>', 
+                    'title'     => '<span class="txtBlue"><i class="fa  fa-lightbulb-o"></i> Site Wide Shared Secret</span>',
                     'items'     => array(
                         array('xtype' => 'tbtext', 'html' => "<h1>$shared_secret</h1>")
                 )),
@@ -923,7 +923,7 @@ class DynamicClientsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -945,7 +945,7 @@ class DynamicClientsController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -960,7 +960,7 @@ class DynamicClientsController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -998,12 +998,12 @@ class DynamicClientsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }       
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -1031,10 +1031,10 @@ class DynamicClientsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
-    
+
     private function _add_dynamic_client_realm($dynamic_client_id,$realm_id){
         $d                                              = array();
         $d['DynamicClientRealm']['id']                  = '';

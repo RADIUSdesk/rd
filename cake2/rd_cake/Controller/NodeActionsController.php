@@ -20,8 +20,8 @@ class NodeActionsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         if(isset($this->request->query['node_id'])){
             array_push($c['conditions'],array("NodeAction.node_id" => $this->request->query['node_id']));
@@ -42,12 +42,12 @@ class NodeActionsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
-        $items  = array();     
+        $items  = array();
         //If there are more than one
         if($q_r){
-            foreach($q_r as $item){          
+            foreach($q_r as $item){
                 array_push($items,array(
                     'id'        =>  $item['NodeAction']['id'],
                     'action'    =>  $item['NodeAction']['action'],
@@ -55,7 +55,7 @@ class NodeActionsController extends AppController {
                     'status'    =>  $item['NodeAction']['status'],
                     'created'   =>  $item['NodeAction']['created'],
                     'modified'  =>  $item['NodeAction']['modified'],
-                )); 
+                ));
             }
         }
         //___ FINAL PART ___
@@ -81,7 +81,7 @@ class NodeActionsController extends AppController {
                 $d['node_id']   = $this->request->data[$key];
 				$d['command']	= $this->request->data['command'];
                 $this->{$this->modelClass}->create();
-                $this->{$this->modelClass}->save($d);   
+                $this->{$this->modelClass}->save($d);
             }
         }
 
@@ -111,7 +111,7 @@ class NodeActionsController extends AppController {
 		));
 	}
 
-   
+
     //FIXME check rights
     public function delete($id = null) {
 		if (!$this->request->is('post')) {
@@ -165,7 +165,7 @@ class NodeActionsController extends AppController {
 
 		$mac = $this->request->data['mac'];
 		$this->NodeAction->contain('Node');
-		$q_r = $this->NodeAction->find('all', 
+		$q_r = $this->NodeAction->find('all',
 				array('conditions' => array('Node.mac' => $mac,'NodeAction.status' => 'awaiting')
 		)); //Only awaiting actions
 
@@ -173,7 +173,7 @@ class NodeActionsController extends AppController {
 		foreach($q_r as $i){
 			$id		= $i['NodeAction']['id'];
 			$c 		= $i['NodeAction']['command'];
-			array_push($items,array('id' => $id,'command' => $c));	
+			array_push($items,array('id' => $id,'command' => $c));
 		}
 
 		//Run through this list and mark them as 'fetched'
@@ -182,7 +182,7 @@ class NodeActionsController extends AppController {
 		    if($this->NodeAction->id){
 		        $this->NodeAction->saveField('status','fetched');
 		    }
-		}	
+		}
 
 		$this->set(array(
 			'items'		=> $items,
@@ -211,7 +211,7 @@ class NodeActionsController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-reload', 'glyph' => Configure::read('icnReload'), 'scale' => 'large', 'itemId' => 'reload',   'tooltip'=> __('Reload')),
                     array('xtype' => 'button', 'iconCls' => 'b-add',    'glyph' => Configure::read('icnAdd'),  'scale' => 'large', 'itemId' => 'add',   'tooltip'=> __('Add')),
                     array('xtype' => 'button', 'iconCls' => 'b-delete', 'glyph' => Configure::read('icnDelete'), 'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
-                ))  
+                ))
             );
         }
 
@@ -222,23 +222,23 @@ class NodeActionsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
-                'iconCls'   => 'b-reload', 
-                'glyph'     => Configure::read('icnReload'), 
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'iconCls'   => 'b-reload',
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'add')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-add', 
-                    'glyph'     => Configure::read('icnAdd'), 
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-add',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
                     'itemId'    => 'add',
-                    'disabled'  => false,   
+                    'disabled'  => false,
                     'tooltip'   => __('Add')));
             }
 
@@ -246,12 +246,12 @@ class NodeActionsController extends AppController {
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-delete', 
-                    'glyph'     => Configure::read('icnDelete'), 
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-delete',
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => false,   
+                    'disabled'  => false,
                     'tooltip'   => __('Delete')));
             }
 
@@ -270,7 +270,7 @@ class NodeActionsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -283,10 +283,10 @@ class NodeActionsController extends AppController {
         $sort   = 'NodeAction.created';
         $dir    = 'ASC';
 
-        if(isset($this->request->query['sort'])){  
+        if(isset($this->request->query['sort'])){
             $sort = $this->modelClass.'.'.$this->request->query['sort'];
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -335,12 +335,12 @@ class NodeActionsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                   ////  array_push($tree_array,array('Na.user_id' => $id));
-                }       
-            }   
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -368,7 +368,7 @@ class NodeActionsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 

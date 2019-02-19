@@ -2,7 +2,7 @@
 //----------------------------------------------------------
 //---- Author: Dirk van der Walt
 //---- License: GPL v3
-//---- Description: 
+//---- Description:
 //---- Date: 02-08-15
 //------------------------------------------------------------
 
@@ -15,7 +15,7 @@ class TimeCalculationsComponent extends Component {
         $day    = $hour*24;
         $week   = $day*7;
         $month  = $week*30;
-        
+
         if($timespan == 'hour'){
             //Get entries created modified during the past hour
             $modified = date("Y-m-d H:i:s", time()-$hour);
@@ -30,16 +30,16 @@ class TimeCalculationsComponent extends Component {
             //Get entries created modified during the past hour
             $modified = date("Y-m-d H:i:s", time()-$week);
         }
-        
+
         if($timespan == 'month'){
             //Get entries created modified during the past hour
             $modified = date("Y-m-d H:i:s", time()-$week);
         }
-        
+
 		return $modified;
     }
-    
-    
+
+
     function time_elapsed_string($datetime, $full = false,$no_suffix = false) {
         $now = new DateTime;
         $then = new DateTime( $datetime );
@@ -77,6 +77,6 @@ class TimeCalculationsComponent extends Component {
             return $string ? implode( ', ', $string ) . ' ago' : 'just now';
         }
     }
-    
+
 }
 

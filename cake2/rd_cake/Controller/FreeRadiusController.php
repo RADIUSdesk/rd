@@ -14,14 +14,14 @@ class FreeRadiusController extends AppController {
         exec("sudo /usr/share/nginx/html/cake2/rd_cake/Setup/Scripts/radmin_wrapper.pl stats $type",$output_auth);
         $items = array();
         $items['auth_basic']  = array();
-        $items['auth_detail'] = array(); 
+        $items['auth_detail'] = array();
 
         if (preg_match("/requests/i", $output_auth[0])) {
             foreach($output_auth as $i){
                 $clean = trim($i);
                 $clean = preg_replace("/\s+/", ";", $clean);
                 $e = explode(';',$clean);
-                
+
                 //First the basics
                 if(($e[0] == 'accepts')&&(intval($e[1]) != 0)){
                     array_push($items['auth_basic'], array('name' => __("Accepted"), 'data' => intval($e[1])));
@@ -29,7 +29,7 @@ class FreeRadiusController extends AppController {
                 if(($e[0] == 'rejects')&&(intval($e[1]) != 0)){
                     array_push($items['auth_basic'], array('name' => __("Rejected"), 'data' => intval($e[1])));
                 }
-                
+
                 //Then the detail
                 if(($e[0] == 'responses')&&(intval($e[1]) != 0)){
                     array_push($items['auth_detail'], array('name' => __("Responses"), 'data' => intval($e[1])));
@@ -62,7 +62,7 @@ class FreeRadiusController extends AppController {
                 if(($e[0] == 'unknown_types')&&(intval($e[1]) != 0)){
                     array_push($items['auth_detail'], array('name' => __("Unknown types"), 'data' => intval($e[1])));
                 }
-                
+
                 if(($e[0] == 'bad_authenticator')&&(intval($e[1]) != 0)){
                     array_push($items['auth_detail'], array('name' => __("Bad Authenticator"), 'data' => intval($e[1])));
                 }
@@ -79,7 +79,7 @@ class FreeRadiusController extends AppController {
                 $clean = trim($i);
                 $clean = preg_replace("/\s+/", ";", $clean);
                 $e = explode(';',$clean);
-              
+
                 //Then the detail
                 if(($e[0] == 'responses')&&(intval($e[1]) != 0)){
                     array_push($items['acct_detail'], array('name' => __("Responses"), 'data' => intval($e[1])));
@@ -114,7 +114,7 @@ class FreeRadiusController extends AppController {
             'items'         => $items,
             'success'       => true,
             '_serialize'    => array('success', 'items')
-        )); 
+        ));
     }
 
     public function status(){
@@ -129,9 +129,9 @@ class FreeRadiusController extends AppController {
         $items = array();
         $items['pid'] = intval($pid);
         if($pid == ''){
-            $items['running'] = false; 
+            $items['running'] = false;
         }else{
-            $items['running'] = true; 
+            $items['running'] = true;
         }
 
         $this->set(array(
@@ -151,7 +151,7 @@ class FreeRadiusController extends AppController {
 
         exec("sudo /usr/share/nginx/html/cake2/rd_cake/Setup/Scripts/radmin_wrapper.pl start freeradius");
         $items = array();
-        
+
         $this->set(array(
             'data'          => $items,
             'success'       => true,
@@ -169,7 +169,7 @@ class FreeRadiusController extends AppController {
 
         exec("sudo /usr/share/nginx/html/cake2/rd_cake/Setup/Scripts/radmin_wrapper.pl stop freeradius");
         $items = array();
-        
+
         $this->set(array(
             'data'          => $items,
             'success'       => true,
@@ -178,7 +178,7 @@ class FreeRadiusController extends AppController {
     }
 
     public function info(){
-    
+
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
         if(!$user){
@@ -198,7 +198,7 @@ class FreeRadiusController extends AppController {
             ));
             return;
         }
-        
+
         unset($output);
         exec("sudo /usr/share/nginx/html/cake2/rd_cake/Setup/Scripts/radmin_wrapper.pl version freeradius",$output);
         if(count($output)>0){
@@ -218,7 +218,7 @@ class FreeRadiusController extends AppController {
             }
             $items['clients'] = $clients;
         }
-        
+
         unset($output);
         exec("sudo /usr/share/nginx/html/cake2/rd_cake/Setup/Scripts/radmin_wrapper.pl modules freeradius",$output);
         if(count($output)>0){
@@ -231,8 +231,8 @@ class FreeRadiusController extends AppController {
             }
             $items['modules'] = $modules;
         }
-         
-        
+
+
         $this->set(array(
             'data'          => $items,
             'success'       => true,
@@ -261,7 +261,7 @@ class FreeRadiusController extends AppController {
                     $time_added = $q_r['Check']['value']-time();
                     if($time_added > 0){
                         $items['time_added'] = $time_added;
-                    }    
+                    }
                 }
             }
         }
@@ -271,7 +271,7 @@ class FreeRadiusController extends AppController {
         if(count($output)>0){
             $condition = $output[0];
             $items['condition'] = $condition;
-        }      
+        }
         $this->set(array(
             'data'          => $items,
             'success'       => true,
@@ -316,7 +316,7 @@ class FreeRadiusController extends AppController {
         //Check for existing ones
         $q_r        = $c->find('first',array('conditions' =>array('Check.name' => 'debug_timeout')));
         if($q_r){
-            $d['id'] = $q_r['Check']['id'];    
+            $d['id'] = $q_r['Check']['id'];
         }
 
         $timeout = time()+360;
@@ -326,7 +326,7 @@ class FreeRadiusController extends AppController {
 
         $items['timeout']   = $timeout;
         $items['time_added']= 360;
-    
+
         $this->set(array(
             'data'          => $items,
             'success'       => true,
@@ -375,7 +375,7 @@ class FreeRadiusController extends AppController {
             $time_added = $value-time();
             $c->id = $id;
             $c->saveField('value', $value);
-            $items['time_added'] = $time_added;    
+            $items['time_added'] = $time_added;
         }
 
         $this->set(array(
@@ -397,7 +397,7 @@ class FreeRadiusController extends AppController {
             if($this->request->data['user_type'] == 'permanent'){
                 $q_r        = ClassRegistry::init('PermanentUser')->findById($this->request->data['user_id']);
                 $username   = $q_r['PermanentUser']['username'];
-                $q_r        = ClassRegistry::init('Radcheck')->find('first', 
+                $q_r        = ClassRegistry::init('Radcheck')->find('first',
                     array('conditions' =>
                         array('Radcheck.username' => $username,'Radcheck.attribute' => 'Cleartext-Password')
                     )
@@ -416,7 +416,7 @@ class FreeRadiusController extends AppController {
                 $v->contain();
                 $q_r        = $v->findById($this->request->data['voucher_id']);
                 $username   = $q_r['Voucher']['name'];
-                $pwd        = $q_r['Voucher']['password'];  
+                $pwd        = $q_r['Voucher']['password'];
             }
 
         }
@@ -456,13 +456,13 @@ class FreeRadiusController extends AppController {
             if(($send_flag == true)&&($line > $send_line)){
                 if($i !=''){
                     array_push($send_data,$i);
-                }   
+                }
             }
 
             if(($receive_flag == true)&&($line > $receive_line)){
                 if($i !=''){
                     array_push($receive_data,$i);
-                }    
+                }
             }
 
             $line++;

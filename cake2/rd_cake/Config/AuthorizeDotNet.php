@@ -9,7 +9,7 @@ x_catalog_link_id=1abacb70-d45d-4d12-ba51-98f01523720d
 
 We will then use this in the controller to determine what the voucher should contain by means of this lookup
 
-Since we have no means to know what the description of the catalog is, we have to add our own which will be inserted 
+Since we have no means to know what the description of the catalog is, we have to add our own which will be inserted
 when a transaction is recorded.
 
 */

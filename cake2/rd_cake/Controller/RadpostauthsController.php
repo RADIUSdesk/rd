@@ -8,11 +8,11 @@ class RadpostauthsController extends AppController {
     protected $base    = "Access Providers/Controllers/Radpostauths/";
 
     //--- FROM THE OLD ---
-    /* json_index json_add json_del json_view json_edit 
-        // json_prepaid_list json_tabs json_send_message csv json_change_profile 
+    /* json_index json_add json_del json_view json_edit
+        // json_prepaid_list json_tabs json_send_message csv json_change_profile
         // json_private_attributes json_add_private json_del_private json_edit_private
         // json_test_auth json_disable json_usage json_kick json_notify_detail json_notify_save
-        // json_view_activity json_del_activity json_password 
+        // json_view_activity json_del_activity json_password
         // json_actions json_actions_for_user_private json_actions_for_user_profile json_actions_for_user_activity
     */
 
@@ -45,7 +45,7 @@ class RadpostauthsController extends AppController {
         $q_r        = $this->{$this->modelClass}->find('all',$c);
 
         //Create file
-        $this->ensureTmp();     
+        $this->ensureTmp();
         $tmpFilename    = TMP . $this->tmpDir . DS .  strtolower( Inflector::pluralize($this->modelClass) ) . '-' . date('Ymd-Hms') . '.csv';
         $fp             = fopen($tmpFilename, 'w');
 
@@ -53,7 +53,7 @@ class RadpostauthsController extends AppController {
         $heading_line   = array();
         if(isset($this->request->query['columns'])){
             $columns = json_decode($this->request->query['columns']);
-            foreach($columns as $c){             
+            foreach($columns as $c){
                 array_push($heading_line,$c->name);
             }
         }
@@ -67,8 +67,8 @@ class RadpostauthsController extends AppController {
             if(isset($this->request->query['columns'])){
                 $columns = json_decode($this->request->query['columns']);
                 foreach($columns as $c){
-                    $column_name = $c->name;     
-                    array_push($csv_line,$i['Radpostauth']["$column_name"]); 
+                    $column_name = $c->name;
+                    array_push($csv_line,$i['Radpostauth']["$column_name"]);
                 }
                 fputcsv($fp, $csv_line,';','"');
             }
@@ -83,7 +83,7 @@ class RadpostauthsController extends AppController {
     }
 
 
-  
+
     public function index(){
         //-- Required query attributes: token;
         //-- Optional query attribute: sel_language (for i18n error messages)
@@ -97,7 +97,7 @@ class RadpostauthsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-        $c = $this->_build_common_query($user); 
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -112,16 +112,16 @@ class RadpostauthsController extends AppController {
         $c_page             = $c;
         $c_page['page']     = $page;
         $c_page['limit']    = $limit;
-        $c_page['offset']   = $offset;       
+        $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count'  , $c); 
+        $total  = $this->{$this->modelClass}->find('count'  , $c);
         $q_r    = $this->{$this->modelClass}->find('all'    , $c_page);
-        
+
         $items  = array();
-        foreach($q_r as $i){ 
+        foreach($q_r as $i){
             array_push($items,
                 array(
-                    'id'                => $i['Radpostauth']['id'], 
+                    'id'                => $i['Radpostauth']['id'],
                     'username'          => $i['Radpostauth']['username'],
                     'pass'              => $i['Radpostauth']['pass'],
                     'realm'             => $i['Radpostauth']['realm'],
@@ -130,7 +130,7 @@ class RadpostauthsController extends AppController {
                     'authdate'          => $i['Radpostauth']['authdate']
                 )
             );
-        }                
+        }
         $this->set(array(
             'items'         => $items,
             'success'       => true,
@@ -147,7 +147,7 @@ class RadpostauthsController extends AppController {
         }
 
         $this->request['active']       = 0;
-        $this->request['monitor']      = 0;     
+        $this->request['monitor']      = 0;
 
 
         //Two fields should be tested for first:
@@ -215,14 +215,14 @@ class RadpostauthsController extends AppController {
         }
 
         //FIXME We need to find a creative wat to determine if the Access Provider can delete this accounting data!!!
-	    if(isset($this->data['id'])){   //Single item delete             
+	    if(isset($this->data['id'])){   //Single item delete
             $this->{$this->modelClass}->id = $this->data['id'];
             $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
         }else{                          //Assume multiple item delete
-            foreach($this->data as $d){   
+            foreach($this->data as $d){
                 $this->{$this->modelClass}->id = $d['id'];
                 $this->{$this->modelClass}->delete($this->{$this->modelClass}->id,true);
-            }         
+            }
         }
 
         $fail_flag = false;
@@ -259,23 +259,23 @@ class RadpostauthsController extends AppController {
             $menu = array(
                     array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                         array( 'xtype' =>  'splitbutton',  'iconCls' => 'b-reload',   'glyph'     => Configure::read('icnReload'),'scale'   => 'large', 'itemId'    => 'reload',   'tooltip'    => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">Reload every:</b>',
                                   //  array( 'text'   => _('Cancel auto reload'),   'itemId' => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true ),
                                     array( 'text'  => _('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => _('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => _('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => _('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
-                    ) 
+                    )
                 )),
                 array('xtype' => 'buttongroup', 'width'=> 75 ,'title' => __('Document'), 'items' => array(
                     array('xtype' => 'button', 'iconCls' => 'b-csv', 'glyph'     => Configure::read('icnCsv'),    'scale' => 'large', 'itemId' => 'csv',      'tooltip'=> __('Export CSV')),
                 )),
-               
+
             );
         }
 
@@ -287,31 +287,31 @@ class RadpostauthsController extends AppController {
             $document_group = array();
             $specific_group = array();
             //Reload
-            array_push($action_group,array( 
-                'xtype'     =>  'splitbutton',  
+            array_push($action_group,array(
+                'xtype'     =>  'splitbutton',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),   
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload'),
-                'menu'      => array(             
-                    'items'     => array( 
-                                    '<b class="menu-title">Reload every:</b>',            
+                'menu'      => array(
+                    'items'     => array(
+                                    '<b class="menu-title">Reload every:</b>',
                     array( 'text'  => _('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                     array( 'text'  => _('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                     array( 'text'  => _('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
-                    array( 'text'  => _('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )                                  
+                    array( 'text'  => _('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
                 ))));
 
-            
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){ 
+
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-csv',
-                    'glyph'     => Configure::read('icnCsv'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'glyph'     => Configure::read('icnCsv'),
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 
@@ -334,12 +334,12 @@ class RadpostauthsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
         $c['contain']   = array(
-                        //    'Radcheck'     
+                        //    'Radcheck'
                         );
 
         //===== SORT =====
@@ -360,7 +360,7 @@ class RadpostauthsController extends AppController {
             }
             $dir  = $this->request->query['dir'];
 */
-        } 
+        }
 
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
@@ -384,11 +384,11 @@ class RadpostauthsController extends AppController {
 
                     $col = $this->modelClass.'.'.$f->field;
                     array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
- 
+
                 }
                 //Bools
                 if($f->type == 'boolean'){
-                   
+
                 }
                 //Date
                 if($f->type == 'date'){
@@ -410,39 +410,39 @@ class RadpostauthsController extends AppController {
         //====== END REQUEST FILTER =====
 
         //====== AP FILTER =====
-        if($user['group_name'] == Configure::read('group.ap')){  //AP 
+        if($user['group_name'] == Configure::read('group.ap')){  //AP
             $this->Realm = ClassRegistry::init('Realm');
             $this->User  = ClassRegistry::init('User');
             $q_r        = $this->User->getPath($user['id']); //Get all the parents up to the root
             $ap_clause  = array();
             $ap_id      = $user['id'];
 
-            foreach($q_r as $i){         
+            foreach($q_r as $i){
                 $user_id    = $i['User']['id'];
                 $this->Realm->contain();
                 $r        = $this->Realm->find('all',array('conditions' => array('Realm.user_id' => $user_id, 'Realm.available_to_siblings' => true)));
                 foreach($r  as $j){
                     $id     = $j['Realm']['id'];
-                    $name   = $j['Realm']['name'];   
+                    $name   = $j['Realm']['name'];
                     $read   = $this->Acl->check(
-                                array('model' => 'Users', 'foreign_key' => $user['id']), 
+                                array('model' => 'Users', 'foreign_key' => $user['id']),
                                 array('model' => 'Realms','foreign_key' => $id), 'read');
                     if($read == true){
                         array_push($ap_clause,array($this->modelClass.'.realm' => $name));
-                    }                   
+                    }
                 }
             }
 
-            //Get all the realms owned by the $ap_id 
+            //Get all the realms owned by the $ap_id
             $r        = $this->Realm->find('all',array('conditions' => array('Realm.user_id' => $ap_id)));
             foreach($r  as $j){
                 $id     = $j['Realm']['id'];
-                $name   = $j['Realm']['name']; 
+                $name   = $j['Realm']['name'];
                 array_push($ap_clause,array($this->modelClass.'.realm' => $name));
             }
 
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $ap_clause)); 
+            array_push($c['conditions'],array('OR' => $ap_clause));
         }
         //====== END AP FILTER =====
         return $c;

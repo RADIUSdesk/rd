@@ -23,7 +23,7 @@ class MeshesController extends AppController {
         }
         $user_id    = $user['id'];
 
-        $c = $this->_build_common_query($user); 
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -40,7 +40,7 @@ class MeshesController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
 
         $items      = array();
@@ -74,13 +74,13 @@ class MeshesController extends AppController {
 	            if($last_timestamp+$dead_after <= $now){
 	                $nodes_down++;
 	            }else{
-					$nodes_up++;  
+					$nodes_up++;
 	            }
 				$node_count++;
 			}
 
             array_push($items,array(
-                'id'                    => $i['Mesh']['id'], 
+                'id'                    => $i['Mesh']['id'],
                 'name'                  => $i['Mesh']['name'],
                 'ssid'                  => $i['Mesh']['ssid'],
                 'bssid'                 => $i['Mesh']['bssid'],
@@ -88,14 +88,14 @@ class MeshesController extends AppController {
                 'node_count'            => $node_count,
                 'nodes_up'              => $nodes_up,
                 'nodes_down'            => $nodes_down,
-                'owner'                 => $owner_tree, 
+                'owner'                 => $owner_tree,
                 'notes'                 => $notes_flag,
                 'update'                => $action_flags['update'],
                 'delete'                => $action_flags['delete'],
                 'view'                  => $action_flags['view'],
             ));
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -160,7 +160,7 @@ class MeshesController extends AppController {
 
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item           = $this->{$this->modelClass}->findById($this->data['id']);
             $owner_id       = $item['Mesh']['user_id'];
             $profile_name   = $item['Mesh']['name'];
@@ -175,7 +175,7 @@ class MeshesController extends AppController {
                 $this->{$this->modelClass}->id = $this->data['id'];
                 $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -223,7 +223,7 @@ class MeshesController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $pc_id = $this->request->query['for_id'];
-            $q_r    = $this->{$this->modelClass}->{$this->itemNote}->find('all', 
+            $q_r    = $this->{$this->modelClass}->{$this->itemNote}->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('MeshNote.mesh_id' => $pc_id)
@@ -236,8 +236,8 @@ class MeshesController extends AppController {
                     $afs        = $this->_get_action_flags($owner_id,$user);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => $afs['delete']
@@ -245,7 +245,7 @@ class MeshesController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -276,7 +276,7 @@ class MeshesController extends AppController {
 
         $success    = false;
         $msg        = array('message' => __('Could not create note'));
-        $this->{$this->modelClass}->{$this->itemNote}->Note->create(); 
+        $this->{$this->modelClass}->{$this->itemNote}->Note->create();
         //print_r($this->request->data);
         if ($this->{$this->modelClass}->{$this->itemNote}->Note->save($this->request->data)) {
             $d                      = array();
@@ -319,7 +319,7 @@ class MeshesController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->{$this->modelClass}->{$this->itemNote}->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -333,7 +333,7 @@ class MeshesController extends AppController {
                 $this->{$this->modelClass}->MeshNote->Note->id = $this->data['id'];
                 $this->{$this->modelClass}->MeshNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -350,7 +350,7 @@ class MeshesController extends AppController {
                     $this->{$this->modelClass}->{$this->itemNote}->Note->id = $d['id'];
                     $this->{$this->modelClass}->{$this->itemNote}->Note->delete($d['id'],true);
                 }
-   
+
             }
         }
 
@@ -384,13 +384,13 @@ class MeshesController extends AppController {
         $entry->contain('MeshExitMeshEntry');
         $mesh_id    = $this->request->query['mesh_id'];
         $q_r        = $entry->find('all',array('conditions' => array('MeshEntry.mesh_id' => $mesh_id)));
-        
+
         foreach($q_r as $m){
-            $connected_to_exit = true;   
+            $connected_to_exit = true;
             if(count($m['MeshExitMeshEntry']) == 0){
                 $connected_to_exit = false;
             }
-            array_push($items,array( 
+            array_push($items,array(
                 'id'            => $m['MeshEntry']['id'],
                 'mesh_id'       => $m['MeshEntry']['mesh_id'],
                 'name'          => $m['MeshEntry']['name'],
@@ -420,7 +420,7 @@ class MeshesController extends AppController {
             return;
         }
 
-        $entry = ClassRegistry::init('MeshEntry'); 
+        $entry = ClassRegistry::init('MeshEntry');
         $entry->create();
         if ($entry->save($this->request->data)) {
             $this->set(array(
@@ -464,7 +464,7 @@ class MeshesController extends AppController {
                     '_serialize' => array('success')
                 ));
             }
-        } 
+        }
     }
 
     public function mesh_entry_view(){
@@ -478,13 +478,13 @@ class MeshesController extends AppController {
 
         $id    = $this->request->query['entry_id'];
         $q_r   = $entry->findById($id);
-        
-        if($q_r['MeshEntry']['macfilter'] != 'disable'){ 
+
+        if($q_r['MeshEntry']['macfilter'] != 'disable'){
             $pu = ClassRegistry::init('PermanentUser');
             $pu->contain();
             $q = $pu->findById($q_r['MeshEntry']['permanent_user_id']);
             if($q){
-                $q_r['MeshEntry']['username'] = $q['PermanentUser']['username'];    
+                $q_r['MeshEntry']['username'] = $q['PermanentUser']['username'];
             }else{
                 $q_r['MeshEntry']['username'] = "!!!User Missing!!!";
             }
@@ -511,10 +511,10 @@ class MeshesController extends AppController {
 
         $user_id    = $user['id'];
         $fail_flag  = false;
-        $entry      = ClassRegistry::init('MeshEntry'); 
+        $entry      = ClassRegistry::init('MeshEntry');
 
 	    if(isset($this->data['id'])){   //Single item delete
-            $message = "Single item ".$this->data['id']; 
+            $message = "Single item ".$this->data['id'];
             $entry->id = $this->data['id'];
             $entry->delete($entry->id, true);
         }else{                          //Assume multiple item delete
@@ -522,7 +522,7 @@ class MeshesController extends AppController {
                     $entry->id = $d['id'];
                     $entry->delete($entry->id, true);
             }
-        }  
+        }
         $this->set(array(
             'success' => true,
             '_serialize' => array('success')
@@ -537,15 +537,15 @@ class MeshesController extends AppController {
             return;
         }
 
-        $id         = $this->request->query['mesh_id']; 
-		Configure::load('MESHdesk'); 
+        $id         = $this->request->query['mesh_id'];
+		Configure::load('MESHdesk');
         $data       = Configure::read('mesh_settings'); //Read the defaults
         $setting    = ClassRegistry::init('MeshSetting');
         $setting->contain();
 
         $q_r = $setting->find('first', array('conditions' => array('MeshSetting.mesh_id' => $id)));
-        if($q_r){  
-            $data = $q_r['MeshSetting'];  
+        if($q_r){
+            $data = $q_r['MeshSetting'];
         }
 
         $this->set(array(
@@ -623,7 +623,7 @@ class MeshesController extends AppController {
                 array_push($exit_entries,array('name' => $m_e_ent['MeshEntry']['name']));
             }
 
-            array_push($items,array( 
+            array_push($items,array(
                 'id'            => $m['MeshExit']['id'],
                 'mesh_id'       => $m['MeshExit']['mesh_id'],
                 'name'          => $m['MeshExit']['name'],
@@ -648,41 +648,41 @@ class MeshesController extends AppController {
         }
 
         $entry_point    = ClassRegistry::init('MeshExitMeshEntry');
-        $exit           = ClassRegistry::init('MeshExit'); 
+        $exit           = ClassRegistry::init('MeshExit');
         $exit->create();
-        
-        
-        if($this->request->data['type'] == 'captive_portal'){ 
+
+
+        if($this->request->data['type'] == 'captive_portal'){
             if(isset($this->request->data['auto_dynamic_client'])){
-                $this->request->data['auto_dynamic_client'] = 1; 
+                $this->request->data['auto_dynamic_client'] = 1;
             }else{
                 $this->request->data['auto_dynamic_client'] = 0;
             }
-            
+
             if(isset($this->request->data['auto_login_page'])){
                 $this->request->data['auto_login_page'] = 1;
             }else{
                 $this->request->data['auto_login_page'] = 0;
             }
         }
-        
-        
+
+
 
         if ($exit->save($this->request->data)) {
             $new_id = $exit->id;
-            
+
             //---- openvpn_bridge -----
             if($this->request->data['type'] == 'openvpn_bridge'){
-                
+
                 $server_id  = $this->request->data['openvpn_server_id'];
                 $q_r        = $this->OpenvpnServer->findById($server_id);
-                if($q_r){    
+                if($q_r){
                     $d_vpn_c                    = array();
                     $d_vpn_c['mesh_ap_profile'] = 'mesh';
                     $d_vpn_c['mesh_id']         = $this->request->data['mesh_id'];
                     $d_vpn_c['openvpn_server_id'] = $this->request->data['openvpn_server_id'];
                     $d_vpn_c['mesh_exit_id']    = $new_id;
-                
+
                     $next_ip            = $q_r['OpenvpnServer']['vpn_bridge_start_address'];
                     $not_available      = true;
                     while($not_available){
@@ -693,70 +693,70 @@ class MeshesController extends AppController {
                         }else{
                             $next_ip = $this->_get_next_ip($next_ip);
                         }
-                    }   
+                    }
                     $this->OpenvpnServerClient->create();
-                    $this->OpenvpnServerClient->save($d_vpn_c);   
-                }           
+                    $this->OpenvpnServerClient->save($d_vpn_c);
+                }
             }
             //---- END openvpn_bridge ------
-            
-            
+
+
 
             //===== Captive Portal ==========
             if($this->request->data['type'] == 'captive_portal'){
 
                 $this->request->data['mesh_exit_id'] = $new_id;
-                
+
                 //----------- Easy to use enhancement --------------------
-                //See if we have to formulate the value of the 'radius_nasid' if the user chose to auto add it 
+                //See if we have to formulate the value of the 'radius_nasid' if the user chose to auto add it
                 if(
                     ($this->request->data['auto_dynamic_client'] == 1)||
                     ($this->request->data['auto_login_page'] == 1)
                 ){
-                
+
                     //Get the Mesh so we can get the user_id and available_to_siblings for the said mesh
                     $mesh_id  = $this->request->data['mesh_id'];
-                    $this->Mesh->contain();   
+                    $this->Mesh->contain();
                     $mesh       = $this->Mesh->findById($mesh_id);
                     $user_id    = $mesh['Mesh']['user_id'];
                     $a_to_s     = $mesh['Mesh']['available_to_siblings'];
                     $mesh_name  = $mesh['Mesh']['name'];
                     $mesh_name  = preg_replace('/\s+/', '_', $mesh_name);
-                    
-                                       
-                    $dc_data                            = array();       	            
+
+
+                    $dc_data                            = array();
 	                $dc_data['user_id']                 = $user_id;
 	                $dc_data['available_to_siblings']   = $a_to_s;
 	                $dc_data['nasidentifier']           = $mesh_name.'_mcp_'.$new_id;
-	                
+
 	                //Get a list of realms if the person selected a list - If it is empty that's fine
                     $count      = 0;
                     $dc_data['realm_list'] = ""; //Prime it
                     if (array_key_exists('realm_ids', $this->request->data)) {
                         foreach($this->request->data['realm_ids'] as $r){
                             if($count == 0){
-                                $dc_data['realm_list'] = $this->request->data['realm_ids'][$count]; 
+                                $dc_data['realm_list'] = $this->request->data['realm_ids'][$count];
                             }else{
                                 $dc_data['realm_list'] = $dc_data['realm_list'].",".$this->request->data['realm_ids'][$count];
-                            }  
+                            }
                             $count++;
                         }
                     }
-                    
-	                if($this->request->data['auto_dynamic_client'] == 1){    	                
+
+	                if($this->request->data['auto_dynamic_client'] == 1){
                         $this->_add_dynamic($dc_data);
                     }
-                    
-                    if($this->request->data['auto_login_page'] == 1){ 
+
+                    if($this->request->data['auto_login_page'] == 1){
 	                    $dc_data['dynamic_detail_id'] = $this->request->data['dynamic_detail_id'];
 	                    $this->_add_dynamic_pair($dc_data);
 	                }
-                                      
+
                     //Set the radius_nasid
-                    $this->request->data['radius_nasid'] = $dc_data['nasidentifier'];  
+                    $this->request->data['radius_nasid'] = $dc_data['nasidentifier'];
                 }
                 //----------- END Easy to use enhancement --------------------
-                
+
                 $captive_portal = ClassRegistry::init('MeshExitCaptivePortal');
                 $captive_portal->create();
 
@@ -809,7 +809,7 @@ class MeshesController extends AppController {
 
             //Only if empty was not specified
             if((!$empty_flag)&&(count($entry_ids)>0)){
-                foreach($entry_ids as $id){	
+                foreach($entry_ids as $id){
                     $data = array();
                     $data['MeshExitMeshEntry']['mesh_exit_id']  = $new_id;
                     $data['MeshExitMeshEntry']['mesh_entry_id'] = $id;
@@ -845,34 +845,34 @@ class MeshesController extends AppController {
 
             $entry_point    = ClassRegistry::init('MeshExitMeshEntry');
             $exit           = ClassRegistry::init('MeshExit');
-            
-            
+
+
             //---- openvpn_bridge -----
             if($this->request->data['type'] == 'openvpn_bridge'){
-                
+
                 $server_id  = $this->request->data['openvpn_server_id'];
-                
+
                 //We will only do the following if the selected OpenvpnServer changed
                 $exit->contain();
                 $q_exit             = $exit->findById($this->request->data['id']);
                 $current_server_id  = $q_exit['MeshExit']['openvpn_server_id'];
                 $server_id      = $this->request->data['openvpn_server_id'];
-                
+
                 if($current_server_id !== $server_id){
-                    //Delete old one 
+                    //Delete old one
                     $this->OpenvpnServerClient->deleteAll(
-                        array('OpenvpnServerClient.openvpn_server_id' => $current_server_id), 
+                        array('OpenvpnServerClient.openvpn_server_id' => $current_server_id),
                         false
                     );
-                    
+
                     $q_r        = $this->OpenvpnServer->findById($server_id);
-                    if($q_r){    
+                    if($q_r){
                         $d_vpn_c                        = array();
                         $d_vpn_c['mesh_ap_profile']     = 'mesh';
                         $d_vpn_c['mesh_id']             = $this->request->data['mesh_id'];
                         $d_vpn_c['openvpn_server_id']   = $this->request->data['openvpn_server_id'];
                         $d_vpn_c['mesh_exit_id']        = $this->request->data['id'];
-                    
+
                         $next_ip            = $q_r['OpenvpnServer']['vpn_bridge_start_address'];
                         $not_available      = true;
                         while($not_available){
@@ -883,15 +883,15 @@ class MeshesController extends AppController {
                             }else{
                                 $next_ip = $this->_get_next_ip($next_ip);
                             }
-                        }   
+                        }
                         $this->OpenvpnServerClient->create();
-                        $this->OpenvpnServerClient->save($d_vpn_c);   
+                        $this->OpenvpnServerClient->save($d_vpn_c);
                     }
-                    
-                }           
+
+                }
             }
             //---- END openvpn_bridge ------
-            
+
 
 
             //===== Captive Portal ==========
@@ -902,7 +902,7 @@ class MeshesController extends AppController {
                 $cp_data        = $this->request->data;
                 $mesh_exit_id   = $this->request->data['id'];
                 $q_r            = $captive_portal->find(
-                                    'first',array('conditions' => array('MeshExitCaptivePortal.mesh_exit_id' => $mesh_exit_id)));               
+                                    'first',array('conditions' => array('MeshExitCaptivePortal.mesh_exit_id' => $mesh_exit_id)));
                 if($q_r){
                     $cp_id = $q_r['MeshExitCaptivePortal']['id'];
                     $cp_data['id'] = $cp_id;
@@ -980,16 +980,16 @@ class MeshesController extends AppController {
                     '_serialize' => array('success')
                 ));
             }
-        } 
+        }
     }
-    
+
     public function mesh_exit_add_defaults(){
         $user = $this->_ap_right_check();
         if(!$user){
             return;
         }
-        
-        Configure::load('MESHdesk'); 
+
+        Configure::load('MESHdesk');
         $data = Configure::read('Meshes.captive_portal'); //Read the defaults
         $this->set(array(
             'data'     => $data,
@@ -997,9 +997,9 @@ class MeshesController extends AppController {
             '_serialize'=> array('success', 'data')
         ));
     }
-    
+
     public function mesh_experimental_check(){
-        Configure::load('RadiusDesk'); 
+        Configure::load('RadiusDesk');
         $active = Configure::read('experimental.active'); //Read the defaults
         $this->set(array(
             'active'     => $active,
@@ -1045,7 +1045,7 @@ class MeshesController extends AppController {
             $q_r['MeshExit']['proxy_auth_username']      = $q_r['MeshExitCaptivePortal']['proxy_auth_username'];
             $q_r['MeshExit']['proxy_auth_password']      = $q_r['MeshExitCaptivePortal']['proxy_auth_password'];
             $q_r['MeshExit']['coova_optional']  = $q_r['MeshExitCaptivePortal']['coova_optional'];
-            
+
             //DNS settings
             $q_r['MeshExit']['dns_manual']      = $q_r['MeshExitCaptivePortal']['dns_manual'];
             $q_r['MeshExit']['dns1']            = $q_r['MeshExitCaptivePortal']['dns1'];
@@ -1094,17 +1094,17 @@ class MeshesController extends AppController {
             '_serialize'=> array('success', 'items')
         ));
     }
-    
+
      public function mesh_exit_upstream_list(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
         }
-         
+
         $items  = [
             ['name'=> 'LAN (Ethernet0)', 'id' => 0 ]
         ];
-        
+
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -1126,10 +1126,10 @@ class MeshesController extends AppController {
 
         $user_id    = $user['id'];
         $fail_flag  = false;
-        $exit       = ClassRegistry::init('MeshExit'); 
+        $exit       = ClassRegistry::init('MeshExit');
 
 	    if(isset($this->data['id'])){   //Single item delete
-            $message = "Single item ".$this->data['id']; 
+            $message = "Single item ".$this->data['id'];
             $exit->id = $this->data['id'];
             $exit->delete($exit->id, true);
         }else{                          //Assume multiple item delete
@@ -1137,7 +1137,7 @@ class MeshesController extends AppController {
                     $exit->id = $d['id'];
                     $exit->delete($exit->id, true);
             }
-        }  
+        }
         $this->set(array(
             'success' => true,
             '_serialize' => array('success')
@@ -1148,7 +1148,7 @@ class MeshesController extends AppController {
     //===== Mesh nodes ======
 
     public function timezone_index(){
-        Configure::load('MESHdesk');      
+        Configure::load('MESHdesk');
         $timezones   = Configure::read('MESHdesk.timezones');
         $this->set(array(
             'items' => $timezones,
@@ -1158,7 +1158,7 @@ class MeshesController extends AppController {
     }
 
      public function country_index(){
-        Configure::load('MESHdesk');      
+        Configure::load('MESHdesk');
         $timezones   = Configure::read('MESHdesk.countries');
         $this->set(array(
             'items' => $timezones,
@@ -1182,10 +1182,10 @@ class MeshesController extends AppController {
             $node   = ClassRegistry::init('Node');
             $node->contain('NodeWifiSetting');
             $q_r    = $node->findById($this->request->query['node_id']);
-            
+
             $data['radio0_band'] = $q_r['Node']['radio0_band'];
             $data['radio1_band'] = $q_r['Node']['radio1_band'];
-            
+
             if($q_r){
                 $current_model = $q_r['Node']['hardware'];
                 if($current_model == $model){ //Its the same so lets check if there are any custom settings
@@ -1233,32 +1233,32 @@ class MeshesController extends AppController {
                     $radio0_band = '24';
                     $radio1_band = false;
                     foreach(array_keys($h) as $key){
-                    
+
                         //AC Device or not
                         if($key == 'device_type'){
                             $device_type = $h["$key"];
                         }
-                    
+
                         //Radio zero band adjust
                         if($key == 'five'){
                             if($h["$key"]){
                                 $radio0_band = '5';
                             }
                         }
-                        
+
                         //Radio one band adjust
                         if($key == 'five1'){
                             if($h["$key"]){
                                 $radio1_band = '5';
                             }
                         }
-                        
+
                         if($key == 'two1'){
                             if($h["$key"]){
                                 $radio1_band = '24';
                             }
                         }
-                        
+
                         if(preg_match('/^radio\d+_/',$key)){
                             if(preg_match('/^radio\d+_ht_capab/',$key)){
                                 $data["$key"] = implode("\n",$h["$key"]);
@@ -1267,7 +1267,7 @@ class MeshesController extends AppController {
                             }
                         }
                     }
-                       
+
                     $data['radio0_band'] = $radio0_band;
                     if($radio1_band){
                         $data['radio1_band'] = $radio1_band;
@@ -1277,7 +1277,7 @@ class MeshesController extends AppController {
                 }
             }
         }
-       
+
         $this->set(array(
             'data' => $data,
             'success' => true,
@@ -1301,12 +1301,12 @@ class MeshesController extends AppController {
         $q_r        = $node->find('all',array('conditions' => array('Node.mesh_id' => $mesh_id)));
 
         //Create a hardware lookup for proper names of hardware
-        $hardware = array();  
-		Configure::load('MESHdesk');      
+        $hardware = array();
+		Configure::load('MESHdesk');
         $hw   = Configure::read('hardware');
         foreach($hw as $h){
             $id     = $h['id'];
-            $name   = $h['name']; 
+            $name   = $h['name'];
             $hardware["$id"]= $name;
         }
 
@@ -1346,10 +1346,10 @@ class MeshesController extends AppController {
 			}else{
 				$p = $m['Node']['power'];
 			}
-			
+
 
             $hw_id = $m['Node']['hardware'];
-            array_push($items,array( 
+            array_push($items,array(
                 'id'            => $m['Node']['id'],
                 'mesh_id'       => $m['Node']['mesh_id'],
                 'name'          => $m['Node']['name'],
@@ -1385,7 +1385,7 @@ class MeshesController extends AppController {
         $node           = ClassRegistry::init('Node');
 
         $wifi_setting   = ClassRegistry::init('NodeWifiSetting');
- 
+
         $node->create();
         if ($node->save($this->request->data)) {
 
@@ -1417,14 +1417,14 @@ class MeshesController extends AppController {
             }
 
             //Only if empty was not specified
-            if((!$empty_flag)&&(count($entry_ids)>0)){  
+            if((!$empty_flag)&&(count($entry_ids)>0)){
                 foreach($entry_ids as $id){
                 	$data = array();
                     $data['NodeMeshEntry']['node_id']       = $new_id;
                     $data['NodeMeshEntry']['mesh_entry_id'] = $id;
 					$static_entry->create();
                     $static_entry->save($data);
-					$static_entry->id = null;	
+					$static_entry->id = null;
                 }
             }
 
@@ -1474,7 +1474,7 @@ class MeshesController extends AppController {
             //--Clean up--
             $n_id = $new_id;
             foreach(array_keys($this->request->data) as $key){
-                if(preg_match('/^radio\d+_(htmode|txpower|diversity|distance|noscan|ht_capab|ldpc|beacon_int|disable_b)/',$key)){            
+                if(preg_match('/^radio\d+_(htmode|txpower|diversity|distance|noscan|ht_capab|ldpc|beacon_int|disable_b)/',$key)){
                     if(preg_match('/^radio\d+_ht_capab/',$key)){
                         $pieces = explode("\n", $this->request->data["$key"]);
                         foreach($pieces as $p){
@@ -1496,7 +1496,7 @@ class MeshesController extends AppController {
                         $wifi_setting->id = null;
                     }
                 }
-                
+
                 if($key == 'device_type'){
                     $wifi_setting->create();
                     $d_setting = array();
@@ -1505,7 +1505,7 @@ class MeshesController extends AppController {
                     $d_setting['NodeWifiSetting']['value']     = $this->request->data["$key"];
                     $wifi_setting->save($d_setting);
                     $wifi_setting->id = null;
-                }  
+                }
             }
             //------- END Add settings for this node ---
 
@@ -1558,8 +1558,8 @@ class MeshesController extends AppController {
             if($move_meshes){
 			    $ip = $node->get_ip_for_node($this->request->data['mesh_id']);
 			    $this->request->data['ip'] = $ip;
-            }  
-     
+            }
+
             if ($node->save($this->request->data)) {
                 $new_id = $node->id;
 
@@ -1647,7 +1647,7 @@ class MeshesController extends AppController {
                 $wifi_setting->deleteAll(array('NodeWifiSetting.node_id' => $n_id), true);
                 foreach(array_keys($this->request->data) as $key){
                     if(preg_match('/^radio\d+_(htmode|txpower|diversity|distance|noscan|ht_capab|ldpc|beacon_int|disable_b)/',$key)){
-                        
+
                         if(preg_match('/^radio\d+_ht_capab/',$key)){
                             $pieces = explode("\n", $this->request->data["$key"]);
                             foreach($pieces as $p){
@@ -1669,7 +1669,7 @@ class MeshesController extends AppController {
                             $wifi_setting->id = null;
                         }
                     }
-                    
+
                     if($key == 'device_type'){
                         $wifi_setting->create();
                         $d_setting = array();
@@ -1679,7 +1679,7 @@ class MeshesController extends AppController {
                         $wifi_setting->save($d_setting);
                         $wifi_setting->id = null;
                     }
-                    
+
                 }
                 //------- END Add settings for this node ---
 
@@ -1699,7 +1699,7 @@ class MeshesController extends AppController {
                     '_serialize' => array('errors','success','message')
                 ));
             }
-        } 
+        }
     }
 
     public function mesh_node_view(){
@@ -1714,9 +1714,9 @@ class MeshesController extends AppController {
 
         $id    = $this->request->query['node_id'];
         $q_r   = $node->findById($id);
-        
+
         $hardware = $q_r['Node']['hardware'];
- 
+
         //print_r($q_r);
 		if(
 			($q_r['Node']['hardware'] == 'mp2_phone')||
@@ -1726,12 +1726,12 @@ class MeshesController extends AppController {
 			foreach($q_r['NodeMpSetting'] as $nms){
 				$key 	= $nms['name'];
 				$value	= $nms['value'];
-				$q_r['Node']["$key"] = $value; 
+				$q_r['Node']["$key"] = $value;
 			}
 		}
-		
+
 		$nme_list = [];
-		
+
 		foreach($q_r['NodeMeshEntry'] as $nme){
 		    array_push($nme_list,$nme['mesh_entry_id']);
 		}
@@ -1768,8 +1768,8 @@ class MeshesController extends AppController {
                 $q_r['Node']['radio1_ht_capab'] = implode("\n",$r1_ht_capab);
             }
         }else{
-            
-            Configure::load('MESHdesk'); 
+
+            Configure::load('MESHdesk');
             $hardware_list 	= Configure::read('hardware'); //Read the defaults
 		    foreach($hardware_list as $i){
 			    if($i['id'] == $hardware){
@@ -1810,11 +1810,11 @@ class MeshesController extends AppController {
 
         $user_id    = $user['id'];
         $fail_flag  = false;
-        $node       = ClassRegistry::init('Node'); 
+        $node       = ClassRegistry::init('Node');
         $neighbors  = ClassRegistry::init('NodeNeighbor');
 
 	    if(isset($this->data['id'])){   //Single item delete
-            $message = "Single item ".$this->data['id']; 
+            $message = "Single item ".$this->data['id'];
             $node->id = $this->data['id'];
             $node->delete($node->id, true);
             $neighbors->deleteAll(array('NodeNeighbor.neighbor_id' => $node->id), true);
@@ -1824,7 +1824,7 @@ class MeshesController extends AppController {
                     $node->delete($node->id, true);
                     $neighbors->deleteAll(array('NodeNeighbor.neighbor_id' => $node->id), true);
             }
-        }  
+        }
         $this->set(array(
             'success' => true,
             '_serialize' => array('success')
@@ -1853,7 +1853,7 @@ class MeshesController extends AppController {
         $entry      = ClassRegistry::init('MeshEntry');
 
         $entry->contain('MeshExitMeshEntry');
-        $ent_q_r    = $entry->find('all',array('conditions' => array('MeshEntry.mesh_id' => $mesh_id))); 
+        $ent_q_r    = $entry->find('all',array('conditions' => array('MeshEntry.mesh_id' => $mesh_id)));
         //print_r($ent_q_r);
 
         $items = array();
@@ -1867,7 +1867,7 @@ class MeshesController extends AppController {
                 array_push($items,array('id' => $id, 'name' => $n));
             }
 
-            //if $exit_id is set; we add it 
+            //if $exit_id is set; we add it
             if($exit_id){
                 if(count($i['MeshExitMeshEntry'])> 0){
                     if($i['MeshExitMeshEntry'][0]['mesh_exit_id'] == $exit_id){
@@ -1894,19 +1894,19 @@ class MeshesController extends AppController {
             return;
         }
 
-        $id         = $this->request->query['mesh_id']; 
-		Configure::load('MESHdesk'); 
+        $id         = $this->request->query['mesh_id'];
+		Configure::load('MESHdesk');
         $data       = Configure::read('common_node_settings'); //Read the defaults
         $setting    = ClassRegistry::init('NodeSetting');
         $setting->contain();
 
         //Timezone lists
-        $tz_list    = Configure::read('MESHdesk.timezones'); 
+        $tz_list    = Configure::read('MESHdesk.timezones');
 
         $q_r = $setting->find('first', array('conditions' => array('NodeSetting.mesh_id' => $id)));
-        if($q_r){  
+        if($q_r){
             //print_r($q_r);
-            $data = $q_r['NodeSetting']; 
+            $data = $q_r['NodeSetting'];
             //We need to find if possible the number for the timezone
             foreach($tz_list as $i){
                 if($q_r['NodeSetting']['tz_name'] == $i['name']){
@@ -1914,7 +1914,7 @@ class MeshesController extends AppController {
                     break;
                 }
             }
-            $data['eth_br_with']= intval($data['eth_br_with']); 
+            $data['eth_br_with']= intval($data['eth_br_with']);
         }
 
         $this->set(array(
@@ -1946,7 +1946,7 @@ class MeshesController extends AppController {
 
             //Try to find the timezone and its value
             Configure::load('MESHdesk');
-            $tz_list    = Configure::read('MESHdesk.timezones'); 
+            $tz_list    = Configure::read('MESHdesk.timezones');
             foreach($tz_list as $j){
                 if($j['id'] == $this->request->data['timezone']){
                     $this->request->data['tz_name'] = $j['name'];
@@ -1954,7 +1954,7 @@ class MeshesController extends AppController {
                     break;
                 }
             }
-            
+
             $mesh_id = $this->request->data['mesh_id'];
             //See if there is not already a setting entry
             $setting    = ClassRegistry::init('NodeSetting');
@@ -1963,7 +1963,7 @@ class MeshesController extends AppController {
 
             if($q_r){
                 $this->request->data['id'] = $q_r['NodeSetting']['id']; //Set the ID
-				//Check if the value of 
+				//Check if the value of
 				////if($this->request->data['password'] != $q_r['NodeSetting']['password']){   //!!Create a new has regardless!!
 					//Create a new hash
 					$new_pwd = $this->_make_linux_password($this->request->data['password']);
@@ -1989,7 +1989,7 @@ class MeshesController extends AppController {
         if(!$user){
             return;
         }
-        
+
         $conditions = ['MeshEntry.apply_to_all' => 0];
 
         if(isset($this->request->query['mesh_id'])){
@@ -2157,12 +2157,12 @@ class MeshesController extends AppController {
 
 		$mesh_id 	= $this->request->data['mesh_id'];
 
-        if(array_key_exists('zoom',$this->request->data)){        
+        if(array_key_exists('zoom',$this->request->data)){
             $q_r = $this->MeshSpecific->find('first',
 				array('conditions' => array('MeshSpecific.mesh_id' => $mesh_id,'MeshSpecific.name' => 'map_zoom'))
 			);
             if(!empty($q_r)){
-                $this->MeshSpecific->id = $q_r['MeshSpecific']['id'];    
+                $this->MeshSpecific->id = $q_r['MeshSpecific']['id'];
                 $this->MeshSpecific->saveField('value', $this->request->data['zoom']);
             }else{
                 $d['MeshSpecific']['mesh_id']	= $mesh_id;
@@ -2174,12 +2174,12 @@ class MeshesController extends AppController {
             }
         }
 
-        if(array_key_exists('type',$this->request->data)){        
+        if(array_key_exists('type',$this->request->data)){
             $q_r = $this->MeshSpecific->find('first',
 				array('conditions' => array('MeshSpecific.mesh_id' => $mesh_id,'MeshSpecific.name' => 'map_type'))
 			);
             if(!empty($q_r)){
-                $this->MeshSpecific->id = $q_r['MeshSpecific']['id'];    
+                $this->MeshSpecific->id = $q_r['MeshSpecific']['id'];
                 $this->MeshSpecific->saveField('value', $this->request->data['type']);
             }else{
                 $d['MeshSpecific']['mesh_id']	= $mesh_id;
@@ -2191,12 +2191,12 @@ class MeshesController extends AppController {
             }
         }
 
-        if(array_key_exists('lat',$this->request->data)){        
+        if(array_key_exists('lat',$this->request->data)){
             $q_r = $this->MeshSpecific->find('first',
 				array('conditions' => array('MeshSpecific.mesh_id' => $mesh_id,'MeshSpecific.name' => 'map_lat'))
 			);
             if(!empty($q_r)){
-                $this->MeshSpecific->id = $q_r['MeshSpecific']['id'];    
+                $this->MeshSpecific->id = $q_r['MeshSpecific']['id'];
                 $this->MeshSpecific->saveField('value', $this->request->data['lat']);
             }else{
                 $d['MeshSpecific']['mesh_id']	= $mesh_id;
@@ -2209,12 +2209,12 @@ class MeshesController extends AppController {
             }
         }
 
-        if(array_key_exists('lng',$this->request->data)){        
+        if(array_key_exists('lng',$this->request->data)){
             $q_r = $this->MeshSpecific->find('first',
 				array('conditions' => array('MeshSpecific.mesh_id' => $mesh_id,'MeshSpecific.name' => 'map_lng'))
 			);
             if(!empty($q_r)){
-                $this->MeshSpecific->id = $q_r['MeshSpecific']['id'];    
+                $this->MeshSpecific->id = $q_r['MeshSpecific']['id'];
                 $this->MeshSpecific->saveField('value', $this->request->data['lng']);
             }else{
                 $d['MeshSpecific']['mesh_id']= $mesh_id;
@@ -2334,21 +2334,21 @@ class MeshesController extends AppController {
 
             $menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
-                     array( 
-                        'xtype'     =>  'splitbutton',  
+                     array(
+                        'xtype'     =>  'splitbutton',
                         'iconCls'   => 'b-reload',
-                        'glyph'     => Configure::read('icnReload'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'reload',   
+                        'glyph'     => Configure::read('icnReload'),
+                        'scale'     => 'large',
+                        'itemId'    => 'reload',
                         'tooltip'   => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
@@ -2361,7 +2361,7 @@ class MeshesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-note',     'glyph' => Configure::read('icnNote'),'scale' => 'large', 'itemId' => 'note',    'tooltip'=> __('Add notes')),
                   //  array('xtype' => 'button', 'iconCls' => 'b-csv',     'scale' => 'large', 'itemId' => 'csv',      'tooltip'=> __('Export CSV')),
                 ))
-                
+
             );
         }
 
@@ -2372,21 +2372,21 @@ class MeshesController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array( 
-                'xtype'     =>  'splitbutton',  
+            array_push($action_group,array(
+                'xtype'     =>  'splitbutton',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),   
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload'),
-                    'menu'  => array( 
-                        'items' => array( 
+                    'menu'  => array(
+                        'items' => array(
                             '<b class="menu-title">'.__('Reload every').':</b>',
                             array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                             array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                             array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                             array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                           
+
                         )
                     )
             	)
@@ -2396,54 +2396,54 @@ class MeshesController extends AppController {
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-add',
-                    'glyph'     => Configure::read('icnAdd'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',     
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),  
-                    'scale'     => 'large', 
-                    'itemId'    => 'delete', 
-                    'disabled'  => true, 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
+                    'itemId'    => 'delete',
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
 			//Edit
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'mesh_entry_edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnEdit'),  
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,  
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
 			//View
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'mesh_entry_view')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnView'),  
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnView'),
+                    'scale'     => 'large',
                     'itemId'    => 'view',
-                    'disabled'  => true, 
+                    'disabled'  => true,
                     'tooltip'   => __('View')));
             }
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
+                        'xtype'     => 'button',
                         'iconCls'   => 'b-note',
-                        'glyph'     => Configure::read('icnNote'),     
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',      
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 
@@ -2479,7 +2479,7 @@ class MeshesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph'     => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph'     => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
                 ))
-                
+
             );
         }
 
@@ -2493,7 +2493,7 @@ class MeshesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph'     => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph'     => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
                 ))
-                
+
             );
         }
 
@@ -2524,7 +2524,7 @@ class MeshesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph'     => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph'     => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
                 ))
-                
+
             );
         }
 
@@ -2538,7 +2538,7 @@ class MeshesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph'     => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph'     => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
                 ))
-                
+
             );
         }
 
@@ -2564,21 +2564,21 @@ class MeshesController extends AppController {
 
             $menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
-                    array( 
-                        'xtype'     =>  'splitbutton',  
+                    array(
+                        'xtype'     =>  'splitbutton',
                         'iconCls'   => 'b-reload',
-                        'glyph'     => Configure::read('icnReload'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'reload',   
+                        'glyph'     => Configure::read('icnReload'),
+                        'scale'     => 'large',
+                        'itemId'    => 'reload',
                         'tooltip'   => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
@@ -2587,7 +2587,7 @@ class MeshesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph'     => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
 					array('xtype' => 'button', 'iconCls' => 'b-map',     'glyph'     => Configure::read('icnMap'),'scale' => 'large', 'itemId' => 'map',      'tooltip'=> __('Map'))
                 ))
-    
+
             );
         }
 
@@ -2596,21 +2596,21 @@ class MeshesController extends AppController {
 
             $menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
-                     array( 
-                        'xtype'     =>  'splitbutton',  
+                     array(
+                        'xtype'     =>  'splitbutton',
                         'iconCls'   => 'b-reload',
-                        'glyph'     => Configure::read('icnReload'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'reload',   
+                        'glyph'     => Configure::read('icnReload'),
+                        'scale'     => 'large',
+                        'itemId'    => 'reload',
                         'tooltip'   => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
@@ -2619,7 +2619,7 @@ class MeshesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph'     => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
 					array('xtype' => 'button', 'iconCls' => 'b-map',     'glyph'     => Configure::read('icnMap'),'scale' => 'large', 'itemId' => 'map',      'tooltip'=> __('Map'))
                 ))
-    
+
             );
         }
 
@@ -2648,7 +2648,7 @@ class MeshesController extends AppController {
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                     array('xtype' => 'button',  'glyph' => Configure::read('icnReload'),'scale' => 'large', 'itemId' => 'reload', 'tooltip'=> __('Reload')),
 					array('xtype' => 'button', 	'glyph' => Configure::read('icnMap'),'scale' => 'large', 'itemId' => 'map', 'tooltip'=> __('Map')),
-                  
+
                     array('xtype' => 'button',  'glyph' => Configure::read('icnSpanner'),'scale' => 'large', 'itemId' => 'execute','tooltip'=> __('Execute')),
 					array('xtype' => 'button',  'glyph' => Configure::read('icnWatch'),'scale' => 'large', 'itemId' => 'history','tooltip'=> __('View execute history')),
 					array('xtype' => 'button',  'glyph' => Configure::read('icnPower'),'scale' => 'large', 'itemId' => 'restart','tooltip'=> __('Restart')),
@@ -2663,7 +2663,7 @@ class MeshesController extends AppController {
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                     array('xtype' => 'button',  'glyph' => Configure::read('icnReload'),'scale' => 'large', 'itemId' => 'reload', 'tooltip'=> __('Reload')),
 					array('xtype' => 'button', 	'glyph' => Configure::read('icnMap'),'scale' => 'large', 'itemId' => 'map', 'tooltip'=> __('Map')),
-                  
+
                     array('xtype' => 'button',  'glyph' => Configure::read('icnSpanner'),'scale' => 'large', 'itemId' => 'execute','tooltip'=> __('Execute')),
 					array('xtype' => 'button',  'glyph' => Configure::read('icnWatch'),'scale' => 'large', 'itemId' => 'history','tooltip'=> __('View execute history')),
 					array('xtype' => 'button',  'glyph' => Configure::read('icnPower'),'scale' => 'large', 'itemId' => 'restart','tooltip'=> __('Restart')),
@@ -2722,7 +2722,7 @@ class MeshesController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -2744,7 +2744,7 @@ class MeshesController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -2759,7 +2759,7 @@ class MeshesController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -2797,12 +2797,12 @@ class MeshesController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }       
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -2842,7 +2842,7 @@ class MeshesController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true, 'view' => true);
                 }
-            }  
+            }
         }
     }
 
@@ -2858,7 +2858,7 @@ class MeshesController extends AppController {
             'conditions'    => array(
                 'NodeSetting.mesh_id' => $mesh_id
             )
-        )); 
+        ));
         if($n_s){
             $dead_after = $n_s['NodeSetting']['heartbeat_dead_after'];
         }
@@ -2956,7 +2956,7 @@ config secn 'asterisk'
 		$settings_to_add['username']    = $this->request->data['username'];
 		$settings_to_add['secret']      = $this->request->data['secret'];
 		$settings_to_add['dialout']     = $this->request->data['dialout'];
-	
+
 		foreach(array_keys($settings_to_add) as $k){
             $data['node_id']  	= $node_id;
             $data['name'] 		= $k;
@@ -2969,7 +2969,7 @@ config secn 'asterisk'
 
 	private function _get_radio_count_for($hardware){
 		$radio_count 	= 1;
-		Configure::load('MESHdesk'); 
+		Configure::load('MESHdesk');
         $hardware_list 	= Configure::read('hardware'); //Read the defaults
 
 		foreach($hardware_list as $i){
@@ -2994,7 +2994,7 @@ config secn 'asterisk'
 		}
 
 		$dual_radio['id']	= $node_id;
-		
+
 		//Radio0
 		if (array_key_exists('radio0_enable', $this->request->data)) {
 
@@ -3051,9 +3051,9 @@ config secn 'asterisk'
 		$n->create();
 		$n->save($dual_radio);
 	}
-	
+
 	private function _add_dynamic($dc_data){
-    
+
         //--Formulate a name
         $dc_data['name'] = 'MESHdesk_'.$dc_data['nasidentifier'];
         $this->DynamicClient->create();
@@ -3070,23 +3070,23 @@ config secn 'asterisk'
                     $this->DynamicClientRealm->save($dcr);
                     $this->DynamicClientRealm->id = null;
                 }
-            }   
+            }
         }
     }
-    
+
     private function _add_dynamic_pair($nas_data){
         $this->DynamicPair->create();
         $data = array();
         $data['name']               = 'nasid';
         $data['value']              = $nas_data['nasidentifier'];
         $data['dynamic_detail_id']  = $nas_data['dynamic_detail_id'];
-        $data['priority']           = 1;  
+        $data['priority']           = 1;
         $this->DynamicPair->save($data);
     }
-    
+
     private function _check_if_available($openvpn_server_id,$ip){
         $count = $this->OpenvpnServerClient->find('count',
-            array('conditions' => 
+            array('conditions' =>
                 array(
                     'OpenvpnServerClient.openvpn_server_id' => $openvpn_server_id,
                     'OpenvpnServerClient.ip_address' => $ip,

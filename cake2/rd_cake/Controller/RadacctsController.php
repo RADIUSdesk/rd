@@ -16,7 +16,7 @@ class RadacctsController extends AppController {
 			(isset($this->request->query['mac']))
 		){
 
-			//Some defaults 
+			//Some defaults
 			$data_used	= null;
 			$data_cap	= null;
 			$time_used	= null;
@@ -24,7 +24,7 @@ class RadacctsController extends AppController {
 
 //			$new_entry = true;
 
-			//We need a civilized way to tell the query if there are NO accountig data yet BUT there is a CAP (time_cap &| data_cap)! 
+			//We need a civilized way to tell the query if there are NO accountig data yet BUT there is a CAP (time_cap &| data_cap)!
 
 			//$data_used	= 10000;
 			//$data_cap	= 50000;
@@ -33,7 +33,7 @@ class RadacctsController extends AppController {
 
 			$username 	= $this->request->query['username'];
 			$mac		= $this->request->query['mac'];
-			
+
 			$this->MacUsage = ClassRegistry::init('MacUsage');
 			$q_m_u	= $this->MacUsage->find('first', array(
 				'conditions'	=> array('MacUsage.username' => $username, 'MacUsage.mac'=> $mac)
@@ -127,7 +127,7 @@ class RadacctsController extends AppController {
 			}
 
 			$data = array('data_used' => $data_used, 'data_cap' => $data_cap, 'time_used' => $time_used, 'time_cap' => $time_cap);
-      
+
 			$this->set(array(
                 'success'   => true,
                 'data'      => $data,
@@ -161,7 +161,7 @@ class RadacctsController extends AppController {
         $q_r        = $this->{$this->modelClass}->find('all',$c);
 
         //Create file
-        $this->ensureTmp();     
+        $this->ensureTmp();
         $tmpFilename    = TMP . $this->tmpDir . DS .  strtolower( Inflector::pluralize($this->modelClass) ) . '-' . date('Ymd-Hms') . '.csv';
         $fp             = fopen($tmpFilename, 'w');
 
@@ -169,7 +169,7 @@ class RadacctsController extends AppController {
         $heading_line   = array();
         if(isset($this->request->query['columns'])){
             $columns = json_decode($this->request->query['columns']);
-            foreach($columns as $c){             
+            foreach($columns as $c){
                 array_push($heading_line,$c->name);
             }
         }
@@ -185,19 +185,19 @@ class RadacctsController extends AppController {
                 foreach($columns as $c){
                     $column_name = $c->name;
                     if($column_name == 'user_type'){
-                        $user_type = 'unknown'; 
+                        $user_type = 'unknown';
                         //Find device type
                        /* if(count($i['Radcheck']) > 0){
                             foreach($i['Radcheck'] as $rc){
                                 if($rc['attribute'] == 'Rd-User-Type'){
-                                    $user_type = $rc['value'];   
+                                    $user_type = $rc['value'];
                                 }
                             }
                         }*/
                         array_push($csv_line,$user_type);
                     }else{
                         array_push($csv_line,$i['Radacct']["$column_name"]);
-                    } 
+                    }
                 }
                 fputcsv($fp, $csv_line,';','"');
             }
@@ -213,7 +213,7 @@ class RadacctsController extends AppController {
 
 
 
-  
+
     public function index(){
         //-- Required query attributes: token;
         //-- Optional query attribute: sel_language (for i18n error messages)
@@ -227,7 +227,7 @@ class RadacctsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-        $c = $this->_build_common_query($user); 
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -244,9 +244,9 @@ class RadacctsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        
 
-        $total  = $this->{$this->modelClass}->find('count'  , $c); 
+
+        $total  = $this->{$this->modelClass}->find('count'  , $c);
 
         //Get some totals to display
         $c['fields']        = array(
@@ -257,16 +257,16 @@ class RadacctsController extends AppController {
         $this->{$this->modelClass}->contain();
         $t_q  = $this->{$this->modelClass}->find('first'  , $c);
         $q_r  = $this->{$this->modelClass}->find('all'    , $c_page);
-        
+
         $items  = array();
         foreach($q_r as $i){
-              
+
             $user_type      = 'unknown';
             $online_human   = '';
 
             if($i['Radacct']['acctstoptime'] == null){
                 $online_time    = time()-strtotime($i['Radacct']['acctstarttime']);
-                $active         = true; 
+                $active         = true;
                 $online_human   = $this->TimeCalculations->time_elapsed_string($i['Radacct']['acctstarttime'],false,true);
             }else{
                 $online_time    = $i['Radacct']['acctstoptime'];
@@ -275,7 +275,7 @@ class RadacctsController extends AppController {
 
             array_push($items,
                 array(
-                    'id'                => $i['Radacct']['radacctid'], 
+                    'id'                => $i['Radacct']['radacctid'],
                     'acctsessionid'     => $i['Radacct']['acctsessionid'],
                     'acctuniqueid'      => $i['Radacct']['acctuniqueid'],
                     'username'          => $i['Radacct']['username'],
@@ -307,7 +307,7 @@ class RadacctsController extends AppController {
                     'online_human'      => $online_human
                 )
             );
-        }                
+        }
         $this->set(array(
             'items'         => $items,
             'success'       => true,
@@ -332,15 +332,15 @@ class RadacctsController extends AppController {
 
         //FIXME We need to find a creative wat to determine if the Access Provider can delete this accounting data!!!
 	    if(isset($this->data['id'])){   //Single item delete
-            $this->_voucher_status_check($this->data['id']);        
+            $this->_voucher_status_check($this->data['id']);
             $this->{$this->modelClass}->id = $this->data['id'];
             $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
         }else{                          //Assume multiple item delete
-            foreach($this->data as $d){ 
-                $this->_voucher_status_check($d['id']);   
+            foreach($this->data as $d){
+                $this->_voucher_status_check($d['id']);
                 $this->{$this->modelClass}->id = $d['id'];
                 $this->{$this->modelClass}->delete($this->{$this->modelClass}->id,true);
-            }         
+            }
         }
 
         $fail_flag = false;
@@ -371,7 +371,7 @@ class RadacctsController extends AppController {
                 $qr = $this->{$this->modelClass}->find('first',array('conditions' => array('Radacct.radacctid' => $key)));
                 if($qr){
                     $this->Kicker->kick($qr['Radacct']);
-                }  
+                }
             }
         }
 
@@ -399,7 +399,7 @@ class RadacctsController extends AppController {
                         $this->{$this->modelClass}->id = $key;
                         $this->{$this->modelClass}->saveField('acctstoptime', $now);
                     }
-                }  
+                }
             }
         }
 
@@ -428,28 +428,28 @@ class RadacctsController extends AppController {
             $menu = array(
                     array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                         array( 'xtype' =>  'splitbutton',  'iconCls' => 'b-reload',   'glyph'     => Configure::read('icnReload'), 'scale'   => 'large', 'itemId'    => 'reload',   'tooltip'    => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                   //  array( 'text'   => _('Cancel auto reload'),   'itemId' => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true ),
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
                     array(
-                            'xtype'         => 'button', 
+                            'xtype'         => 'button',
                             'iconCls'       => 'b-connect',
-                            'glyph'         => Configure::read('icnConnect'),      
+                            'glyph'         => Configure::read('icnConnect'),
                             'scale'         => 'large',
                             'itemId'        => 'connected',
                             'enableToggle'  => true,
-                            'pressed'       => true,    
+                            'pressed'       => true,
                             'tooltip'       => __('Show only currently connected')
-                    )     
+                    )
                 )),
                 array('xtype' => 'buttongroup','title' => __('Document'), 'items' => array(
                     array('xtype' => 'button', 'iconCls' => 'b-csv',     'glyph'     => Configure::read('icnCsv'), 'scale' => 'large', 'itemId' => 'csv',      'tooltip'=> __('Export CSV')),
@@ -458,8 +458,8 @@ class RadacctsController extends AppController {
                 array('xtype' => 'buttongroup','title' => __('Extra actions'), 'items' => array(
                     array('xtype' => 'button', 'iconCls' => 'b-kick', 'glyph'     => Configure::read('icnKick'),'scale' => 'large', 'itemId' => 'kick', 'tooltip'=> __('Kick user off')),
                     array('xtype' => 'button', 'iconCls' => 'b-close', 'glyph'     => Configure::read('icnClose'),'scale' => 'large', 'itemId' => 'close','tooltip'=> __('Close session')),
-                )) 
-               
+                ))
+
             );
         }
 
@@ -472,70 +472,70 @@ class RadacctsController extends AppController {
             $specific_group = array();
 
             //Reload
-            array_push($action_group,array( 
-                'xtype'     =>  'splitbutton',  
+            array_push($action_group,array(
+                'xtype'     =>  'splitbutton',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),   
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload'),
-                'menu'      => array(             
-                    'items'     => array( 
-                                    '<b class="menu-title">'.__('Reload every').':</b>',            
+                'menu'      => array(
+                    'items'     => array(
+                                    '<b class="menu-title">'.__('Reload every').':</b>',
                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
-                    array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )                                  
+                    array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
                 ))));
 
             array_push($action_group,array(
-                'xtype'         => 'button', 
+                'xtype'         => 'button',
                 'iconCls'       => 'b-connect',
-                'glyph'         => Configure::read('icnConnect'),     
+                'glyph'         => Configure::read('icnConnect'),
                 'scale'         => 'large',
                 'itemId'        => 'connected',
                 'enableToggle'  => true,
-                'pressed'       => true,    
+                'pressed'       => true,
                 'tooltip'       => __('Show only currently connected')
-            ));    
+            ));
 
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-csv',
-                    'glyph'     => Configure::read('icnCsv'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'glyph'     => Configure::read('icnCsv'),
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 
           array_push($document_group,array(
-                'xtype'     => 'button', 
+                'xtype'     => 'button',
                 'iconCls'   => 'b-graph',
-                'glyph'     => Configure::read('icnGraph'),     
-                'scale'     => 'large', 
-                'itemId'    => 'graph',      
+                'glyph'     => Configure::read('icnGraph'),
+                'scale'     => 'large',
+                'itemId'    => 'graph',
                 'tooltip'   => __('Usage graph')));
 
 
-           if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'kick_active')){ 
+           if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'kick_active')){
                 array_push($specific_group, array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-kick',
-                    'glyph'     => Configure::read('icnKick'), 
-                    'scale'     => 'large', 
-                    'itemId'    => 'kick', 
+                    'glyph'     => Configure::read('icnKick'),
+                    'scale'     => 'large',
+                    'itemId'    => 'kick',
                     'tooltip'   => __('Kick user off')));
             }
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'close_open')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'close_open')){
                 array_push($specific_group, array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-close',
-                    'glyph'     => Configure::read('icnClose'), 
-                    'scale'     => 'large', 
-                    'itemId'    => 'close', 
+                    'glyph'     => Configure::read('icnClose'),
+                    'scale'     => 'large',
+                    'itemId'    => 'close',
                     'tooltip'   => __('Close session')));
             }
 
@@ -560,15 +560,15 @@ class RadacctsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
         $c['contain']   = array(
         //                    'Radcheck'   //This makes it slow
                         );
-                        
-                        
+
+
         //====== Only_connectd filter ==========
         $only_connected = false;
         if(isset($this->request->query['only_connected'])){
@@ -576,7 +576,7 @@ class RadacctsController extends AppController {
                 $only_connected = true;
                 array_push($c['conditions'],array($this->modelClass.".acctstoptime" => null));
             }
-        }                  
+        }
 
         //===== SORT =====
         //Default values for sort and dir
@@ -590,12 +590,12 @@ class RadacctsController extends AppController {
                 $sort = 'Radacct.acctstarttime';
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
 
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
-       
+
 
         //======= For a specified username filter *Usually on the edit of user / voucher ======
         if(isset($this->request->query['username'])){
@@ -623,11 +623,11 @@ class RadacctsController extends AppController {
 
                     $col = $this->modelClass.'.'.$f->field;
                     array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
- 
+
                 }
                 //Bools
                 if($f->type == 'boolean'){
-                   
+
                 }
                 //Date
                 if($f->type == 'date'){
@@ -656,7 +656,7 @@ class RadacctsController extends AppController {
                             'alias'         => 'Radcheck',
                             'type'          => 'LEFT',
                             'conditions'    => array('(Radcheck.username = Radacct.callingstationid) OR (Radcheck.username = Radacct.username)')
-                        )); 
+                        ));
                         array_push($c['conditions'],array('OR' => $list_array));
                     }
                 }
@@ -665,13 +665,13 @@ class RadacctsController extends AppController {
         //====== END REQUEST FILTER =====
 
         //====== AP FILTER =====
-        if($user['group_name'] == Configure::read('group.ap')){  //AP               
-        
+        if($user['group_name'] == Configure::read('group.ap')){  //AP
+
             $this->Realm    = ClassRegistry::init('Realm');
             $q_r            = $this->User->getPath($user['id']); //Get all the parents up to the root
             $ap_clause      = array();
             $ap_id          = $user['id'];
-            
+
             //** ALL the AP's children **
             $tree_array_children    = array();
             $this->children         = $this->User->find_access_provider_children($user['id']);
@@ -679,8 +679,8 @@ class RadacctsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array_children,array('Realm.user_id' => $id));
-                }       
-            } 
+                }
+            }
 
             $this->Realm->contain();
             $r_children = $this->Realm->find('all',array('conditions' => array('OR' => $tree_array_children)));
@@ -688,7 +688,7 @@ class RadacctsController extends AppController {
                 $name   = $r_c['Realm']['name'];
                 array_push($ap_clause,array($this->modelClass.'.realm' => $name));
             }
-            
+
             //** ALL the AP's Parents **
             $tree_array_parents     = array();
             $this->parents          = $this->User->getPath($user['id'],'User.id');
@@ -698,29 +698,29 @@ class RadacctsController extends AppController {
                     array_push($tree_array_parents,array('Realm.user_id' => $i_id,'Realm.available_to_siblings' => true));
                 }
             }
-            
+
             $this->Realm->contain();
             $r_parents = $this->Realm->find('all',array('conditions' => array('OR' => $tree_array_parents)));
             foreach($r_parents as $r_p){
                 $id     = $r_p['Realm']['id'];
                 $name   = $r_p['Realm']['name'];
                 $read   = $this->Acl->check(
-                                array('model' => 'Users', 'foreign_key' => $user['id']), 
+                                array('model' => 'Users', 'foreign_key' => $user['id']),
                                 array('model' => 'Realms','foreign_key' => $id), 'read');
                 if($read == true){
                     array_push($ap_clause,array($this->modelClass.'.realm' => $name));
-                }                  
+                }
             }
-            
+
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $ap_clause)); 
+            array_push($c['conditions'],array('OR' => $ap_clause));
         }
         //====== END AP FILTER =====
 
         return $c;
     }
 
-   
+
     private function _voucher_status_check($id){
 
         //Find the count of this username; if zero check if voucher; if voucher change status to 'new';
@@ -732,7 +732,7 @@ class RadacctsController extends AppController {
             if(count($q_r['Radcheck']) > 0){
                 foreach($q_r['Radcheck'] as $rc){
                     if($rc['attribute'] == 'Rd-User-Type'){
-                        $user_type = $rc['value'];   
+                        $user_type = $rc['value'];
                     }
                 }
             }
@@ -748,7 +748,7 @@ class RadacctsController extends AppController {
                         $this->Voucher->saveField('status', 'new');
                         $this->Voucher->saveField('perc_data_used', null);
                         $this->Voucher->saveField('perc_time_used', null);
-                    }                           
+                    }
                 }
             }
         }

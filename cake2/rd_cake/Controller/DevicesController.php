@@ -9,10 +9,10 @@ class DevicesController extends AppController {
     protected $base    = "Access Providers/Controllers/Devices/"; //Required for AP Rights
     protected  $read_only_attributes = array(
             'Rd-User-Type', 'Rd-Device-Owner', 'Rd-Account-Disabled', 'User-Profile', 'Expiration',
-            'Rd-Account-Activation-Time', 'Rd-Not-Track-Acct', 'Rd-Not-Track-Auth', 'Rd-Auth-Type', 
+            'Rd-Account-Activation-Time', 'Rd-Not-Track-Acct', 'Rd-Not-Track-Auth', 'Rd-Auth-Type',
             'Rd-Cap-Type-Data', 'Rd-Cap-Type-Time' ,'Rd-Realm', 'Cleartext-Password'
         );
-        
+
     protected $AclCache = array();
 
     //-------- BASIC CRUD -------------------------------
@@ -34,7 +34,7 @@ class DevicesController extends AppController {
         $q_r        = $this->{$this->modelClass}->find('all', $c);
 
         //Create file
-        $this->ensureTmp();     
+        $this->ensureTmp();
         $tmpFilename    = TMP . $this->tmpDir . DS .  strtolower( Inflector::pluralize($this->modelClass) ) . '-' . date('Ymd-Hms') . '.csv';
         $fp             = fopen($tmpFilename, 'w');
 
@@ -60,31 +60,31 @@ class DevicesController extends AppController {
                         $notes   = '';
                         foreach($i['DeviceNote'] as $n){
                             if(!$this->_test_for_private_parent($n['Note'],$user)){
-                                $notes = $notes.'['.$n['Note']['note'].']';    
+                                $notes = $notes.'['.$n['Note']['note'].']';
                             }
                         }
                         array_push($csv_line,$notes);
                     }elseif($column_name =='user'){
                         $owner       = $i['User']['username'];
-                        array_push($csv_line,$owner); 
+                        array_push($csv_line,$owner);
                     }elseif($column_name =='realm'){
                         $realm = 'n/a';
-                        foreach($i['Radcheck'] as $rc){       
+                        foreach($i['Radcheck'] as $rc){
                             if($rc['attribute'] == 'Rd-Realm'){
                                 $realm = $rc['value'];
                             }
                         }
-                        array_push($csv_line,$realm); 
+                        array_push($csv_line,$realm);
                     }elseif($column_name =='profile'){
                         $profile = 'n/a';
-                        foreach($i['Radcheck'] as $rc){       
+                        foreach($i['Radcheck'] as $rc){
                             if($rc['attribute'] == 'User-Profile'){
                                 $profile = $rc['value'];
                             }
                         }
-                        array_push($csv_line,$profile); 
+                        array_push($csv_line,$profile);
                     }else{
-                        array_push($csv_line,$i['Device']["$column_name"]);  
+                        array_push($csv_line,$i['Device']["$column_name"]);
                     }
                 }
                 fputcsv($fp, $csv_line,';','"');
@@ -113,7 +113,7 @@ class DevicesController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-        $c = $this->_build_common_query($user); 
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -130,7 +130,7 @@ class DevicesController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count'  , $c);  
+        $total  = $this->{$this->modelClass}->find('count'  , $c);
         $q_r    = $this->{$this->modelClass}->find('all'    , $c_page);
 
         $items      = array();
@@ -181,11 +181,11 @@ class DevicesController extends AppController {
             if($action_flags['read']){
                 array_push($items,
                     array(
-                        'id'            		=> $i['Device']['id'], 
+                        'id'            		=> $i['Device']['id'],
                         'user'          		=> $i['PermanentUser']['username'],
                         'permanent_user_id'     => $i['Device']['permanent_user_id'],
                         'name'          		=> $i['Device']['name'],
-                        'description'   		=> $i['Device']['description'], 
+                        'description'   		=> $i['Device']['description'],
                         'realm'         		=> $realm,
                         'profile'       		=> $profile,
                         //'profile_id'    => $profiles[$profile],
@@ -205,7 +205,7 @@ class DevicesController extends AppController {
                 );
             }
         }
-        
+
         $this->set(array(
             'items'         => $items,
             'success'       => true,
@@ -222,7 +222,7 @@ class DevicesController extends AppController {
         }
 
         $this->request['active']       = 0;
-   
+
         //Two fields should be tested for first:
         if(array_key_exists('active',$this->request->data)){
             $this->request->data['active'] = 1;
@@ -283,7 +283,7 @@ class DevicesController extends AppController {
                 $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
                 $this->_delete_clean_up_device($username);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -376,11 +376,11 @@ class DevicesController extends AppController {
                 if($rc['attribute'] == 'Expiration'){
                   $to_date =  $rc['value'];
                 }
-                
+
                 if($rc['attribute'] == 'Rd-Cap-Type-Data'){
                   $cap_data =  $rc['value'];
                 }
-                
+
                 if($rc['attribute'] == 'Rd-Cap-Type-Time'){
                   $cap_time =  $rc['value'];
                 }
@@ -389,7 +389,7 @@ class DevicesController extends AppController {
                   $owner =  $rc['value'];
                 }
             }
-        
+
             //Now we do the rest....
             if($profile){
                 $q_r = $this->User = ClassRegistry::init('Profile')->findByName($profile);
@@ -469,7 +469,7 @@ class DevicesController extends AppController {
                 $this->_replace_radcheck_item($username,'Rd-Account-Activation-Time',$expiration);
             }
 
-            
+
             if(isset($this->request->data['always_active'])){ //Clean up if there were previous ones
                 ClassRegistry::init('Radcheck')->deleteAll(
                     array('Radcheck.username' => $username,'Radcheck.attribute' => 'Rd-Account-Activation-Time'), false
@@ -479,7 +479,7 @@ class DevicesController extends AppController {
                     array('Radcheck.username' => $username,'Radcheck.attribute' => 'Expiration'), false
                 );
             }
-            
+
             if(isset($this->request->data['cap_data'])){
                 $this->_replace_radcheck_item($username,'Rd-Cap-Type-Data',$this->request->data['cap_data']);
             }else{              //Clean up if there were previous ones
@@ -525,11 +525,11 @@ class DevicesController extends AppController {
                 if(in_array($i['Radcheck']['attribute'],$this->read_only_attributes)){
                     $edit_flag      = false;
                     $delete_flag    = false;
-                }     
+                }
 
                 array_push($items,array(
                     'id'        => 'chk_'.$i['Radcheck']['id'],
-                    'type'      => 'check', 
+                    'type'      => 'check',
                     'attribute' => $i['Radcheck']['attribute'],
                     'op'        => $i['Radcheck']['op'],
                     'value'     => $i['Radcheck']['value'],
@@ -545,11 +545,11 @@ class DevicesController extends AppController {
                 if(in_array($i['Radreply']['attribute'],$this->read_only_attributes)){
                     $edit_flag      = false;
                     $delete_flag    = false;
-                }     
+                }
 
                 array_push($items,array(
                     'id'        => 'rpl_'.$i['Radreply']['id'],
-                    'type'      => 'reply', 
+                    'type'      => 'reply',
                     'attribute' => $i['Radreply']['attribute'],
                     'op'        => $i['Radreply']['op'],
                     'value'     => $i['Radreply']['value'],
@@ -759,15 +759,15 @@ class DevicesController extends AppController {
                     }else{
                         $rc->id = $type_id[1];
                         $rc->delete();
-                    }            
+                    }
                 }
             }
 
-            if(preg_match("/^rpl_/",$this->request->data['id'])){   
+            if(preg_match("/^rpl_/",$this->request->data['id'])){
                 $rr->id = $type_id[1];
                 $rr->delete();
-            } 
-   
+            }
+
         }else{                          //Assume multiple item delete
             $fail_flag          = false;
             foreach($this->data as $d){
@@ -782,13 +782,13 @@ class DevicesController extends AppController {
                         }else{
                             $rc->id = $type_id[1];
                             $rc->delete();
-                        }            
+                        }
                     }
                 }
-                if(preg_match("/^rpl_/",$d['id'])){   
+                if(preg_match("/^rpl_/",$d['id'])){
                     $rr->id = $type_id[1];
                     $rr->delete();
-                }            
+                }
             }
         }
 
@@ -841,11 +841,11 @@ class DevicesController extends AppController {
                   if($rc['value'] == 1){
                         $auth = false;
                   }
-                } 
+                }
             }
             $items['track_auth'] = $auth;
             $items['track_acct'] = $acct;
-            
+
         }
 
         $this->set(array(
@@ -868,8 +868,8 @@ class DevicesController extends AppController {
         if(isset($this->request->data['id'])){
             $q_r        = $this->{$this->modelClass}->findById($this->request->data['id']);
             $username   = $q_r['Device']['name'];
-           
-            //Not Track auth (Rd-Not-Track-Auth) *By default we will (in post-auth) 
+
+            //Not Track auth (Rd-Not-Track-Auth) *By default we will (in post-auth)
             if(!isset($this->request->data['track_auth'])){
                 $this->_replace_radcheck_item($username,'Rd-Not-Track-Auth',1);
             }else{              //Clean up if there were previous ones
@@ -945,7 +945,7 @@ class DevicesController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $device_id = $this->request->query['for_id'];
-            $q_r    = $this->Device->DeviceNote->find('all', 
+            $q_r    = $this->Device->DeviceNote->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('DeviceNote.device_id' => $device_id)
@@ -958,8 +958,8 @@ class DevicesController extends AppController {
                     $afs        = $this->_get_action_flags($owner_id,$user);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => $afs['delete']
@@ -967,7 +967,7 @@ class DevicesController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -998,7 +998,7 @@ class DevicesController extends AppController {
 
         $success    = false;
         $msg        = array('message' => __('Could not create note'));
-        $this->Device->DeviceNote->Note->create(); 
+        $this->Device->DeviceNote->Note->create();
         //print_r($this->request->data);
         if ($this->Device->DeviceNote->Note->save($this->request->data)) {
             $d                      = array();
@@ -1041,7 +1041,7 @@ class DevicesController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->Device->DeviceNote->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -1055,7 +1055,7 @@ class DevicesController extends AppController {
                 $this->Device->DeviceNote->Note->id = $this->data['id'];
                 $this->Device->DeviceNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -1072,7 +1072,7 @@ class DevicesController extends AppController {
                     $this->Device->DeviceNote->Note->id = $d['id'];
                     $this->Device->DeviceNote->Note->delete($d['id'],true);
                 }
-   
+
             }
         }
 
@@ -1093,7 +1093,7 @@ class DevicesController extends AppController {
     //--------- END BASIC CRUD ---------------------------
 
     public function enable_disable(){
-        
+
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
         if(!$user){
@@ -1103,7 +1103,7 @@ class DevicesController extends AppController {
 
         $rb     = $this->request->data['rb'];
         $d      = array();
-        //For this action to sucees on the User model we need: 
+        //For this action to sucees on the User model we need:
         // id; group_id; active
 
 
@@ -1117,7 +1117,7 @@ class DevicesController extends AppController {
             if(preg_match('/^\d+/',$key)){
                 $d['Device']['id']              = $key;
                 $this->{$this->modelClass}->id  = $key;
-                $this->{$this->modelClass}->save($d);   
+                $this->{$this->modelClass}->save($d);
             }
         }
         $this->set(array(
@@ -1144,15 +1144,15 @@ class DevicesController extends AppController {
             $menu = array(
                     array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                         array( 'xtype' =>  'splitbutton', 'glyph' => Configure::read('icnReload'),  'scale'   => 'large', 'itemId'    => 'reload',   'tooltip'    => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                   //  array( 'text'   => _('Cancel auto reload'),   'itemId' => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true ),
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
@@ -1168,13 +1168,13 @@ class DevicesController extends AppController {
                     array('xtype' => 'button', 'scale' => 'large', 'glyph' => Configure::read('icnLight'),'itemId' => 'enable_disable','tooltip'=> __('Enable / Disable')),
                     array('xtype' => 'button', 'scale' => 'large', 'glyph' => Configure::read('icnRadius'),'itemId' => 'test_radius',  'tooltip'=> __('Test RADIUS')),
                      array(
-                        'xtype'     => 'button', 
-                        'glyph'     => Configure::read('icnGraph'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'graph',  
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnGraph'),
+                        'scale'     => 'large',
+                        'itemId'    => 'graph',
                         'tooltip'   => __('Graphs')
                     )
-                )) 
+                ))
             );
         }
 
@@ -1186,93 +1186,93 @@ class DevicesController extends AppController {
             $document_group = array();
             $specific_group = array();
             //Reload
-            array_push($action_group,array( 
-                'xtype'     =>  'splitbutton',  
-                'glyph'     => Configure::read('icnReload'),  
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+            array_push($action_group,array(
+                'xtype'     =>  'splitbutton',
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload'),
-                'menu'      => array(             
-                    'items'     => array( 
-                                    '<b class="menu-title">'.__('Reload every').':</b>',            
+                'menu'      => array(
+                    'items'     => array(
+                                    '<b class="menu-title">'.__('Reload every').':</b>',
                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
-                    array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )                                  
+                    array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
                 ))));
 
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnAdd'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnDelete'),  
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'edit_basic_info')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),    
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
-                        'glyph'     => Configure::read('icnNote'),     
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',      
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnCsv'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnCsv'),
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 
             //Enable-disable
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'enable_disable')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'enable_disable')){
                   array_push($specific_group, array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnLight'), 
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnLight'),
+                    'scale'     => 'large',
                     'itemId'    => 'enable_disable',
                     'tooltip'=> __('Enable / Disable')));
             }
 
             array_push($specific_group, array(
-                'xtype'     => 'button', 
-                'glyph'     => Configure::read('icnRadius'),    
-                'scale'     => 'large', 
-                'itemId'    => 'test_radius',  
+                'xtype'     => 'button',
+                'glyph'     => Configure::read('icnRadius'),
+                'scale'     => 'large',
+                'itemId'    => 'test_radius',
                 'tooltip'   => __('Test RADIUS')));
 
              array_push($specific_group, array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnGraph'),   
-                    'scale'     => 'large', 
-                    'itemId'    => 'graph',  
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnGraph'),
+                    'scale'     => 'large',
+                    'itemId'    => 'graph',
                     'tooltip'   => __('Graphs')));
 
             $menu = array(
@@ -1304,8 +1304,8 @@ class DevicesController extends AppController {
             $menu = array(
                     array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                         array( 'xtype'=>  'button', 'glyph' => Configure::read('icnReload'),'scale' => 'large', 'itemId' => 'reload',   'tooltip'   => __('Reload')),
-                        array('xtype' => 'button',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete')), 
-                )) 
+                        array('xtype' => 'button',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete')),
+                ))
             );
         }
 
@@ -1313,8 +1313,8 @@ class DevicesController extends AppController {
             $menu = array(
                     array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                         array( 'xtype'=>  'button', 'glyph' => Configure::read('icnReload'),'scale' => 'large', 'itemId' => 'reload',   'tooltip'   => __('Reload')),
-                        array('xtype' => 'button',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete')), 
-                )) 
+                        array('xtype' => 'button',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete')),
+                ))
             );
         }
 
@@ -1342,8 +1342,8 @@ class DevicesController extends AppController {
             $menu = array(
                     array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                         array( 'xtype'=>  'button', 'glyph' => Configure::read('icnReload'),'scale' => 'large', 'itemId' => 'reload',   'tooltip'   => __('Reload')),
-                        array('xtype' => 'button',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete')), 
-                )) 
+                        array('xtype' => 'button',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete')),
+                ))
             );
         }
 
@@ -1351,8 +1351,8 @@ class DevicesController extends AppController {
             $menu = array(
                     array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                         array( 'xtype'=>  'button', 'glyph' => Configure::read('icnReload'),'scale' => 'large', 'itemId' => 'reload',   'tooltip'   => __('Reload')),
-                        array('xtype' => 'button',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete')), 
-                )) 
+                        array('xtype' => 'button',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete')),
+                ))
             );
         }
 
@@ -1372,15 +1372,15 @@ class DevicesController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
         $c['contain']   = array(
-                            'PermanentUser',     
+                            'PermanentUser',
                             'Radcheck',
                             'DeviceNote'  => array('Note.note','Note.id','Note.available_to_siblings','Note.user_id'),
-                               
+
                         );
 
         //===== SORT =====
@@ -1397,7 +1397,7 @@ class DevicesController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
 
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
@@ -1407,7 +1407,7 @@ class DevicesController extends AppController {
             $u_id = $this->request->query['permanent_user_id'];
             array_push($c['conditions'],array($this->modelClass.".permanent_user_id" => $u_id));
         }
-        
+
         //If it is a combobox filter
         if(isset($this->request->query['query'])){
             $query = $this->request->query['query'];
@@ -1433,12 +1433,12 @@ class DevicesController extends AppController {
                             'alias'         => 'Radcheck_realm',
                             'type'          => 'LEFT',
                             'conditions'    => array('Radcheck_realm.username = Device.name')
-                        )); 
+                        ));
                         array_push($c['conditions'],array(
                             'Radcheck_realm.attribute'  => 'Rd-Realm',
                             "Radcheck_realm.value LIKE" => '%'.$f->value.'%'
                         ));
-                    }elseif($f->field == 'profile'){                       
+                    }elseif($f->field == 'profile'){
                         //Add a search clause
                         //Join the Radcheck table - only together with clause:
                         array_push($c['joins'],array(
@@ -1452,7 +1452,7 @@ class DevicesController extends AppController {
                             "Radcheck_profile.value LIKE" => '%'.$f->value.'%'
                         ));
                     }elseif($f->field == 'user'){
-                        array_push($c['conditions'],array("PermanentUser.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("PermanentUser.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -1465,7 +1465,7 @@ class DevicesController extends AppController {
                 }
 
                  //Date
-                if($f->type == 'date'){        
+                if($f->type == 'date'){
                     //date we want it in "2013-03-12"
                     $col = $this->modelClass.'.'.$f->field;
                     if($f->comparison == 'eq'){
@@ -1487,8 +1487,8 @@ class DevicesController extends AppController {
 
         //====== AP FILTER =====
         //If the user is an AP; we need to add an extra clause to only show all the AP's downward from its position in the tree
-        if($user['group_name'] == Configure::read('group.ap')){  //AP 
-        
+        if($user['group_name'] == Configure::read('group.ap')){  //AP
+
             $tree_array = array();
             $user_id    = $user['id'];
 
@@ -1496,31 +1496,31 @@ class DevicesController extends AppController {
             $this->parents = $this->User->getPath($user_id,'User.id');
             //So we loop this results asking for the parent nodes who have available_to_siblings = true
             foreach($this->parents as $i){
-                $i_id = $i['User']['id']; 
+                $i_id = $i['User']['id'];
                 if($i_id != $user_id){ //upstream
                     if($this->Acl->check(array(
-                        'model'         => 'Users', 
-                        'foreign_key'   => $user_id), 
+                        'model'         => 'Users',
+                        'foreign_key'   => $user_id),
                         "Access Providers/Other Rights/View users or vouchers not created self")
                     ){
                         array_push($tree_array,array('PermanentUser.user_id' => $i_id));
                     }
                 }else{
                     array_push($tree_array,array('PermanentUser.user_id' => $i_id));
-                }   
+                }
             }
-  
+
             //** ALL the AP's children
             $this->children    = $this->User->find_access_provider_children($user_id);
             if($this->children){   //Only if the AP has any children...
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array('PermanentUser.user_id' => $id));
-                }       
-            }    
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
         //====== END AP FILTER =====
         return $c;
     }
@@ -1561,17 +1561,17 @@ class DevicesController extends AppController {
         );
 
         $acct = ClassRegistry::init('Radacct'); //With devices we use callingstaton id instead of username
-        $acct->deleteAll( 
+        $acct->deleteAll(
             array('Radacct.callingstationid' => $username), false
         );
 
         $post_a = ClassRegistry::init('Radpostauth');
-        $post_a->deleteAll( 
+        $post_a->deleteAll(
             array('Radpostauth.username' => $username), false
         );
 
 		$user_s = ClassRegistry::init('UserStat');
-        $user_s->deleteAll( 
+        $user_s->deleteAll(
             array('UserStat.username' => $username), false
         );
     }
@@ -1600,13 +1600,13 @@ class DevicesController extends AppController {
             if($user['id'] == $owner_id){
                 return array('update' => true, 'delete' => true, 'read' => true);
             }
-            
+
             $realm_id = $realm['id'];
-            
+
             if(array_key_exists($realm_id,$this->AclCache)){
                 return $this->AclCache[$realm_id];
             }else{
-            
+
                 //If the Realm is owned by the $user or someone owned by the $user we allow them
                 $ap_children    = $this->User->find_access_provider_children($user['id']);
                 if($ap_children){   //Only if the AP has any children...
@@ -1614,32 +1614,32 @@ class DevicesController extends AppController {
                         $c_id = $i['id'];
                         if($c_id == $realm['user_id']){
                             $this->AclCache[$realm_id] =  array('update' => true, 'delete' => true,'read' => true);
-                            return array('update' => true, 'delete' => true, 'read' => true); 
+                            return array('update' => true, 'delete' => true, 'read' => true);
                         }
-                    }       
+                    }
                 }
-            
-            
+
+
                 if($this->Acl->check(array(
-                    'model'         => 'Users', 
-                    'foreign_key'   => $user['id']), 
+                    'model'         => 'Users',
+                    'foreign_key'   => $user['id']),
                     "Access Providers/Other Rights/View users or vouchers not created self")
                 ){
                     $read = $this->Acl->check(
-                                array('model' => 'Users', 'foreign_key' => $user['id']), 
+                                array('model' => 'Users', 'foreign_key' => $user['id']),
                                 array('model' => 'Realms','foreign_key' => $realm_id), 'read');
                 }else{
                     $read = false; //Since the user is not the owner and they can not view other's vouchers we leave it out
-                }  
-            
+                }
+
                 $update = $this->Acl->check(
-                                array('model' => 'Users', 'foreign_key' => $user['id']), 
+                                array('model' => 'Users', 'foreign_key' => $user['id']),
                                 array('model' => 'Realms','foreign_key' => $realm_id), 'update');
                 $delete = $this->Acl->check(
-                                array('model' => 'Users', 'foreign_key' => $user['id']), 
+                                array('model' => 'Users', 'foreign_key' => $user['id']),
                                 array('model' => 'Realms','foreign_key' => $realm_id), 'delete');
-                //Prime it                 
-                $this->AclCache[$realm_id] =  array('update' => $update, 'delete' => $delete,'read' => $read);      
+                //Prime it
+                $this->AclCache[$realm_id] =  array('update' => $update, 'delete' => $delete,'read' => $read);
                 return array('update' => $update, 'delete' => $delete,'read' => $read);
             }
         }
@@ -1669,7 +1669,7 @@ class DevicesController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 
@@ -1698,7 +1698,7 @@ class DevicesController extends AppController {
     }
 
     private function _extjs_format_radius_date($d){
-        //Format will be day month year 20 Mar 2013 and need to be month/date/year eg 03/06/2013 
+        //Format will be day month year 20 Mar 2013 and need to be month/date/year eg 03/06/2013
         $arr_date   = explode(' ',$d);
         $month      = $arr_date[1];
         $m_arr      = array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');

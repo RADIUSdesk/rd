@@ -2,7 +2,7 @@
 
 $config = array();
 
-//The groups that is defined 
+//The groups that is defined
 $config['group']['admin']   = 'Administrators';     //Has all the rights
 $config['group']['ap']      = 'Access Providers';   //Has selected right
 $config['group']['user']    = 'Permanent Users';    //Has very limited rights
@@ -57,7 +57,7 @@ $config['nas_types'][5]     = array('name' => 'Telkom',                 'id' => 
 
 
 $config['paths']['wallpaper_location']  = "/rd/resources/images/wallpapers/";
-$config['paths']['dynamic_photos']      = "/cake3/rd_cake/img/dynamic_photos/";   
+$config['paths']['dynamic_photos']      = "/cake3/rd_cake/img/dynamic_photos/";
 $config['paths']['dynamic_detail_icon'] = "/cake3/rd_cake/img/dynamic_details/";
 $config['paths']['real_photo_path']     = "/cake3/rd_cake/webroot/img/dynamic_photos/";
 $config['paths']['absolute_photo_path'] = "/usr/share/nginx/html/cake3/rd_cake/webroot/img/dynamic_photos/";
@@ -88,7 +88,7 @@ $config['EmailServer']						                = 'default'; //e.g. 'gmail'
 //== 30/3/16 -> Some server wide configurations ==
 $config['server_settings']['user_stats_cut_off_days']       = 90; //3 months (make zero to have no cut off)
 $config['server_settings']['radacct_cut_off_days']          = 90; //3 months (make zero to have no cut off)
- 
+
 //== End server wide configurations ==
 
 $config['webFont']      = 'FontAwesome';
@@ -184,20 +184,20 @@ $config['whitelabel']['active']     = false;
 $config['whitelabel']['hName']      = 'RADIUSdesk';
 $config['whitelabel']['hBg']        = '#FFFFFF';
 $config['whitelabel']['hFg']        = '#4b4c4c';
-                                    
+
 $config['whitelabel']['imgActive']  = true;
 $config['whitelabel']['imgFile']    = 'logo.png';
 
 $config['whitelabel']['fName']      = 'RADIUSdesk';
 
 //=== Language List =====
-$config['Admin']['i18n'][0]     = array(    
+$config['Admin']['i18n'][0]     = array(
     'id'        => '4_4',
     'country'   => 'United Kingdom',
     'language'  => 'English',
     'text'      =>	'United Kingdom -> English',
     'rtl'       => false,
-    'icon_file' =>	'/cake3/rd_cake/img/flags/GB.png',  
+    'icon_file' =>	'/cake3/rd_cake/img/flags/GB.png',
     'active'    => true
 );
 

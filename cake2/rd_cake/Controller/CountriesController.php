@@ -52,7 +52,7 @@ class CountriesController extends AppController {
         $this->set('json_return',$json_return);
     }
 
-    //--DELETE-- 
+    //--DELETE--
     public function delete() {
         if ($this->{$this->modelClass}->delete($this->data['id'],true)) {
             $success = true;

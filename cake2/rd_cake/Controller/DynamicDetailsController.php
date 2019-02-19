@@ -33,7 +33,7 @@ class DynamicDetailsController extends AppController {
 
         }else{ //Build a query since it was not called from the preview link
             $conditions = array("OR" =>array());
-      
+
             foreach(array_keys($this->request->query) as $key){
                 array_push($conditions["OR"],
                     array("DynamicPair.name" => $key, "DynamicPair.value" =>  $this->request->query[$key])
@@ -43,11 +43,11 @@ class DynamicDetailsController extends AppController {
 				array('DynamicDetail' => array('DynamicPhoto','DynamicPage','DynamicDetailSocialLogin'))
 			);
 
-            $q_r = $this->{$this->modelClass}->DynamicPair->find('first', 
+            $q_r = $this->{$this->modelClass}->DynamicPair->find('first',
                 array('conditions' => $conditions, 'order' => 'DynamicPair.priority DESC')); //Return the one with the highest priority
 
             if($q_r){
-                
+
                 //Modify the photo path:
                 $c = 0;
                 foreach($q_r['DynamicDetail']['DynamicPhoto'] as $i){
@@ -102,7 +102,7 @@ class DynamicDetailsController extends AppController {
 
 			if($q_r['DynamicDetail']['social_enable']){
 				$items['settings']['social_login']['active'] = true;
-				
+
 				//Find the temp username and password
 				$temp_user_id = $q_r['DynamicDetail']['social_temp_permanent_user_id'];
 				$user_detail  = $this->_find_username_and_password($temp_user_id);
@@ -156,13 +156,13 @@ class DynamicDetailsController extends AppController {
        	}
 
        	$this->{$this->modelClass}->DynamicPair->contain('DynamicDetail');
-      	$q_r = $this->{$this->modelClass}->DynamicPair->find('first', 
+      	$q_r = $this->{$this->modelClass}->DynamicPair->find('first',
                 array('conditions' => $conditions, 'order' => 'DynamicPair.priority DESC')); //Return the one with the highest priority
 
 		//See which Theme are selected
 		$theme = 'Default';
 		$theme_selected = 'Default';
-		
+
 		$i18n = 'en_GB';
 		if($q_r){
             $theme_selected =  $q_r['DynamicDetail']['theme'];
@@ -171,16 +171,16 @@ class DynamicDetailsController extends AppController {
             }
 		}
 		$query_string = $query_string."&i18n=$i18n";
-		
-		
+
+
         if($theme_selected == 'Custom'){ //With custom themes we read the valuse out of the DB
 		    $redir_to = $q_r['DynamicDetail']['coova_desktop_url'].'?'.$query_string;
 		    if($this->request->is('mobile')){
                 $redir_to = $q_r['DynamicDetail']['coova_mobile_url'].'?'.$query_string;
-            }    
+            }
 		}else{  //Else we fetch the 'global' theme's value from the file
 
-		    Configure::load('DynamicLogin'); 
+		    Configure::load('DynamicLogin');
             $pages       = Configure::read('DynamicLogin.theme.'.$theme_selected); //Read the defaults
 		    if(!$pages){
 			    $pages       = Configure::read('DynamicLogin.theme.'.$theme); //Read the defaults
@@ -194,40 +194,40 @@ class DynamicDetailsController extends AppController {
 
         $this->response->header('Location', $redir_to);
     }
-    
+
     public function mikrotik_browser_detect(){
 
 		$conditions     = array("OR" =>array());
 		$query_string   = $_SERVER['QUERY_STRING'];
-		
+
 		if (!$this->request->is('post')) {
 		    foreach(array_keys($this->request->query) as $key){
                     array_push($conditions["OR"],
                         array("DynamicPair.name" => $key, "DynamicPair.value" =>  $this->request->query[$key])
                     ); //OR query all the keys
-           	}	
+           	}
 		}else{
 		    $q_array = array();
 		    foreach(array_keys($this->request->data) as $key){
-		    
+
 		        $q_array[$key] = $this->request->data[$key];
-		        
+
 		        array_push($conditions["OR"],
                     array("DynamicPair.name" => $key, "DynamicPair.value" =>  $this->request->data[$key])
                 ); //OR query all the keys
 		     }
-		     
+
 		     $query_string =  http_build_query($q_array);
 		}
-		
+
        	$this->{$this->modelClass}->DynamicPair->contain('DynamicDetail');
-      	$q_r = $this->{$this->modelClass}->DynamicPair->find('first', 
+      	$q_r = $this->{$this->modelClass}->DynamicPair->find('first',
                 array('conditions' => $conditions, 'order' => 'DynamicPair.priority DESC')); //Return the one with the highest priority
 
 		//See which Theme are selected
 		$theme = 'Default';
 		$theme_selected = 'Default';
-		
+
 		$i18n = 'en_GB';
 		if($q_r){
             $theme_selected =  $q_r['DynamicDetail']['theme'];
@@ -236,7 +236,7 @@ class DynamicDetailsController extends AppController {
             }
 		}
 		$query_string = $query_string."&i18n=$i18n";
-		
+
 
 	    if($theme_selected == 'Custom'){ //With custom themes we read the valuse out of the DB
 		    $redir_to = $q_r['DynamicDetail']['mikrotik_desktop_url'].'?'.$query_string;
@@ -244,7 +244,7 @@ class DynamicDetailsController extends AppController {
                 $redir_to = $q_r['DynamicDetail']['mikrotik_mobile_url'].'?'.$query_string;
             }
 		}else{  //Else we fetch the 'global' theme's value from the file
-		    Configure::load('DynamicLogin'); 
+		    Configure::load('DynamicLogin');
             $pages       = Configure::read('DynamicLogin.theme.'.$theme_selected); //Read the defaults
 		    if(!$pages){
 			    $pages       = Configure::read('DynamicLogin.theme.'.$theme); //Read the defaults
@@ -272,13 +272,13 @@ class DynamicDetailsController extends AppController {
        	}
 
        	$this->{$this->modelClass}->DynamicPair->contain('DynamicDetail');
-      	$q_r = $this->{$this->modelClass}->DynamicPair->find('first', 
+      	$q_r = $this->{$this->modelClass}->DynamicPair->find('first',
                 array('conditions' => $conditions, 'order' => 'DynamicPair.priority DESC')); //Return the one with the highest priority
 
 		//See which Theme are selected
 		$theme = 'Default';
 		$theme_selected = 'Default';
-		
+
 		$i18n = 'en_GB';
 		if($q_r){
             $theme_selected =  $q_r['DynamicDetail']['theme'];
@@ -287,18 +287,18 @@ class DynamicDetailsController extends AppController {
             }
 		}
 		$query_string = $query_string."&i18n=$i18n";
-		
+
         //------------------------
         //FIXME For now we'll use the Coova URL on custom as a hack
         //-----------------------
-        
+
 	    if($theme_selected == 'Custom'){ //With custom themes we read the valuse out of the DB
 		    $redir_to = $q_r['DynamicDetail']['coova_desktop_url'].'?'.$query_string;
 		    if($this->request->is('mobile')){
                 $redir_to = $q_r['DynamicDetail']['coova_mobile_url'].'?'.$query_string;
             }
 		}else{  //Else we fetch the 'global' theme's value from the file
-		    Configure::load('DynamicLogin'); 
+		    Configure::load('DynamicLogin');
             $pages       = Configure::read('DynamicLogin.theme.'.$theme_selected); //Read the defaults
 		    if(!$pages){
 			    $pages       = Configure::read('DynamicLogin.theme.'.$theme); //Read the defaults
@@ -312,22 +312,22 @@ class DynamicDetailsController extends AppController {
 
         $this->response->header('Location', $redir_to);
     }
-    
+
 	//----- Give better preview pages -----
 	public function preview_chilli_desktop(){
-	
+
 	    if(isset($this->request->query['wizard_name'])){
 	        $this->{$this->modelClass}->contain();
 		    $q_r = $this->{$this->modelClass}->findByName($this->request->query['wizard_name']);
 		    if($q_r){
 		        $this->request->query['dynamic_id'] = $q_r['DynamicDetail']['id'];
 		        $_SERVER['QUERY_STRING'] = $_SERVER['QUERY_STRING'].'&dynamic_id='.$this->request->query['dynamic_id'].'&uamip=10.1.0.1&uamport=3990';
-		    }   
+		    }
 	    }else{
 		    $this->{$this->modelClass}->contain();
 		    $q_r = $this->{$this->modelClass}->findById($this->request->query['dynamic_id']);
         }
-      	
+
 		//See which Theme are selected
 		$theme = 'Default';
 		$i18n = 'en_GB';
@@ -339,11 +339,11 @@ class DynamicDetailsController extends AppController {
 		}
 
 		if($theme_selected == 'Custom'){ //With custom themes we read the valuse out of the DB
-		
+
 		    $redir_to = $q_r['DynamicDetail']['coova_desktop_url'].'?'.$_SERVER['QUERY_STRING']."&i18n=$i18n";
-		    
-        }else{   
-		    Configure::load('DynamicLogin'); 
+
+        }else{
+		    Configure::load('DynamicLogin');
             $pages       = Configure::read('DynamicLogin.theme.'.$theme_selected); //Read the defaults
 		    if(!$pages){
 			    $pages       = Configure::read('DynamicLogin.theme.'.$theme); //Read the defaults
@@ -362,12 +362,12 @@ class DynamicDetailsController extends AppController {
 		    if($q_r){
 		        $this->request->query['dynamic_id'] = $q_r['DynamicDetail']['id'];
 		        $_SERVER['QUERY_STRING'] = $_SERVER['QUERY_STRING'].'&dynamic_id='.$this->request->query['dynamic_id'].'&uamip=10.1.0.1&uamport=3990';
-		    }   
+		    }
 	    }else{
 		    $this->{$this->modelClass}->contain();
 		    $q_r = $this->{$this->modelClass}->findById($this->request->query['dynamic_id']);
         }
-      	
+
 		//See which Theme are selected
 		$theme = 'Default';
 		$i18n = 'en_GB';
@@ -379,19 +379,19 @@ class DynamicDetailsController extends AppController {
 		}
 
 		if($theme_selected == 'Custom'){ //With custom themes we read the valuse out of the DB
-		    $redir_to = $q_r['DynamicDetail']['coova_mobile_url'].'?'.$_SERVER['QUERY_STRING']."&i18n=$i18n";    
-        }else{  
-		    Configure::load('DynamicLogin'); 
+		    $redir_to = $q_r['DynamicDetail']['coova_mobile_url'].'?'.$_SERVER['QUERY_STRING']."&i18n=$i18n";
+        }else{
+		    Configure::load('DynamicLogin');
             $pages       = Configure::read('DynamicLogin.theme.'.$theme_selected); //Read the defaults
 		    if(!$pages){
 			    $pages       = Configure::read('DynamicLogin.theme.'.$theme); //Read the defaults
 		    }
 		    $redir_to = $pages['coova_mobile'].'?'.$_SERVER['QUERY_STRING']."&i18n=$i18n";
 		}
-		
+
         $this->response->header('Location', $redir_to);
 	}
-	
+
 	//------ List of configured dynamic attributes types ------
     //This is displayed as a select to choose from when the user adds a NAS of connection type dynamic
     public function i18n(){
@@ -427,7 +427,7 @@ class DynamicDetailsController extends AppController {
         $q_r        = $this->DynamicDetail->find('all',$c);
 
         //Create file
-        $this->ensureTmp();     
+        $this->ensureTmp();
         $tmpFilename    = TMP . $this->tmpDir . DS .  strtolower( Inflector::pluralize($this->modelClass) ) . '-' . date('Ymd-Hms') . '.csv';
         $fp             = fopen($tmpFilename, 'w');
 
@@ -455,16 +455,16 @@ class DynamicDetailsController extends AppController {
                         $notes   = '';
                         foreach($i['DynamicDetailNote'] as $n){
                             if(!$this->_test_for_private_parent($n['Note'],$user)){
-                                $notes = $notes.'['.$n['Note']['note'].']';    
+                                $notes = $notes.'['.$n['Note']['note'].']';
                             }
                         }
                         array_push($csv_line,$notes);
                     }elseif($column_name =='owner'){
                         $owner_id       = $i['DynamicDetail']['user_id'];
                         $owner_tree     = $this->_find_parents($owner_id);
-                        array_push($csv_line,$owner_tree); 
+                        array_push($csv_line,$owner_tree);
                     }else{
-                        array_push($csv_line,$i['DynamicDetail']["$column_name"]);  
+                        array_push($csv_line,$i['DynamicDetail']["$column_name"]);
                     }
                 }
                 fputcsv($fp, $csv_line,';','"');
@@ -490,7 +490,7 @@ class DynamicDetailsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-      
+
         $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
@@ -508,7 +508,7 @@ class DynamicDetailsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total              = $this->{$this->modelClass}->find('count',$c);       
+        $total              = $this->{$this->modelClass}->find('count',$c);
         $q_r                = $this->{$this->modelClass}->find('all',$c_page);
 
         $items              = array();
@@ -528,10 +528,10 @@ class DynamicDetailsController extends AppController {
             $action_flags   = $this->_get_action_flags($owner_id,$user);
 
             array_push($items,array(
-                'id'                    => $i['DynamicDetail']['id'], 
+                'id'                    => $i['DynamicDetail']['id'],
                 'name'                  => $i['DynamicDetail']['name'],
                 'user_id'               => $owner_id,
-                'owner'                 => $owner_tree, 
+                'owner'                 => $owner_tree,
                 'available_to_siblings' => $i['DynamicDetail']['available_to_siblings'],
                 'phone'                 => $i['DynamicDetail']['phone'],
                 'fax'                   => $i['DynamicDetail']['fax'],
@@ -593,14 +593,14 @@ class DynamicDetailsController extends AppController {
             foreach($q_r as $i){
                 $name   = $i['DynamicDetail']['name'];
                 array_push($items,array(
-                        'id'                    => $name, 
+                        'id'                    => $name,
                         'text'                  => $name
                     ));
             }
         }
 
         //_____ AP _____
-        if($user['group_name'] == Configure::read('group.ap')){  
+        if($user['group_name'] == Configure::read('group.ap')){
 
             //If it is an Access Provider that requested this list; we should show:
             //1.) all those DynamicDetails that he is allowed to use from parents with the available_to_sibling flag set (no edit or delete)
@@ -613,11 +613,11 @@ class DynamicDetailsController extends AppController {
             //Loop through this list. Only if $user_id is a sibling of $owner_id we will add it to the list
             $ap_child_count = $this->User->childCount($user_id);
 
-            foreach($q_r as $i){        
+            foreach($q_r as $i){
                 $name           = $i['DynamicDetail']['name'];
                 $owner_id       = $i['DynamicDetail']['user_id'];
                 $a_t_s          = $i['DynamicDetail']['available_to_siblings'];
-                
+
                 //Filter for parents and children
                 //DynamicDetails of parent's can not be edited, where DynamicDetails of childern can be edited
                 if($owner_id != $user_id){
@@ -625,7 +625,7 @@ class DynamicDetailsController extends AppController {
                         //Only those available to siblings:
                         if($a_t_s == 1){
                             array_push($items,array(
-                                'id'                    => $name, 
+                                'id'                    => $name,
                                 'text'                  => $name
                             ));
                         }
@@ -633,7 +633,7 @@ class DynamicDetailsController extends AppController {
                     if($ap_child_count != 0){ //See if this DynamicDetail is perhaps not one of those created by a sibling of the Access Provider
                         if($this->_is_sibling_of($user_id,$owner_id)){ //Is the owner a downstream sibling of the AP - Full rights
                             array_push($items,array(
-                                'id'                    => $name, 
+                                'id'                    => $name,
                                 'text'                  => $name
                             ));
                         }
@@ -641,9 +641,9 @@ class DynamicDetailsController extends AppController {
                 }
 
                 //Created himself
-                if($owner_id == $user_id){    
+                if($owner_id == $user_id){
                     array_push($items,array(
-                        'id'                    => $name, 
+                        'id'                    => $name,
                         'text'                  => $name
                     ));
                 }
@@ -671,7 +671,7 @@ class DynamicDetailsController extends AppController {
          if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
             $this->request->data['user_id'] = $user_id;
         }
-        
+
         $check_items = array('available_to_siblings', 't_c_check', 'register_users', 'lost_password');
         foreach($check_items as $ci){
             if(isset($this->request->data[$ci])){
@@ -680,7 +680,7 @@ class DynamicDetailsController extends AppController {
                 $this->request->data[$ci] = 0;
             }
         }
-        
+
         if ($this->{$this->modelClass}->save($this->request->data)) {
             $this->set(array(
                 'success' => true,
@@ -733,7 +733,7 @@ class DynamicDetailsController extends AppController {
         if(!$this->_ap_right_check()){
             return;
         }
-            
+
         //We will not modify user_id
         unset($this->request->data['user_id']);
         $check_items = array(
@@ -750,7 +750,7 @@ class DynamicDetailsController extends AppController {
             'usage_show_check',
             'lost_password'
 	    );
-	    
+
         foreach($check_items as $i){
             if(isset($this->request->data[$i])){
                 $this->request->data[$i] = 1;
@@ -758,7 +758,7 @@ class DynamicDetailsController extends AppController {
                 $this->request->data[$i] = 0;
             }
         }
-        
+
         if ($this->DynamicDetail->save($this->request->data)) {
             $this->set(array(
                 'success' => true,
@@ -834,7 +834,7 @@ class DynamicDetailsController extends AppController {
 
             $this->DynamicDetail->id = $this->data['id'];
             $this->DynamicDetail->delete($this->DynamicDetail->id,true);
-      
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -876,9 +876,9 @@ class DynamicDetailsController extends AppController {
             $this->{$this->modelClass}->contain();
             $q_r = $this->{$this->modelClass}->findById($this->request->query['dynamic_detail_id']);
             if($q_r){
-            
+
                 $realm = '';
-            
+
                 if($q_r['DynamicDetail']['realm_id'] != null){
                     $r  = ClassRegistry::init('Realm');
                     $r->contain();
@@ -888,7 +888,7 @@ class DynamicDetailsController extends AppController {
                     }
                 }
                 $profile = '';
-                
+
                 if($q_r['DynamicDetail']['profile_id'] != null){
                     $p  = ClassRegistry::init('Profile');
                     $p->contain();
@@ -897,7 +897,7 @@ class DynamicDetailsController extends AppController {
                         $profile = $q_profile['Profile']['name'];
                     }
                 }
-            
+
                 $owner_tree                         = $this->_find_parents($q_r['DynamicDetail']['user_id']);
                 $items['id']                        = $q_r['DynamicDetail']['id'];
                 $items['name']                      = $q_r['DynamicDetail']['name'];
@@ -936,12 +936,12 @@ class DynamicDetailsController extends AppController {
 				$items['lost_password']    			= $q_r['DynamicDetail']['lost_password'];
                 $items['owner']                     = $owner_tree;
                 $items['icon_file_name']            = $q_r['DynamicDetail']['icon_file_name'];
-                
+
                 $items['coova_desktop_url']         = $q_r['DynamicDetail']['coova_desktop_url'];
                 $items['coova_mobile_url']          = $q_r['DynamicDetail']['coova_mobile_url'];
                 $items['mikrotik_desktop_url']      = $q_r['DynamicDetail']['mikrotik_desktop_url'];
                 $items['mikrotik_mobile_url']       = $q_r['DynamicDetail']['mikrotik_mobile_url'];
-                
+
                 //User registration add on
                 $items['realm_id']                  = $q_r['DynamicDetail']['realm_id'];
                 $items['profile_id']                = $q_r['DynamicDetail']['profile_id'];
@@ -954,10 +954,10 @@ class DynamicDetailsController extends AppController {
                 $items['realm']                     = $realm;
                 $items['profile']                   = $profile;
                 $items['default_language']          = $q_r['DynamicDetail']['default_language'];
-                
+
             }
         }
-        
+
         $this->set(array(
             'data'     => $items,
             'success'   => true,
@@ -984,7 +984,7 @@ class DynamicDetailsController extends AppController {
 
         //Now add....
         $data['photo_file_name']  = $unique.'.'.$path_parts['extension'];
-       
+
         $this->{$this->modelClass}->id = $this->request->data['id'];
        // $this->{$this->modelClass}->saveField('photo_file_name', $unique.'.'.$path_parts['extension']);
         if($this->{$this->modelClass}->saveField('icon_file_name', $unique.'.'.$path_parts['extension'])){
@@ -1024,18 +1024,18 @@ class DynamicDetailsController extends AppController {
                 $location = Configure::read('paths.dynamic_photos').$f;
                 array_push($items,
                     array(
-                        'id'                => $id, 
-                        'dynamic_detail_id' => $dd_id, 
-                        'title'             => $t, 
+                        'id'                => $id,
+                        'dynamic_detail_id' => $dd_id,
+                        'title'             => $t,
                         'description'       => $d,
-                        'url'               => $u, 
+                        'url'               => $u,
                         'file_name'         => $f,
                         'img'               => "/cake2/rd_cake/webroot/files/image.php?width=200&height=200&image=".$location
                     )
                 );
             }
         }
-        
+
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -1103,7 +1103,7 @@ class DynamicDetailsController extends AppController {
                 if($this->{$this->modelClass}->DynamicPhoto->delete($this->{$this->modelClass}->DynamicPhoto->id,true)){
                     unlink($file_to_delete);
                 }
-            }     
+            }
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
                 //Get the filename to delete
@@ -1145,7 +1145,7 @@ class DynamicDetailsController extends AppController {
         if($_FILES['photo']['size'] > 0){
             $q_r        = $this->{$this->modelClass}->DynamicPhoto->findById($this->request->data['id']);
             if($q_r){
-                
+
                 $file_name      = $q_r['DynamicPhoto']['file_name'];
                 $file_to_delete = IMAGES."/dynamic_photos/".$file_name;
                 unlink($file_to_delete);
@@ -1155,7 +1155,7 @@ class DynamicDetailsController extends AppController {
                 $dest           = IMAGES."dynamic_photos/".$unique.'.'.$path_parts['extension'];
                 move_uploaded_file ($_FILES['photo']['tmp_name'] , $dest);
                 $this->{$this->modelClass}->DynamicPhoto->saveField('file_name', $unique.'.'.$path_parts['extension']);
-            }  
+            }
         }
 
         $json_return['success'] = true;
@@ -1183,15 +1183,15 @@ class DynamicDetailsController extends AppController {
                 $c      = $i['DynamicPage']['content'];
                 array_push($items,
                     array(
-                        'id'                => $id, 
-                        'dynamic_detail_id' => $dd_id, 
-                        'name'              => $n, 
+                        'id'                => $id,
+                        'dynamic_detail_id' => $dd_id,
+                        'name'              => $n,
                         'content'           => $c
                     )
                 );
             }
         }
-        
+
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -1299,16 +1299,16 @@ class DynamicDetailsController extends AppController {
                 $p      = $i['DynamicPair']['priority'];
                 array_push($items,
                     array(
-                        'id'                => $id, 
-                        'dynamic_detail_id' => $dd_id, 
-                        'name'              => $n, 
+                        'id'                => $id,
+                        'dynamic_detail_id' => $dd_id,
+                        'name'              => $n,
                         'value'             => $v,
                         'priority'          => $p
                     )
                 );
             }
         }
-        
+
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -1411,7 +1411,7 @@ class DynamicDetailsController extends AppController {
 			//print_r($q_r);
 
             if($q_r){
-                
+
 				$items['social_enable']    					= $q_r['DynamicDetail']['social_enable'];
 				$items['id']    							= $q_r['DynamicDetail']['id'];
 				$items['social_temp_permanent_user_id'] 	= intval($q_r['DynamicDetail']['social_temp_permanent_user_id']);
@@ -1460,10 +1460,10 @@ class DynamicDetailsController extends AppController {
 						$items['tw_voucher_or_user']= $i['type'];
 					}
 				}
-               
+
             }
         }
-        
+
         $this->set(array(
             'data'     => $items,
             'success'   => true,
@@ -1472,7 +1472,7 @@ class DynamicDetailsController extends AppController {
 	}
 
 	public function edit_social_login(){
-	
+
 	    //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
         if(!$user){
@@ -1481,7 +1481,7 @@ class DynamicDetailsController extends AppController {
 
 
 		//We need the social_temp_permanent_user_id else we fail it if it is enabbled...
-		//social_enable check 
+		//social_enable check
         if(isset($this->request->data['social_enable'])){
             $this->request->data['social_enable'] = 1;
         }else{
@@ -1565,7 +1565,7 @@ class DynamicDetailsController extends AppController {
 		if(
 			($this->request->data['social_enable'] == 1)&&
 			($this->request->data['gp_enable'] == 1)
-		){	
+		){
 			$gp_check_for  = array('gp_voucher_or_user','gp_secret','gp_id','gp_realm','gp_profile');
 			foreach($gp_check_for as $i){
 				if($this->request->data["$i"] == ''){
@@ -1609,7 +1609,7 @@ class DynamicDetailsController extends AppController {
 		if ($this->{$this->modelClass}->save($this->request->data)) {
 
 			if($this->request->data['social_enable'] == 0){
-			
+
 				//if not enabled we don't care ....
 				$this->set(array(
 		            'success' => true,
@@ -1632,7 +1632,7 @@ class DynamicDetailsController extends AppController {
 				$fb_data['record_info']			= $this->request->data["fb_record_info"];
 				$fb_data['enable']				= $this->request->data["fb_enable"];
 
-				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->create(); 
+				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->create();
 				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->save($fb_data);
 				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->id = null;
 			}
@@ -1652,7 +1652,7 @@ class DynamicDetailsController extends AppController {
 				$gp_data['record_info']			= $this->request->data["gp_record_info"];
 				$gp_data['enable']				= $this->request->data["gp_enable"];
 
-				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->create(); 
+				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->create();
 				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->save($gp_data);
 				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->id = null;
 			}
@@ -1672,7 +1672,7 @@ class DynamicDetailsController extends AppController {
 				$tw_data['record_info']			= $this->request->data["tw_record_info"];
 				$tw_data['enable']				= $this->request->data["tw_enable"];
 
-				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->create(); 
+				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->create();
 				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->save($tw_data);
 				$this->{$this->modelClass}->{'DynamicDetailSocialLogin'}->id = null;
 			}
@@ -1707,7 +1707,7 @@ class DynamicDetailsController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $dynamic_detail_id = $this->request->query['for_id'];
-            $q_r    = $this->DynamicDetail->DynamicDetailNote->find('all', 
+            $q_r    = $this->DynamicDetail->DynamicDetailNote->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('DynamicDetailNote.dynamic_detail_id' => $dynamic_detail_id)
@@ -1720,8 +1720,8 @@ class DynamicDetailsController extends AppController {
                     $afs        = $this->_get_action_flags($owner_id,$user);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => $afs['delete']
@@ -1729,7 +1729,7 @@ class DynamicDetailsController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -1760,7 +1760,7 @@ class DynamicDetailsController extends AppController {
 
         $success    = false;
         $message    = array('message' => __('Could not create note'));
-        $this->DynamicDetail->DynamicDetailNote->Note->create(); 
+        $this->DynamicDetail->DynamicDetailNote->Note->create();
         //print_r($this->request->data);
         if ($this->DynamicDetail->DynamicDetailNote->Note->save($this->request->data)) {
             $d                      = array();
@@ -1803,7 +1803,7 @@ class DynamicDetailsController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->DynamicDetail->DynamicDetailNote->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -1817,7 +1817,7 @@ class DynamicDetailsController extends AppController {
                 $this->DynamicDetail->DynamicDetailNote->Note->id = $this->data['id'];
                 $this->DynamicDetail->DynamicDetailNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -1834,7 +1834,7 @@ class DynamicDetailsController extends AppController {
                     $this->DynamicDetail->DynamicDetailNote->Note->id = $d['id'];
                     $this->DynamicDetail->DynamicDetailNote->Note->delete($d['id'],true);
                 }
-   
+
             }
         }
 
@@ -1854,21 +1854,21 @@ class DynamicDetailsController extends AppController {
 
 	public function available_themes(){
 
-        
+
         $items = array();
-        Configure::load('DynamicLogin'); 
+        Configure::load('DynamicLogin');
         $data       = Configure::read('DynamicLogin.theme');
         foreach(array_keys($data) as $i){
-            array_push($items, array('name' => $i,'id' => $i));   
+            array_push($items, array('name' => $i,'id' => $i));
         }
-        
+
         if(
             (isset($this->request->query['exclude_custom']))&&
             ($this->request->query['exclude_custom'] == 'true')
         ){
            array_shift($items); //Remove the first item which will be "Custom" in the config file
         }
-            
+
         $this->set(array(
             'items' => $items,
             'success' => true,
@@ -1905,7 +1905,7 @@ class DynamicDetailsController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-mobile',   'glyph' => Configure::read('icnMobile'),  'scale' => 'large', 'itemId' => 'mobile',    'tooltip'=> __('Mobile')),
                     array('xtype' => 'button', 'iconCls' => 'b-desktop',  'glyph' => Configure::read('icnDesktop'),  'scale' => 'large', 'itemId' => 'desktop',   'tooltip'=> __('Desktop')),
                 ))
-                
+
             );
         }
 
@@ -1916,65 +1916,65 @@ class DynamicDetailsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'), 
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-add',
-                    'glyph'     => Configure::read('icnAdd'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),  
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),    
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
-            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
-                        'iconCls'   => 'b-note', 
-                        'glyph'     => Configure::read('icnNote'),    
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',      
+                        'xtype'     => 'button',
+                        'iconCls'   => 'b-note',
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 
-            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){ 
+            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-csv',
-                    'glyph'     => Configure::read('icnCsv'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'glyph'     => Configure::read('icnCsv'),
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 
@@ -1983,19 +1983,19 @@ class DynamicDetailsController extends AppController {
                         array('xtype' => 'buttongroup','title' => __('Document'),   'items' => $document_group),
                         array('xtype' => 'buttongroup','title' => __('Preview'),    'items' => array(
                             array(
-                                'xtype'     => 'button', 
-                                'iconCls'   => 'b-mobile',   
-                                'glyph'     => Configure::read('icnMobile'),  
-                                'scale'     => 'large', 
-                                'itemId'    => 'mobile',    
+                                'xtype'     => 'button',
+                                'iconCls'   => 'b-mobile',
+                                'glyph'     => Configure::read('icnMobile'),
+                                'scale'     => 'large',
+                                'itemId'    => 'mobile',
                                 'tooltip'   => __('Mobile')
                             ),
                             array(
-                                'xtype'     => 'button', 
-                                'iconCls'   => 'b-desktop',  
-                                'glyph'     => Configure::read('icnDesktop'),  
-                                'scale'     => 'large', 
-                                'itemId'    => 'desktop',   
+                                'xtype'     => 'button',
+                                'iconCls'   => 'b-desktop',
+                                'glyph'     => Configure::read('icnDesktop'),
+                                'scale'     => 'large',
+                                'itemId'    => 'desktop',
                                 'tooltip'   => __('Desktop')
                             )))
                         );
@@ -2025,7 +2025,7 @@ class DynamicDetailsController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-add',     'glyph' => Configure::read('icnAdd'),'scale' => 'large', 'itemId' => 'add',      'tooltip'=> __('Add')),
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph' => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit'))
-                ))   
+                ))
             );
         }
 
@@ -2036,49 +2036,49 @@ class DynamicDetailsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
-                'iconCls'   => 'b-reload', 
-                'glyph'     => Configure::read('icnReload'), 
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'iconCls'   => 'b-reload',
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-add', 
-                    'glyph'     => Configure::read('icnAdd'),    
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-add',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-delete', 
-                    'glyph'     => Configure::read('icnDelete'), 
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-delete',
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => false,   
+                    'disabled'  => false,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),    
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => false,     
+                    'disabled'  => false,
                     'tooltip'   => __('Edit')));
             }
 
-           
+
             $menu = array(
                         array('xtype' => 'buttongroup','title' => __('Action'),        'items' => $action_group)
                    );
@@ -2108,7 +2108,7 @@ class DynamicDetailsController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-add',     'glyph' => Configure::read('icnAdd'),'scale' => 'large', 'itemId' => 'add',      'tooltip'=> __('Add')),
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph' => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit'))
-                ))   
+                ))
             );
         }
 
@@ -2119,49 +2119,49 @@ class DynamicDetailsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),  
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-add', 
-                    'glyph'     => Configure::read('icnAdd'),    
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-add',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),  
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => false,   
+                    'disabled'  => false,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),    
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => false,     
+                    'disabled'  => false,
                     'tooltip'   => __('Edit')));
             }
 
-           
+
             $menu = array(
                         array('xtype' => 'buttongroup','title' => __('Action'),        'items' => $action_group)
                    );
@@ -2191,7 +2191,7 @@ class DynamicDetailsController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-add',     'glyph' => Configure::read('icnAdd'),'scale' => 'large', 'itemId' => 'add',      'tooltip'=> __('Add')),
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'iconCls' => 'b-edit',    'glyph' => Configure::read('icnEdit'),'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit'))
-                ))   
+                ))
             );
         }
 
@@ -2202,49 +2202,49 @@ class DynamicDetailsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),  
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-add',
-                    'glyph'     => Configure::read('icnAdd'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),  
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => false,   
+                    'disabled'  => false,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),    
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => false,     
+                    'disabled'  => false,
                     'tooltip'   => __('Edit')));
             }
 
-           
+
             $menu = array(
                         array('xtype' => 'buttongroup','title' => __('Action'),        'items' => $action_group)
                    );
@@ -2300,7 +2300,7 @@ class DynamicDetailsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -2321,7 +2321,7 @@ class DynamicDetailsController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -2336,7 +2336,7 @@ class DynamicDetailsController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -2376,11 +2376,11 @@ class DynamicDetailsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
+                }
             }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));   
-        }       
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
         //====== END AP FILTER =====
 
         return $c;
@@ -2410,7 +2410,7 @@ class DynamicDetailsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 
@@ -2433,7 +2433,7 @@ class DynamicDetailsController extends AppController {
                         break; //We've found our match
                     }
                 }
-            } 
+            }
         }
         return $match_found;
     }
@@ -2448,7 +2448,7 @@ class DynamicDetailsController extends AppController {
 			$user_data['username'] = $un;
 			$this->Radcheck = ClassRegistry::init('Radcheck');
 
-			$q_pw = $this->Radcheck->find('first', 
+			$q_pw = $this->Radcheck->find('first',
 				array('conditions' => array('Radcheck.username' => $un,'Radcheck.attribute' => 'Cleartext-Password'))
 			);
 

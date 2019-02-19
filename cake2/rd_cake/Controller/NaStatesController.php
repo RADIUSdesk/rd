@@ -23,8 +23,8 @@ class NaStatesController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         if(isset($this->request->query['nas_id'])){
             array_push($c['conditions'],array("NaState.na_id" => $this->request->query['nas_id']));
@@ -45,7 +45,7 @@ class NaStatesController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
         $items  = array();
 
@@ -53,7 +53,7 @@ class NaStatesController extends AppController {
         if(count($q_r) == 1){
             $state_time = $this->Formatter->diff_in_time($q_r[0]['NaState']['created']);
             array_push($items,array(
-                'id'                    => $q_r[0]['NaState']['id'], 
+                'id'                    => $q_r[0]['NaState']['id'],
                 'state'                 => $q_r[0]['NaState']['state'],
                 'time'                  => $state_time,
                 'start'                 => $q_r[0]['NaState']['created']
@@ -70,7 +70,7 @@ class NaStatesController extends AppController {
                     $previous_state = $q_r[($counter-1)]['NaState']['state'];
                     $id             = $q_r[($counter-1)]['NaState']['id'];
                     $state_time     = $this->Formatter->diff_in_time($q_r[$counter]['NaState']['created'],$previous_time);
-                    array_push($items,array('id' =>  $id,'state'=>$previous_state,'time'=> $state_time,'start' =>$previous_time,'end' => $q_r[$counter]['NaState']['created'])); 
+                    array_push($items,array('id' =>  $id,'state'=>$previous_state,'time'=> $state_time,'start' =>$previous_time,'end' => $q_r[$counter]['NaState']['created']));
                 }
                 $counter++;
             }
@@ -80,11 +80,11 @@ class NaStatesController extends AppController {
             $state_since    = $q_r[($counter-1)]['NaState']['created'];
             $id             = $q_r[($counter-1)]['NaState']['id'];
             $state_time     = $this->Formatter->diff_in_time($state_since);
-            array_push($items,array('id' =>  $id,'state'=>$state_now,'time'=> $state_time,'start' => $q_r[($counter-1)]['NaState']['created'])); 
+            array_push($items,array('id' =>  $id,'state'=>$state_now,'time'=> $state_time,'start' => $q_r[($counter-1)]['NaState']['created']));
         }
 
         $items = array_reverse($items); //Put the last state at the top!
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -94,7 +94,7 @@ class NaStatesController extends AppController {
         ));
     }
 
-   
+
     //FIXME check rights
     public function delete($id = null) {
 		if (!$this->request->is('post')) {
@@ -155,7 +155,7 @@ class NaStatesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-reload',  'glyph'     => Configure::read('icnReload'), 'scale' => 'large', 'itemId' => 'reload',   'tooltip'=> __('Reload')),
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph'     => Configure::read('icnDelete'), 'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                 ))
-                
+
             );
         }
 
@@ -166,23 +166,23 @@ class NaStatesController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),   
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),   
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
@@ -197,7 +197,7 @@ class NaStatesController extends AppController {
         ));
     }
 
-  
+
 
     private function _is_sibling_of($parent_id,$user_id){
         $this->User->contain();//No dependencies
@@ -216,7 +216,7 @@ class NaStatesController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -229,10 +229,10 @@ class NaStatesController extends AppController {
         $sort   = 'NaState.created';
         $dir    = 'ASC';
 
-        if(isset($this->request->query['sort'])){  
+        if(isset($this->request->query['sort'])){
             $sort = $this->modelClass.'.'.$this->request->query['sort'];
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -282,14 +282,14 @@ class NaStatesController extends AppController {
                 foreach($ap_children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }   
+                }
+            }
             //Add it as an OR clause
             print_r($tree_array);
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        } 
-*/      
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+*/
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -317,7 +317,7 @@ class NaStatesController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 

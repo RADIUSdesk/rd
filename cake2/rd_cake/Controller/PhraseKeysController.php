@@ -41,7 +41,7 @@ class PhraseKeysController extends AppController {
                 'message'   => array('message' => __('Could not create key')),
                 '_serialize' => array('errors','success','message')
             ));
-        }   
+        }
     }
 
     //--UPDATE--
@@ -61,7 +61,7 @@ class PhraseKeysController extends AppController {
         }
     }
 
-    //--DELETE-- 
+    //--DELETE--
     public function delete($id) {
         if ($this->{$this->modelClass}->delete($id)) {
             $success = true;

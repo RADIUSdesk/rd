@@ -23,8 +23,8 @@ class DynamicClientStatesController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         if(isset($this->request->query['dynamic_client_id'])){
             array_push($c['conditions'],array("DynamicClientState.dynamic_client_id" => $this->request->query['dynamic_client_id']));
@@ -45,7 +45,7 @@ class DynamicClientStatesController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
         $items  = array();
 
@@ -53,7 +53,7 @@ class DynamicClientStatesController extends AppController {
         if(count($q_r) == 1){
             $state_time = $this->Formatter->diff_in_time($q_r[0]['NaState']['created']);
             array_push($items,array(
-                'id'                    => $q_r[0]['DynamicClientState']['id'], 
+                'id'                    => $q_r[0]['DynamicClientState']['id'],
                 'state'                 => $q_r[0]['DynamicClientState']['state'],
                 'time'                  => $state_time,
                 'start'                 => $q_r[0]['DynamicClientState']['created']
@@ -70,7 +70,7 @@ class DynamicClientStatesController extends AppController {
                     $previous_state = $q_r[($counter-1)]['DynamicClientState']['state'];
                     $id             = $q_r[($counter-1)]['DynamicClientState']['id'];
                     $state_time     = $this->Formatter->diff_in_time($q_r[$counter]['DynamicClientState']['created'],$previous_time);
-                    array_push($items,array('id' =>  $id,'state'=>$previous_state,'time'=> $state_time,'start' =>$previous_time,'end' => $q_r[$counter]['DynamicClientState']['created'])); 
+                    array_push($items,array('id' =>  $id,'state'=>$previous_state,'time'=> $state_time,'start' =>$previous_time,'end' => $q_r[$counter]['DynamicClientState']['created']));
                 }
                 $counter++;
             }
@@ -80,11 +80,11 @@ class DynamicClientStatesController extends AppController {
             $state_since    = $q_r[($counter-1)]['DynamicClientState']['created'];
             $id             = $q_r[($counter-1)]['DynamicClientState']['id'];
             $state_time     = $this->Formatter->diff_in_time($state_since);
-            array_push($items,array('id' =>  $id,'state'=>$state_now,'time'=> $state_time,'start' => $q_r[($counter-1)]['DynamicClientState']['created'])); 
+            array_push($items,array('id' =>  $id,'state'=>$state_now,'time'=> $state_time,'start' => $q_r[($counter-1)]['DynamicClientState']['created']));
         }
 
         $items = array_reverse($items); //Put the last state at the top!
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -94,7 +94,7 @@ class DynamicClientStatesController extends AppController {
         ));
     }
 
-   
+
     //FIXME check rights
     public function delete($id = null) {
 		if (!$this->request->is('post')) {
@@ -155,7 +155,7 @@ class DynamicClientStatesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-reload',  'glyph'     => Configure::read('icnReload'), 'scale' => 'large', 'itemId' => 'reload',   'tooltip'=> __('Reload')),
                     array('xtype' => 'button', 'iconCls' => 'b-delete',  'glyph'     => Configure::read('icnDelete'), 'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                 ))
-                
+
             );
         }
 
@@ -166,23 +166,23 @@ class DynamicClientStatesController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),   
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),   
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
@@ -197,7 +197,7 @@ class DynamicClientStatesController extends AppController {
         ));
     }
 
-  
+
 
     private function _is_sibling_of($parent_id,$user_id){
         $this->User->contain();//No dependencies
@@ -216,7 +216,7 @@ class DynamicClientStatesController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -229,10 +229,10 @@ class DynamicClientStatesController extends AppController {
         $sort   = 'DynamicClientState.created';
         $dir    = 'ASC';
 
-        if(isset($this->request->query['sort'])){  
+        if(isset($this->request->query['sort'])){
             $sort = $this->modelClass.'.'.$this->request->query['sort'];
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -282,14 +282,14 @@ class DynamicClientStatesController extends AppController {
                 foreach($ap_children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }   
+                }
+            }
             //Add it as an OR clause
             print_r($tree_array);
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        } 
-*/      
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+*/
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -317,7 +317,7 @@ class DynamicClientStatesController extends AppController {
                 if($i['User']['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 

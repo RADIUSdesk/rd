@@ -39,8 +39,8 @@ class ProfilesController extends AppController {
             foreach($r as $j){
                 $id     = $j['Profile']['id'];
                 $name   = $j['Profile']['name'];
-                $data_cap_in_profile = false; 
-                $time_cap_in_profile = false; 
+                $data_cap_in_profile = false;
+                $time_cap_in_profile = false;
                 foreach($j['Radusergroup'] as $cmp){
                     foreach($cmp['Radgroupcheck'] as $chk){
                       //  print_r($chk);
@@ -50,12 +50,12 @@ class ProfilesController extends AppController {
                         if($chk['attribute'] == 'Rd-Reset-Type-Time'){
                             $time_cap_in_profile = true;
                         }
-                    } 
+                    }
                     unset($cmp['Radgroupcheck']);
                 }
                 array_push($items,
                     array(
-                        'id'                    => $id, 
+                        'id'                    => $id,
                         'name'                  => $name,
                         'data_cap_in_profile'   => $data_cap_in_profile,
                         'time_cap_in_profile'   => $time_cap_in_profile
@@ -70,8 +70,8 @@ class ProfilesController extends AppController {
                 if($ap_id == 0){
                     $ap_id = $user_id;
                 }
-                $q_r        = $this->User->getPath($ap_id); //Get all the parents up to the root           
-                foreach($q_r as $i){               
+                $q_r        = $this->User->getPath($ap_id); //Get all the parents up to the root
+                foreach($q_r as $i){
                     $user_id    = $i['User']['id'];
                     $this->Profile->contain(array('Radusergroup'  => array('Radgroupcheck')));
                     $r        = $this->Profile->find('all',array('conditions' => array('Profile.user_id' => $user_id, 'Profile.available_to_siblings' => true)));
@@ -79,8 +79,8 @@ class ProfilesController extends AppController {
                         $id     = $j['Profile']['id'];
                         $name   = $j['Profile']['name'];
 
-                        $data_cap_in_profile = false; 
-                        $time_cap_in_profile = false; 
+                        $data_cap_in_profile = false;
+                        $time_cap_in_profile = false;
                         foreach($j['Radusergroup'] as $cmp){
 							if(array_key_exists('Radgroupcheck',$cmp)){
 		                        foreach($cmp['Radgroupcheck'] as $chk){
@@ -90,14 +90,14 @@ class ProfilesController extends AppController {
 		                            if($chk['attribute'] == 'Rd-Reset-Type-Time'){
 		                                $time_cap_in_profile = true;
 		                            }
-		                        } 
+		                        }
 		                        unset($cmp['Radgroupcheck']);
 							}
                         }
-                        
+
                         array_push($items,
                             array(
-                                'id'                    => $id, 
+                                'id'                    => $id,
                                 'name'                  => $name,
                                 'data_cap_in_profile'   => $data_cap_in_profile,
                                 'time_cap_in_profile'   => $time_cap_in_profile
@@ -106,7 +106,7 @@ class ProfilesController extends AppController {
                     }
                 }
 				//----------------
-				//FIXME: There might be more of the hierarchical things that needs this add-on 
+				//FIXME: There might be more of the hierarchical things that needs this add-on
 				//We also need to list all the Profiles for this Access Provider NOT available to siblings
 				//------------------
 				$r        = $this->Profile->find('all',array('conditions' => array('Profile.user_id' => $ap_id, 'Profile.available_to_siblings' => false)));
@@ -114,8 +114,8 @@ class ProfilesController extends AppController {
                     $id     = $j['Profile']['id'];
                     $name   = $j['Profile']['name'];
 
-                    $data_cap_in_profile = false; 
-                    $time_cap_in_profile = false; 
+                    $data_cap_in_profile = false;
+                    $time_cap_in_profile = false;
                     foreach($j['Radusergroup'] as $cmp){
 						if(array_key_exists('Radgroupcheck',$cmp)){
 		                    foreach($cmp['Radgroupcheck'] as $chk){
@@ -125,14 +125,14 @@ class ProfilesController extends AppController {
 		                        if($chk['attribute'] == 'Rd-Reset-Type-Time'){
 		                            $time_cap_in_profile = true;
 		                        }
-		                    } 
+		                    }
 		                    unset($cmp['Radgroupcheck']);
 						}
                     }
-                    
+
                     array_push($items,
                         array(
-                            'id'                    => $id, 
+                            'id'                    => $id,
                             'name'                  => $name,
                             'data_cap_in_profile'   => $data_cap_in_profile,
                             'time_cap_in_profile'   => $time_cap_in_profile
@@ -158,8 +158,8 @@ class ProfilesController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -176,7 +176,7 @@ class ProfilesController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
 
         $items      = array();
@@ -207,15 +207,15 @@ class ProfilesController extends AppController {
                     if($chk['attribute'] == 'Rd-Reset-Type-Time'){
                         $time_cap_in_profile = true;
                     }
-                } 
+                }
                 unset($cmp['Radgroupcheck']);
                 array_push($components,$cmp);
             }
 
             array_push($items,array(
-                'id'                    => $i['Profile']['id'], 
+                'id'                    => $i['Profile']['id'],
                 'name'                  => $i['Profile']['name'],
-                'owner'                 => $owner_tree, 
+                'owner'                 => $owner_tree,
                 'available_to_siblings' => $i['Profile']['available_to_siblings'],
                 'profile_components'    => $components,
                 'data_cap_in_profile'   => $data_cap_in_profile,
@@ -225,7 +225,7 @@ class ProfilesController extends AppController {
                 'delete'                => $action_flags['delete']
             ));
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -255,22 +255,22 @@ class ProfilesController extends AppController {
             $this->Profile->contain();
             $q_r = $this->Profile->find('all');
 
-            foreach($q_r as $i){   
+            foreach($q_r as $i){
                 array_push($items,array(
-                    'id'            => $i['Profile']['name'], 
+                    'id'            => $i['Profile']['name'],
                     'text'          => $i['Profile']['name']
                 ));
             }
         }
 
         //_____ AP _____
-        if($user['group_name'] == Configure::read('group.ap')){  
+        if($user['group_name'] == Configure::read('group.ap')){
 
             //If it is an Access Provider that requested this list; we should show:
             //1.) all those NAS devices that he is allowed to use from parents with the available_to_sibling flag set (no edit or delete)
             //2.) all those he created himself (if any) (this he can manage, depending on his right)
             //3.) all his children -> check if they may have created any. (this he can manage, depending on his right)
-       
+
             $q_r = $this->Profile->find('all');
 
             //Loop through this list. Only if $user_id is a sibling of $creator_id we will add it to the list
@@ -281,7 +281,7 @@ class ProfilesController extends AppController {
                 $owner_id   = $i['Profile']['user_id'];
                 $a_t_s      = $i['Profile']['available_to_siblings'];
                 $add_flag   = false;
-                
+
                 //Filter for parents and children
                 //NAS devices of parent's can not be edited, where realms of childern can be edited
                 if($owner_id != $user_id){
@@ -305,10 +305,10 @@ class ProfilesController extends AppController {
                 }
 
                 if($add_flag == true ){
-                    $owner_tree = $this->_find_parents($owner_id);                      
+                    $owner_tree = $this->_find_parents($owner_id);
                     //Add to return items
                     array_push($items,array(
-                        'id'            => $i['Profile']['name'], 
+                        'id'            => $i['Profile']['name'],
                         'text'          => $i['Profile']['name']
                     ));
                 }
@@ -364,7 +364,7 @@ class ProfilesController extends AppController {
 
 
     public function manage_components() {
-    
+
          //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
         if(!$user){
@@ -372,7 +372,7 @@ class ProfilesController extends AppController {
         }
         $user_id        = $user['id'];
 
-        $rb             = $this->request->data['rb']; 
+        $rb             = $this->request->data['rb'];
 
         if(($rb == 'add')||($rb == 'remove')){
             $component_id   = $this->request->data['component_id'];
@@ -401,7 +401,7 @@ class ProfilesController extends AppController {
                         array('Radusergroup.username' => $profile_name,'Radusergroup.groupname' => $component_name), false
                     );
                 }
-               
+
                 if($rb == 'add'){
                     $q_r            = $this->Profile->findById($key);
                     $profile_name   = $q_r['Profile']['name'];
@@ -414,7 +414,7 @@ class ProfilesController extends AppController {
                     $d['priority']  = $this->request->data['priority'];
                     $this->{$this->modelClass}->Radusergroup->create();
                     $this->{$this->modelClass}->Radusergroup->save($d);
-                }     
+                }
                 //-------------
             }
         }
@@ -423,7 +423,7 @@ class ProfilesController extends AppController {
             'success'       => true,
             '_serialize'    => array('success')
         ));
-       
+
 	}
 
     public function delete($id = null) {
@@ -443,7 +443,7 @@ class ProfilesController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item           = $this->{$this->modelClass}->findById($this->data['id']);
             $owner_id       = $item['Profile']['user_id'];
             $profile_name   = $item['Profile']['name'];
@@ -464,7 +464,7 @@ class ProfilesController extends AppController {
                     array('Radusergroup.username' => $profile_name), false
                 );
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -518,7 +518,7 @@ class ProfilesController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $pc_id = $this->request->query['for_id'];
-            $q_r    = $this->{$this->modelClass}->{$this->itemNote}->find('all', 
+            $q_r    = $this->{$this->modelClass}->{$this->itemNote}->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('ProfileNote.profile_id' => $pc_id)
@@ -531,8 +531,8 @@ class ProfilesController extends AppController {
                     $afs        = $this->_get_action_flags($owner_id,$user);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => $afs['delete']
@@ -540,7 +540,7 @@ class ProfilesController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -571,7 +571,7 @@ class ProfilesController extends AppController {
 
         $success    = false;
         $msg        = array('message' => __('Could not create note'));
-        $this->{$this->modelClass}->{$this->itemNote}->Note->create(); 
+        $this->{$this->modelClass}->{$this->itemNote}->Note->create();
         //print_r($this->request->data);
         if ($this->{$this->modelClass}->{$this->itemNote}->Note->save($this->request->data)) {
             $d                      = array();
@@ -614,7 +614,7 @@ class ProfilesController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->{$this->modelClass}->{$this->itemNote}->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -628,7 +628,7 @@ class ProfilesController extends AppController {
                 $this->{$this->modelClass}->ProfileNote->Note->id = $this->data['id'];
                 $this->{$this->modelClass}->ProfileNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -645,7 +645,7 @@ class ProfilesController extends AppController {
                     $this->{$this->modelClass}->{$this->itemNote}->Note->id = $d['id'];
                     $this->{$this->modelClass}->{$this->itemNote}->Note->delete($d['id'],true);
                 }
-   
+
             }
         }
 
@@ -689,7 +689,7 @@ class ProfilesController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-note',     'glyph'     => Configure::read('icnNote'), 'scale' => 'large', 'itemId' => 'note',    'tooltip'=> __('Add notes')),
                   //  array('xtype' => 'button', 'iconCls' => 'b-csv',     'scale' => 'large', 'itemId' => 'csv',      'tooltip'=> __('Export CSV')),
                 ))
-                
+
             );
         }
 
@@ -700,31 +700,31 @@ class ProfilesController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),   
-                'scale'     => 'large', 
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
                 'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-add',
-                    'glyph'     => Configure::read('icnAdd'),      
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',    
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),   
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
                     'disabled'  => true,
                     'tooltip'   => __('Delete')));
@@ -733,31 +733,31 @@ class ProfilesController extends AppController {
             //Edit
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'manage_components')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),     
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
-            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
+                        'xtype'     => 'button',
                         'iconCls'   => 'b-note',
-                        'glyph'     => Configure::read('icnNote'),      
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',  
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 /*
-            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){ 
+            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-csv',     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-csv',
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 */
@@ -815,7 +815,7 @@ class ProfilesController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -837,7 +837,7 @@ class ProfilesController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -852,7 +852,7 @@ class ProfilesController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -890,12 +890,12 @@ class ProfilesController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }       
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -923,7 +923,7 @@ class ProfilesController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 

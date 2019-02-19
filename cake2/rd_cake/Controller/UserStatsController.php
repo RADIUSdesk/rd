@@ -17,7 +17,7 @@ class UserStatsController extends AppController {
 
         $day    = '2013-09-18'; //Temp value
         $span   = 'daily';      //Can be daily weekly or monthly
-       
+
         if(isset($this->request->query['day'])){
             //Format will be: 2013-09-18T00:00:00
             $pieces = explode('T',$this->request->query['day']);
@@ -42,7 +42,7 @@ class UserStatsController extends AppController {
 
         //Monthly
         if($span == 'monthly'){
-            $ret_info    = $this->_getMonthly($day);  
+            $ret_info    = $this->_getMonthly($day);
         }
 
         if($ret_info){
@@ -77,14 +77,14 @@ class UserStatsController extends AppController {
             $slot_start  = "$day ".sprintf('%02d', $start).':00:00';
             $slot_end    = "$day ".sprintf('%02d', $start).':59:59';
             $start++;
-        
+
             $conditions = $base_search;
             array_push($conditions,array('UserStat.timestamp >=' => $slot_start));
             array_push($conditions,array('UserStat.timestamp <=' => $slot_end));
 
-            $q_r = $this->{$this->modelClass}->find('first', 
+            $q_r = $this->{$this->modelClass}->find('first',
                 array(
-                    'conditions'    => $conditions,            
+                    'conditions'    => $conditions,
                     'fields'        => $this->fields
                 ));
             if($q_r){
@@ -94,7 +94,7 @@ class UserStatsController extends AppController {
                 $d_out          = $q_r[0]['data_out'];
                 $total_out      = $total_out + $d_out;
                 $total_in_out   = $total_in_out + ($d_in + $d_out);
-                array_push($items, array('id' => $start, 'time_unit' => $start, 'data_in' => $d_in, 'data_out' => $d_out));     
+                array_push($items, array('id' => $start, 'time_unit' => $start, 'data_in' => $d_in, 'data_out' => $d_out));
             }
         }
         return(array('items' => $items, 'total_in' => $total_in, 'total_out' => $total_out, 'total_in_out' => $total_in_out));
@@ -118,16 +118,16 @@ class UserStatsController extends AppController {
         $count      = 1;
 
         $base_search = $this->_base_search();
-       
+
         foreach($days as $d){
 
             $conditions = $base_search;
             array_push($conditions,array('UserStat.timestamp >=' => $slot_start));
             array_push($conditions,array('UserStat.timestamp <=' => $slot_end));
 
-            $q_r = $this->{$this->modelClass}->find('first', 
+            $q_r = $this->{$this->modelClass}->find('first',
                 array(
-                    'conditions'    => $conditions,            
+                    'conditions'    => $conditions,
                     'fields'        => $this->fields
                 ));
             if($q_r){
@@ -137,7 +137,7 @@ class UserStatsController extends AppController {
                 $d_out          = $q_r[0]['data_out'];
                 $total_out      = $total_out + $d_out;
                 $total_in_out   = $total_in_out + ($d_in + $d_out);
-                array_push($items, array('id' => $count, 'time_unit' => $d, 'data_in' => $d_in, 'data_out' => $d_out));     
+                array_push($items, array('id' => $count, 'time_unit' => $d, 'data_in' => $d_in, 'data_out' => $d_out));
             }
 
             //Get the nex day in the slots (we move one day on)
@@ -147,7 +147,7 @@ class UserStatsController extends AppController {
             $slot_end   = "$start_day 59:59:59";
             $count++;
         }
-        return(array('items' => $items, 'total_in' => $total_in, 'total_out' => $total_out, 'total_in_out' => $total_in_out));             
+        return(array('items' => $items, 'total_in' => $total_in, 'total_out' => $total_out, 'total_in_out' => $total_in_out));
     }
 
     private function _getMonthly($day){
@@ -168,7 +168,7 @@ class UserStatsController extends AppController {
         $slot_end   = "$start_day 59:59:59";
 
         $start  = 1;
-        $end    = cal_days_in_month(CAL_GREGORIAN, $pieces[1], $pieces[0]); 
+        $end    = cal_days_in_month(CAL_GREGORIAN, $pieces[1], $pieces[0]);
         $base_search = $this->_base_search();
 
         while($start <= $end){
@@ -176,14 +176,14 @@ class UserStatsController extends AppController {
             $conditions = $base_search;
             array_push($conditions,array('UserStat.timestamp >=' => $slot_start));
             array_push($conditions,array('UserStat.timestamp <=' => $slot_end));
-            
+
             $this->{$this->modelClass}->contain();
             //print_r($conditions);
-            
-            
-            $q_r = $this->{$this->modelClass}->find('first', 
+
+
+            $q_r = $this->{$this->modelClass}->find('first',
                 array(
-                    'conditions'    => $conditions,            
+                    'conditions'    => $conditions,
                     'fields'        => $this->fields
                 ));
             if($q_r){
@@ -193,7 +193,7 @@ class UserStatsController extends AppController {
                 $d_out          = $q_r[0]['data_out'];
                 $total_out      = $total_out + $d_out;
                 $total_in_out   = $total_in_out + ($d_in + $d_out);
-                array_push($items, array('id' => $start, 'time_unit' => $start, 'data_in' => $d_in, 'data_out' => $d_out));     
+                array_push($items, array('id' => $start, 'time_unit' => $start, 'data_in' => $d_in, 'data_out' => $d_out));
             }
 
             //Get the nex day in the slots (we move one day on)
@@ -203,7 +203,7 @@ class UserStatsController extends AppController {
             $slot_end   = "$start_day 59:59:59";
             $start++;
         }
-        return(array('items' => $items, 'total_in' => $total_in, 'total_out' => $total_out, 'total_in_out' => $total_in_out));           
+        return(array('items' => $items, 'total_in' => $total_in, 'total_out' => $total_out, 'total_in_out' => $total_in_out));
     }
 
     private function _base_search(){
@@ -216,7 +216,7 @@ class UserStatsController extends AppController {
             $type = $this->request->query['type'];
             //Permanent users an vouchers
             if(($type == 'permanent')||($type == 'voucher')||($type == 'user')||($type == 'activity_viewer')){
-                array_push($base_search,array('UserStat.username' => $username));   
+                array_push($base_search,array('UserStat.username' => $username));
             }
             //Devices
             if($type == 'device'){
@@ -227,7 +227,7 @@ class UserStatsController extends AppController {
                 $realm = ClassRegistry::init('Realm');
                 $realm->contain();
                 $q_r = $realm->findById($username);
-                if($q_r){ 
+                if($q_r){
                     $realm_name = $q_r['Realm']['name'];
                     array_push($base_search,array('UserStat.realm' => $realm_name));
                 }
@@ -237,22 +237,22 @@ class UserStatsController extends AppController {
                 $na = ClassRegistry::init('Na');
                 $na->contain();
                 $q_r = $na->findById($username);
-                if($q_r){ 
+                if($q_r){
                     $nas_identifier = $q_r['Na']['nasidentifier'];
                     array_push($base_search,array('UserStat.nasidentifier' => $nas_identifier));
                 }
             }
-            
+
             //Dynamic clients
             if($type == 'dynamic_client'){
                 $dc = ClassRegistry::init('DynamicClient');
                 $dc->contain();
                 $q_r = $dc->findById($username);
-                if($q_r){  
+                if($q_r){
                     $nas_identifier = $q_r['DynamicClient']['nasidentifier'];
                     array_push($base_search,array('UserStat.nasidentifier' => $nas_identifier));
                 }
-            }     
+            }
         }
         return $base_search;
     }

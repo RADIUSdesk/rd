@@ -16,7 +16,7 @@ class DashboardController extends AppController {
         $this->request->data['User']['password']     = $this->request->data['password'];
 
         if($this->Auth->identify($this->request,$this->response)){
-            
+
             //We can get the detail for the user
             $data = $this->_get_user_detail($this->request->data['User']['username']);
             $this->set(array(
@@ -54,7 +54,7 @@ class DashboardController extends AppController {
                     'success'       => false,
                     '_serialize'    => array('errors','success')
                 ));
-  
+
             }else{
                 $data = $this->_get_user_detail($q_r['User']['username']);
                 $this->set(array(
@@ -72,8 +72,8 @@ class DashboardController extends AppController {
             ));
         }
     }
-    
-    public function utilities_items(){       
+
+    public function utilities_items(){
         $data = array(
             array(
                 'xtype'   => 'button',
@@ -111,31 +111,31 @@ class DashboardController extends AppController {
                 'itemId'  => 'btnSetupWizard'
             )
         );
-        
+
         $this->set(array(
             'data'   => $data,
             'success' => true,
             '_serialize' => array('success','data')
         ));
-    
+
     }
-    
+
     public function settings_view(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){
             return;
         }
-        
+
         $user_id    = $user['id'];
-        
+
        // print_r($user);
-        
+
         $data = array();
         $this->UserSetting->contain();
-        
+
         $data['show_data_usage']        = 'show_data_usage';
         $data['show_recent_failures']   = 'show_recent_failures';
-        
+
         $q_rf = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'show_recent_failures')));
         if($q_rf){
             $val_rf = 0;
@@ -144,17 +144,17 @@ class DashboardController extends AppController {
             }
             $data['show_recent_failures'] = $val_rf;
         }
-        
+
         $q_rdu = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'show_data_usage')));
         if($q_rdu){
-        
+
             $val_du = 0;
             if($q_rdu['UserSetting']['value'] == 1){
                 $val_du = 'show_data_usage';
             }
             $data['show_data_usage'] = $val_du;
         }
-        
+
         //Now for the more difficult bit finding the default realm if there are not one.
         $q_rr = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'realm_id')));
         if($q_rr){
@@ -174,33 +174,33 @@ class DashboardController extends AppController {
                     $data['realm_id']   = $q_r['Realm']['id'];
                 }
             }
-            
+
             if($user['group_name'] == 'Access Providers'){
                 $realm_detail = $this->_ap_default_realm($user_id);
                 if(array_key_exists('realm_id',$realm_detail)){
                     $data['realm_name'] = $realm_detail['realm_name'];
                     $data['realm_id']   = $realm_detail['realm_id'];
                 }
-            }    
+            }
         }
-        
-        
+
+
         $this->set(array(
             'data'   => $data,
             'success' => true,
             '_serialize' => array('success','data')
         ));
-    
+
     }
-    
+
     private function _ap_default_realm($ap_id){
-    
+
         $realm = array();
-        $q_r   = $this->User->getPath($ap_id); //Get all the parents up to the root 
-        
-        $found_flag = false;  
-               
-        foreach($q_r as $i){    
+        $q_r   = $this->User->getPath($ap_id); //Get all the parents up to the root
+
+        $found_flag = false;
+
+        foreach($q_r as $i){
             $user_id    = $i['User']['id'];
             $this->Realm->contain();
             $r        = $this->Realm->find('all',array('conditions' => array('Realm.user_id' => $user_id, 'Realm.available_to_siblings' => true)));
@@ -208,84 +208,84 @@ class DashboardController extends AppController {
                 $id     = $j['Realm']['id'];
                 $name   = $j['Realm']['name'];
                 $read = $this->Acl->check(
-                            array('model' => 'User', 'foreign_key' => $ap_id), 
+                            array('model' => 'User', 'foreign_key' => $ap_id),
                             array('model' => 'Realm','foreign_key' => $id), 'read');
                 if($read == true){
                     $realm['realm_id']      = $id;
                     $realm['realm_name']    = $name;
                     $found_flag = true;
-                    break; // We only need one 
+                    break; // We only need one
                 }
             }
         }
 
-        //All the realms owned by anyone this access provider created (and also itself) 
-        //will automatically be under full controll of this access provider  
+        //All the realms owned by anyone this access provider created (and also itself)
+        //will automatically be under full controll of this access provider
         if($found_flag == false){
-            
+
             $this->children    = $this->User->find_access_provider_children($ap_id);
             $tree_array     = array();
             if($this->children){   //Only if the AP has any children...
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array('Realm.user_id' => $id));
-                }       
-            }  
+                }
+            }
             $this->Realm->contain();
-            $r_sub  = $this->Realm->find('all',array('conditions' => array('OR' => $tree_array))); 
+            $r_sub  = $this->Realm->find('all',array('conditions' => array('OR' => $tree_array)));
             foreach($r_sub  as $j){
                 $realm['realm_id']     = $j['Realm']['id'];
                 $realm['realm_name']   = $j['Realm']['name'];
                 break; //We only need one
             }
         }
- 
+
         return $realm;
     }
-    
+
      public function settings_submit(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){
             return;
         }
         $user_id    = $user['id'];
-        
+
          //Make available to siblings check
-       
-        
+
+
         if(isset($this->request->data['realm_id'])){
-        
+
             if(isset($this->request->data['show_data_usage'])){
                 $this->request->data['show_data_usage'] = 1;
             }else{
                 $this->request->data['show_data_usage'] = 0;
             }
-            
+
             if(isset($this->request->data['show_recent_failures'])){
                 $this->request->data['show_recent_failures'] = 1;
             }else{
                 $this->request->data['show_recent_failures'] = 0;
             }
-        
+
             //Delete old entries (if there are any)
             $this->UserSetting->deleteAll(array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'realm_id'), false);
             $this->UserSetting->deleteAll(array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'show_recent_failures'), false);
             $this->UserSetting->deleteAll(array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'show_data_usage'), false);
-        
+
             $d['UserSetting']['user_id']= $user_id;
             $d['UserSetting']['name']   = 'realm_id';
             $d['UserSetting']['value']  = $this->request->data['realm_id'];
             $this->UserSetting->create();
             $this->UserSetting->save($d);
             $this->UserSetting->id = null;
-            
+
             $d['UserSetting']['user_id']= $user_id;
             $d['UserSetting']['name']   = 'show_recent_failures';
             $d['UserSetting']['value']  = $this->request->data['show_recent_failures'];
             $this->UserSetting->create();
             $this->UserSetting->save($d);
             $this->UserSetting->id = null;
-            
+
             $d['UserSetting']['user_id']= $user_id;
             $d['UserSetting']['name']   = 'show_data_usage';
             $d['UserSetting']['value']  = $this->request->data['show_data_usage'];
@@ -313,7 +313,7 @@ class DashboardController extends AppController {
         $d['User']['id']        = $user_id;
         $d['User']['password']  = $this->request->data['password'];
         $d['User']['token']     = '';
-        
+
         $this->User->contain();
         $this->User->id         = $user_id;
         $this->User->save($d);
@@ -369,7 +369,7 @@ class DashboardController extends AppController {
     }
 
     private function _build_admin_tabs($user_id){
-    
+
         $tabs = array(
             array(
                 'title'   => __('Admin'),
@@ -390,7 +390,7 @@ class DashboardController extends AppController {
                         'layout'  => 'fit'
                     )
                 )
-            
+
             ),
             array(
                 'title'   => __('Users'),
@@ -422,10 +422,10 @@ class DashboardController extends AppController {
                         'id'        => 'cTopUps',
                         'layout'    => 'fit'
                     ),
-                    
+
                 )
-               
-            ), 
+
+            ),
             array(
                 'title'   => __('Profiles'),
                 'glyph'   => Configure::read('icnProfile'),
@@ -443,9 +443,9 @@ class DashboardController extends AppController {
                         'glyph'   => Configure::read('icnProfile'),
                         'id'      => 'cProfiles',
                         'layout'  => 'fit'
-                    )   
+                    )
                 )
-            ), 
+            ),
             array(
                 'title'   => __('RADIUS'),
                 'glyph'   => Configure::read('icnRadius'),
@@ -475,9 +475,9 @@ class DashboardController extends AppController {
                         'glyph'   => Configure::read('icnSsid'),
                         'id'      => 'cSsids',
                         'layout'  => 'fit'
-                    )  
+                    )
                 )
-            ), 
+            ),
             array(
                 'title'   => __('MESHdesk'),
                 'glyph'   => Configure::read('icnMesh'),
@@ -488,7 +488,7 @@ class DashboardController extends AppController {
                 'title'   => __('APdesk'),
                 'glyph'   => Configure::read('icnCloud'),
                 'id'      => 'cAccessPoints',
-                'layout'  => 'fit' 
+                'layout'  => 'fit'
             ),
             array(
                 'title'   => __('Other'),
@@ -531,20 +531,20 @@ class DashboardController extends AppController {
                         'glyph'   => Configure::read('icnBug'),
                         'id'      => 'cDebug',
                         'layout'  => 'fit'
-                    )    
+                    )
                 )
               )
-        ); 
-              
+        );
+
         //____ Overview Tab ___
         //This one is a bit different :-)
         $overview_items = array();
-        
+
         //Find out if there is a dafault setting for the realm.
         $show_data_usage        = true;
         $show_recent_failures   = true;
         $realm_blank            = false;
-        
+
         //Find if there is a realm specified in the settings
         $q_rr = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'realm_id')));
         if($q_rr){
@@ -555,41 +555,41 @@ class DashboardController extends AppController {
                 $realm_name         = $q_r['Realm']['name'];
                 $data['realm_name'] = $realm_name;
                 $data['realm_id']   = $q_rr['UserSetting']['value'];
-                
+
                 $this->realm_name   = $realm_name;
                 $this->realm_id     = $q_rr['UserSetting']['value'];
-               
+
                 //Get the settings of whether to show the two tabs
                 $q_rdu = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'show_data_usage')));
-                
+
                 if($q_rdu['UserSetting']['value'] == 0){
                     $show_data_usage = false;
                 }
-                
+
                 $q_rf = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'show_recent_failures')));
-                
+
                 if($q_rf['UserSetting']['value'] == 0){
                     $show_recent_failures = false;
                 }
-            }else{            
+            }else{
                 $realm_blank = true;
-            }       
-        //No realm specified in settings; get a default one (if there might be one )    
-        }else{ 
+            }
+        //No realm specified in settings; get a default one (if there might be one )
+        }else{
             $this->Realm->contain();
             $q_r            = $this->Realm->find('first',array());
             if($q_r){
                 $realm_name         = $q_r['Realm']['name'];
                 $data['realm_name'] = $realm_name;
                 $data['realm_id']   = $q_r['Realm']['id'];
-                
+
                 $this->realm_name   = $realm_name;
                 $this->realm_id     = $q_r['Realm']['id'];
             }else{
                 $realm_blank = true;
             }
         }
-        
+
         //We found a realm and should display it
         if(($realm_blank == false)&&($show_data_usage == true)){
             array_push($overview_items, array(
@@ -600,7 +600,7 @@ class DashboardController extends AppController {
                 )
             );
         }else{
-        
+
             //We could not find a realm and should display a welcome message
             if($realm_blank == true){
                 array_push($overview_items, array(
@@ -612,7 +612,7 @@ class DashboardController extends AppController {
                 );
             }
         }
-        
+
         //We found a realm and should display it
         if(($realm_blank == false)&&($show_recent_failures == true)){
          /*   array_push($overview_items, array(
@@ -622,9 +622,9 @@ class DashboardController extends AppController {
                         'layout'  => 'fit'
                 )
             );*/
-        } 
-       
-        
+        }
+
+
         array_push($overview_items, array(
                 'title'   => __('Utilities'),
                 'glyph'   => Configure::read('icnGears'),
@@ -632,7 +632,7 @@ class DashboardController extends AppController {
                 'layout'  => 'fit'
             )
         );
-               
+
         array_unshift($tabs,array(
             'title'     => __('Overview'),
             'xtype'     => 'tabpanel',
@@ -640,28 +640,28 @@ class DashboardController extends AppController {
             'itemId'    => 'tpOverview',
             'layout'    => 'fit',
             'items'     => $overview_items
-        ));   
-                
+        ));
+
         return $tabs;
     }
-    
+
     private function _build_ap_tabs($id){
         $tabs   = array();
         $user_id = $id;
-        
+
         //Base to start looking from.
-        $base   = "Access Providers/Controllers/"; 
-           
-        
+        $base   = "Access Providers/Controllers/";
+
+
         //____ Overview Tab ___
         //This one is a bit different :-)
         $overview_items = array();
-        
+
         //Find out if there is a dafault setting for the realm.
         $show_data_usage        = true;
         $show_recent_failures   = true;
         $realm_blank            = false;
-        
+
         //Find if there is a realm specified in the settings
         $q_rr = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'realm_id')));
         if($q_rr){
@@ -671,37 +671,37 @@ class DashboardController extends AppController {
             $realm_name         = $q_r['Realm']['name'];
             $data['realm_name'] = $realm_name;
             $data['realm_id']   = $q_rr['UserSetting']['value'];
-            
+
             $this->realm_name   = $realm_name;
             $this->realm_id     = $q_rr['UserSetting']['value'];
-           
+
             //Get the settings of whether to show the two tabs
             $q_rdu = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'show_data_usage')));
-            
+
             if($q_rdu['UserSetting']['value'] == 0){
                 $show_data_usage = false;
             }
-            
+
             $q_rf = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'show_recent_failures')));
-            
+
             if($q_rf['UserSetting']['value'] == 0){
                 $show_recent_failures = false;
-            }  
-         
-        //No realm specified in settings; get a default one (if there might be one )    
-        }else{    
+            }
+
+        //No realm specified in settings; get a default one (if there might be one )
+        }else{
             $realm_detail = $this->_ap_default_realm($user_id);
             if(array_key_exists('realm_id',$realm_detail)){
                 $data['realm_name'] = $realm_detail['realm_name'];
                 $data['realm_id']   = $realm_detail['realm_id'];
-                
+
                 $this->realm_name   = $realm_detail['realm_name'];
                 $this->realm_id     = $realm_detail['realm_id'];
             }else{ // Could not find a default realm
                 $realm_blank = true;
-            }  
+            }
         }
-        
+
         //We found a realm and should display it
         if(($realm_blank == false)&&($show_data_usage == true)){
             array_push($overview_items, array(
@@ -712,7 +712,7 @@ class DashboardController extends AppController {
                 )
             );
         }else{
-        
+
             //We could not find a realm and should display a welcome message
             if($realm_blank == true){
                 array_push($overview_items, array(
@@ -724,7 +724,7 @@ class DashboardController extends AppController {
                 );
             }
         }
-        
+
         //We found a realm and should display it
         if(($realm_blank == false)&&($show_recent_failures == true)){
            /* array_push($overview_items, array(
@@ -734,9 +734,9 @@ class DashboardController extends AppController {
                         'layout'  => 'fit'
                 )
             );*/
-        } 
-       
-        
+        }
+
+
         array_push($overview_items, array(
                 'title'   => __('Utilities'),
                 'glyph'   => Configure::read('icnGears'),
@@ -744,7 +744,7 @@ class DashboardController extends AppController {
                 'layout'  => 'fit'
             )
         );
-            
+
         array_push($tabs, array(
                 'title'     => __('Overview'),
                 'xtype'     => 'tabpanel',
@@ -754,8 +754,8 @@ class DashboardController extends AppController {
                 'items'   => $overview_items
             )
         );
-        
-        
+
+
         //____ Admin Tab ____
         $admin_items = array();
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."AccessProviders/index")){
@@ -767,7 +767,7 @@ class DashboardController extends AppController {
                 )
             );
         }
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Realms/index")){
             array_push($admin_items, array(
                     'title'   => __('Realms (Groups)'),
@@ -788,41 +788,41 @@ class DashboardController extends AppController {
                 )
             );
         }
-        
-        //____ Users Tab ____   
+
+        //____ Users Tab ____
         $users_items = array();
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."PermanentUsers/index")){
             array_push($users_items, array(
                     'title'     => __('Permanent Users'),
                     'glyph'     => Configure::read('icnUser'),
                     'id'        => 'cPermanentUsers',
-                    'layout'    => 'fit'                   
+                    'layout'    => 'fit'
                 )
             );
-        
+
         }
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Vouchers/index")){
             array_push($users_items, array(
                     'title'     => __('Vouchers'),
                     'glyph'     => Configure::read('icnVoucher'),
                     'id'        => 'cVouchers',
-                    'layout'    => 'fit'          
+                    'layout'    => 'fit'
                 )
             );
         }
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Devices/index")){
             array_push($users_items, array(
                     'title'     => __('BYOD'),
                     'glyph'     => Configure::read('icnDevice'),
                     'id'        => 'cDevices',
-                    'layout'    => 'fit'       
+                    'layout'    => 'fit'
                 )
             );
         }
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."TopUps/index")){
             array_push($users_items, array(
                     'title'     => __('Top-Ups'),
@@ -830,9 +830,9 @@ class DashboardController extends AppController {
                     'id'        => 'cTopUps',
                     'layout'    => 'fit'
                 )
-            ); 
+            );
         }
-        
+
         if(count($admin_items) > 0){
             array_push($tabs, array(
                     'title'   => __('Users'),
@@ -843,30 +843,30 @@ class DashboardController extends AppController {
                 )
             );
         }
-        
-        //____ Profiles Tab ____   
+
+        //____ Profiles Tab ____
         $profile_items = array();
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."ProfileComponents/index")){
             array_push($profile_items, array(
                     'title'   => __('Profile Components'),
                     'glyph'   => Configure::read('icnComponent'),
                     'id'      => 'cProfileComponents',
-                    'layout'  => 'fit'          
+                    'layout'  => 'fit'
                 )
             );
         }
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Profiles/index")){
             array_push($profile_items, array(
                     'title'   => __('Profiles'),
                     'glyph'   => Configure::read('icnProfile'),
                     'id'      => 'cProfiles',
-                    'layout'  => 'fit'            
+                    'layout'  => 'fit'
                 )
             );
         }
-        
+
         if(count($profile_items) > 0){
             array_push($tabs, array(
                 'title'   => __('Profiles'),
@@ -877,51 +877,51 @@ class DashboardController extends AppController {
                 )
             );
         }
-        
-        //____ RADIUS Tab ____  
+
+        //____ RADIUS Tab ____
         $radius_items = array();
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."DynamicClients/index")){
             array_push($radius_items, array(
                     'title'   => __('Dynamic RADIUS Clients'),
                     'glyph'   => Configure::read('icnDynamicNas'),
                     'id'      => 'cDynamicClients',
-                    'layout'  => 'fit'             
+                    'layout'  => 'fit'
                 )
             );
         }
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Nas/index")){
             array_push($radius_items, array(
                     'title'   => __('NAS Devices'),
                     'glyph'   => Configure::read('icnNas'),
                     'id'      => 'cNas',
-                    'layout'  => 'fit'           
+                    'layout'  => 'fit'
                 )
             );
         }
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Tags/index")){
             array_push($radius_items, array(
                     'title'   => __('NAS Device Tags'),
                     'glyph'   => Configure::read('icnTag'),
                     'id'      => 'cTags',
                     'layout'  => 'fit'
-                              
+
                 )
             );
         }
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Ssids/index")){
             array_push($radius_items, array(
                     'title'   => __('SSIDs'),
                     'glyph'   => Configure::read('icnSsid'),
                     'id'      => 'cSsids',
-                    'layout'  => 'fit'             
+                    'layout'  => 'fit'
                 )
             );
         }
-        
+
         if(count($radius_items) > 0){
             array_push($tabs, array(
                 'title'   => __('RADIUS'),
@@ -932,9 +932,9 @@ class DashboardController extends AppController {
                 )
             );
         }
-        
+
         //___ MESHdesk tab ___
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Meshes/index")){
              array_push($tabs, array(
                     'title'   => __('MESHdesk'),
@@ -944,33 +944,33 @@ class DashboardController extends AppController {
                 )
             );
         }
-        
+
         //___ APdesk tab ___
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."ApProfiles/index")){
              array_push($tabs, array(
                     'title'   => __('APdesk'),
                     'glyph'   => Configure::read('icnCloud'),
                     'id'      => 'cAccessPoints',
-                    'layout'  => 'fit' 
+                    'layout'  => 'fit'
                 )
             );
         }
-        
+
         // ____ Other Tab ____
-        
+
         $other_items = array();
-        
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."DynamicDetails/index")){
             array_push($other_items, array(
                     'title'   => __('Dynamic Login Pages'),
                     'glyph'   => Configure::read('icnDynamic'),
                     'id'      => 'cDynamicDetails',
-                    'layout'  => 'fit' 
+                    'layout'  => 'fit'
                 )
             );
         }
-        
+
         if(count($other_items) > 0){
             array_push($tabs, array(
                 'title'   => __('Other'),
@@ -981,10 +981,10 @@ class DashboardController extends AppController {
                 )
             );
         }
-                
+
         return $tabs;
     }
-    
+
     private function _is_sibling_of($parent_id,$user_id){
         $this->User->contain();//No dependencies
         $q_r        = $this->User->getPath($user_id);

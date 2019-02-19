@@ -19,8 +19,8 @@ class SsidsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -37,7 +37,7 @@ class SsidsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
 
         $items      = array();
@@ -45,12 +45,12 @@ class SsidsController extends AppController {
         foreach($q_r as $i){
             $owner_id       = $i['Ssid']['user_id'];
             $owner_tree     = $this->_find_parents($owner_id);
-            $action_flags   = $this->_get_action_flags($owner_id,$user);   
+            $action_flags   = $this->_get_action_flags($owner_id,$user);
 
             array_push($items,array(
-                'id'                    => $i['Ssid']['id'], 
+                'id'                    => $i['Ssid']['id'],
                 'name'                  => $i['Ssid']['name'],
-                'owner'                 => $owner_tree, 
+                'owner'                 => $owner_tree,
                 'available_to_siblings' => $i['Ssid']['available_to_siblings'],
 				'extra_name'            => $i['Ssid']['extra_name'],
 				'extra_value'           => $i['Ssid']['extra_value'],
@@ -58,7 +58,7 @@ class SsidsController extends AppController {
                 'delete'                => $action_flags['delete']
             ));
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -88,16 +88,16 @@ class SsidsController extends AppController {
             $this->{$this->modelClass}->contain();
             $q_r = $this->{$this->modelClass}->find('all');
 
-            foreach($q_r as $i){   
+            foreach($q_r as $i){
                 array_push($items,array(
-                    'id'            => $i['Ssid']['id'], 
+                    'id'            => $i['Ssid']['id'],
                     'name'          => $i['Ssid']['name']
                 ));
             }
         }
 
         //_____ AP _____
-        if($user['group_name'] == Configure::read('group.ap')){  
+        if($user['group_name'] == Configure::read('group.ap')){
 
             //If it is an Access Provider that requested this list; we should show:
             //1.) all those NAS devices that he is allowed to use from parents with the available_to_sibling flag set (no edit or delete)
@@ -115,7 +115,7 @@ class SsidsController extends AppController {
                 $owner_id   = $i['Ssid']['user_id'];
                 $a_t_s      = $i['Ssid']['available_to_siblings'];
                 $add_flag   = false;
-                
+
                 //Filter for parents and children
                 if($owner_id != $user_id){
                     if($this->_is_sibling_of($owner_id,$user_id)){ //Is the user_id an upstream parent of the AP
@@ -126,8 +126,8 @@ class SsidsController extends AppController {
                     }
                 }
 
-                if($ap_child_count != 0){ 
-                    if($this->_is_sibling_of($user_id,$owner_id)){ 
+                if($ap_child_count != 0){
+                    if($this->_is_sibling_of($user_id,$owner_id)){
                         $add_flag = true;
                     }
                 }
@@ -138,10 +138,10 @@ class SsidsController extends AppController {
                 }
 
                 if($add_flag == true ){
-                    $owner_tree = $this->_find_parents($owner_id);                      
+                    $owner_tree = $this->_find_parents($owner_id);
                     //Add to return items
                     array_push($items,array(
-                        'id'            => $i['Ssid']['id'], 
+                        'id'            => $i['Ssid']['id'],
                         'name'          => $i['Ssid']['name']
                     ));
                 }
@@ -212,7 +212,7 @@ class SsidsController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item           = $this->{$this->modelClass}->findById($this->data['id']);
             $owner_id       = $item['Ssid']['user_id'];
             $ssid_name   = $item['Ssid']['name'];
@@ -227,7 +227,7 @@ class SsidsController extends AppController {
                 $this->{$this->modelClass}->id = $this->data['id'];
                 $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -322,45 +322,45 @@ class SsidsController extends AppController {
             $id             = $user['id'];
             $action_group   = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),   
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-add',
-                    'glyph'     => Configure::read('icnAdd'),      
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),   
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),     
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
@@ -417,7 +417,7 @@ class SsidsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -437,7 +437,7 @@ class SsidsController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -452,7 +452,7 @@ class SsidsController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -490,12 +490,12 @@ class SsidsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }       
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -523,7 +523,7 @@ class SsidsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 

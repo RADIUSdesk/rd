@@ -16,7 +16,7 @@ class RegisterUsersController extends AppController {
 				    'success'   => false,
 				    'errors'	=> array('Login Page ID' => 'Page not found in database'),
 					    '_serialize' => array('success','errors')
-			    ));	
+			    ));
 			    return;
 		    }
 		}else{
@@ -24,24 +24,24 @@ class RegisterUsersController extends AppController {
 				'success'   => false,
 				'errors'	=> array('Login Page ID' => 'Login Page ID missing'),
 					'_serialize' => array('success','errors')
-			));	
+			));
 			return;
 		}
-		
+
 		if(!$q_r['DynamicDetail']['register_users']){
 		    $this->set(array(
 				'success'   => false,
 				'errors'	=> array('Registration forbidden' => 'User Registration not allowed'),
 					'_serialize' => array('success','errors')
-			));	
-			return; 
+			));
+			return;
 		}
-		
+
 
 		//--Do the MAC test --
 		$mac_name   = '';
 		$mac_value  = '';
-		
+
 		if($q_r['DynamicDetail']['reg_mac_check']){
 		    if(array_key_exists('mac',$this->request->data)){
 				$mac = $this->request->data['mac'];
@@ -52,12 +52,12 @@ class RegisterUsersController extends AppController {
 				        'success'   => false,
 				        'errors'	=> array('Address not specified' => 'MAC Address not specified'),
 					        '_serialize' => array('success','errors')
-			        ));	
+			        ));
 			        return;
 				}
 				$this->PermanentUser->contain();
 				$q	= $this->PermanentUser->find('first',
-					array('conditions' => 
+					array('conditions' =>
 						array(
 							'PermanentUser.extra_name' 	=> 'mac',
 							'PermanentUser.extra_value' => $mac,
@@ -69,7 +69,7 @@ class RegisterUsersController extends AppController {
 						'success'   => false,
 						'errors'	=> array('username' => "MAC Address $mac in use by $already_username"),
 							'_serialize' => array('success','errors')
-					));	
+					));
 					return;
 				}
 			}else{
@@ -78,11 +78,11 @@ class RegisterUsersController extends AppController {
 					'success'   => false,
 					'errors'	=> array('Device ID Missing' => 'Device MAC not in request'),
 						'_serialize' => array('success','errors')
-				));	
+				));
 				return;
 			}
 		}
-		
+
 
 		//Get the token of the Dynamic Login Page owner
 		$this->User->contain();
@@ -94,30 +94,30 @@ class RegisterUsersController extends AppController {
 
 		//Profile id
 		$profile_id	= $q_r['DynamicDetail']['profile_id'];
-		
+
         $active   	= 'active';
         $cap_data 	= 'hard';
         $language   = '4_4';
-        $parent_id  = 0;        
-        $url        = 'http://127.0.0.1/cake3/rd_cake/permanent-users/add.json'; 
+        $parent_id  = 0;
+        $url        = 'http://127.0.0.1/cake3/rd_cake/permanent-users/add.json';
         $username	= $this->request->data['username'];
 		$password	= $this->request->data['password'];
-		
+
 		$auto_add   = 0;
 		if($q_r['DynamicDetail']['reg_auto_add']){
 		    $auto_add = 1;
 		}
-		
+
 		//--- ADD ON ---- Expire them after 30 days
 		/*
 		$from_date	=  date("n/j/Y");
 		$plus_30  	= mktime(0, 0, 0, date("m"),   date("d")+31,   date("Y")); //We actually put 31 since today is already gone
 		$to_date	=  date("n/j/Y",$plus_30);
-		
+
 		'from_date'		=> $from_date,
 	    'to_date'		=> $to_date,
 	    */
-         
+
         // The data to send to the API
         $postData = array(
             'active'        => $active,
@@ -137,11 +137,11 @@ class RegisterUsersController extends AppController {
 			'surname'       => $this->request->data['surname'],
 			'phone'         => $this->request->data['phone']
         );
-     
+
         // Setup cURL
         $ch = curl_init($url);
         curl_setopt_array($ch, array(
-         
+
             CURLOPT_POST            => TRUE,
             CURLOPT_RETURNTRANSFER  => TRUE,
             CURLOPT_HTTPHEADER => array(
@@ -149,10 +149,10 @@ class RegisterUsersController extends AppController {
             ),
             CURLOPT_POSTFIELDS => json_encode($postData)
         ));
-         
+
         // Send the request
         $response = curl_exec($ch);
-         
+
         // Check for errors
         if($response === FALSE){
             die(curl_error($ch));
@@ -167,7 +167,7 @@ class RegisterUsersController extends AppController {
 			'errors'	=> $responseData['errors'],
 			'message'	=> $responseData['message'],
 		        '_serialize' => array('success','errors','message')
-		    ));	
+		    ));
 		}
 
 		if($responseData['success'] == true){
@@ -181,25 +181,25 @@ class RegisterUsersController extends AppController {
             'success'   => $responseData['success'],
 			'data'		=> $postData,
 		        '_serialize' => array('success','data')
-		    ));	
+		    ));
 		}
 	}
 
 	public function lost_password(){
-	
+
 	    $success = false;
 	    if(array_key_exists('email',$this->request->data)){
-	    
+
 	        $username = $this->request->data['email'];
-	         
+
 	        if($this->request->data['auto_suffix_check'] == 'true'){
 	            $username = $username.'@'.$this->request->data['auto_suffix'];
 	        }
-	     
-	        $this->PermanentUser->contain('Radcheck'); 
+
+	        $this->PermanentUser->contain('Radcheck');
 	        $q_r = $this->PermanentUser->find('first',array('conditions' =>array('PermanentUser.username' => $username)));
-	       
-	        $password = false;       
+
+	        $password = false;
 	        if($q_r){
 	            foreach($q_r['Radcheck'] as $rc){
                     if($rc['attribute'] == 'Cleartext-Password'){
@@ -212,7 +212,7 @@ class RegisterUsersController extends AppController {
                         $success = true;
                     }
 	            }
-	        }        
+	        }
 	    }
 
 		$this->set(array(
@@ -221,8 +221,8 @@ class RegisterUsersController extends AppController {
 		        '_serialize' => array('success','data')
 		    ));
 	}
-	
-	
+
+
 	private function _email_lost_password($username,$password){
 	    $email_server = Configure::read('EmailServer');
         App::uses('CakeEmail', 'Network/Email');

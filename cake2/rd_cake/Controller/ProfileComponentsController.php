@@ -44,7 +44,7 @@ class ProfileComponentsController extends AppController {
         $items = array();
         if(isset($this->request->query['comp_id'])){
             $comp_id = $this->request->query['comp_id'];
-            $q_r = $this->ProfileComponent->findById($comp_id);         
+            $q_r = $this->ProfileComponent->findById($comp_id);
             //First the radchecks
             $id_prefix = 'chk_';
             foreach($q_r['Radgroupcheck'] as $i){
@@ -72,7 +72,7 @@ class ProfileComponentsController extends AppController {
                     'comment'       => $i['comment']
                 ));
             }
-            
+
         }
         $this->set(array(
             'items' => $items,
@@ -244,7 +244,7 @@ class ProfileComponentsController extends AppController {
                     ));
                 }
             }
-   
+
         }
     }
 
@@ -258,13 +258,13 @@ class ProfileComponentsController extends AppController {
                 $this->{$this->modelClass}->Radgroupcheck->delete();
             }
 
-            if(preg_match("/^rpl_/",$this->request->data['id'])){   
+            if(preg_match("/^rpl_/",$this->request->data['id'])){
                 $this->{$this->modelClass}->Radgroupreply->id = $type_id[1];
                 $this->{$this->modelClass}->Radgroupreply->delete();
             }
-            
+
             $fail_flag = false;
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
                 $type_id            = explode( '_', $d['id']);
@@ -272,11 +272,11 @@ class ProfileComponentsController extends AppController {
                     $this->{$this->modelClass}->Radgroupcheck->id = $type_id[1];
                     $this->{$this->modelClass}->Radgroupcheck->delete();
                 }
-                if(preg_match("/^rpl_/",$d['id'])){   
+                if(preg_match("/^rpl_/",$d['id'])){
                     $this->{$this->modelClass}->Radgroupreply->id = $type_id[1];
                     $this->{$this->modelClass}->Radgroupreply->delete();
-                }          
-                $fail_flag = false;  
+                }
+                $fail_flag = false;
             }
         }
 
@@ -307,8 +307,8 @@ class ProfileComponentsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -325,7 +325,7 @@ class ProfileComponentsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
 
         $items      = array();
@@ -346,18 +346,18 @@ class ProfileComponentsController extends AppController {
             $action_flags   = $this->_get_action_flags($owner_id,$user);
 
             array_push($items,array(
-                'id'                    => $i['ProfileComponent']['id'], 
+                'id'                    => $i['ProfileComponent']['id'],
                 'name'                  => $i['ProfileComponent']['name'],
-                'owner'                 => $owner_tree, 
+                'owner'                 => $owner_tree,
                 'available_to_siblings' => $i['ProfileComponent']['available_to_siblings'],
-                'reply_attribute_count' => count($i['Radgroupreply']), 
+                'reply_attribute_count' => count($i['Radgroupreply']),
                 'check_attribute_count' => count($i['Radgroupcheck']),
                 'notes'                 => $notes_flag,
                 'update'                => $action_flags['update'],
                 'delete'                => $action_flags['delete']
             ));
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -455,7 +455,7 @@ class ProfileComponentsController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->{$this->modelClass}->findById($this->data['id']);
             $owner_id   = $item['ProfileComponent']['user_id'];
             $name       = $item['ProfileComponent']['name'];
@@ -472,7 +472,7 @@ class ProfileComponentsController extends AppController {
                 $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
                 $this->_delete_clean_up_component($name);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -492,7 +492,7 @@ class ProfileComponentsController extends AppController {
                     $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
                     $this->_delete_clean_up_component($name);
                 }
-   
+
             }
         }
 
@@ -523,7 +523,7 @@ class ProfileComponentsController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $pc_id = $this->request->query['for_id'];
-            $q_r    = $this->{$this->modelClass}->{$this->itemNote}->find('all', 
+            $q_r    = $this->{$this->modelClass}->{$this->itemNote}->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('ProfileComponentNote.profile_component_id' => $pc_id)
@@ -536,8 +536,8 @@ class ProfileComponentsController extends AppController {
                     $afs        = $this->_get_action_flags($owner_id,$user);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => $afs['delete']
@@ -545,7 +545,7 @@ class ProfileComponentsController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -576,7 +576,7 @@ class ProfileComponentsController extends AppController {
 
         $success    = false;
         $msg        = array('message' => __('Could not create note'));
-        $this->{$this->modelClass}->{$this->itemNote}->Note->create(); 
+        $this->{$this->modelClass}->{$this->itemNote}->Note->create();
         //print_r($this->request->data);
         if ($this->{$this->modelClass}->{$this->itemNote}->Note->save($this->request->data)) {
             $d                      = array();
@@ -619,7 +619,7 @@ class ProfileComponentsController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->{$this->modelClass}->{$this->itemNote}->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -633,7 +633,7 @@ class ProfileComponentsController extends AppController {
                 $this->{$this->modelClass}->ProfileComponentNote->Note->id = $this->data['id'];
                 $this->{$this->modelClass}->ProfileComponentNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -650,7 +650,7 @@ class ProfileComponentsController extends AppController {
                     $this->{$this->modelClass}->{$this->itemNote}->Note->id = $d['id'];
                     $this->{$this->modelClass}->{$this->itemNote}->Note->delete($d['id'],true);
                 }
-   
+
             }
         }
 
@@ -693,7 +693,7 @@ class ProfileComponentsController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-note',     'glyph'     => Configure::read('icnNote'), 'scale' => 'large', 'itemId' => 'note',    'tooltip'=> __('Add notes')),
                    // array('xtype' => 'button', 'iconCls' => 'b-csv',     'scale' => 'large', 'itemId' => 'csv',      'tooltip'=> __('Export CSV')),
                 ))
-                
+
             );
         }
 
@@ -704,64 +704,64 @@ class ProfileComponentsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
-                'iconCls'   => 'b-reload', 
-                'glyph'     => Configure::read('icnReload'),  
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'iconCls'   => 'b-reload',
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-add', 
-                    'glyph'     => Configure::read('icnAdd'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-add',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),   
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),     
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
-                        'iconCls'   => 'b-note', 
-                        'glyph'     => Configure::read('icnNote'),     
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',      
+                        'xtype'     => 'button',
+                        'iconCls'   => 'b-note',
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 /*
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-csv',     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-csv',
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 */
@@ -820,7 +820,7 @@ class ProfileComponentsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -843,7 +843,7 @@ class ProfileComponentsController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -859,7 +859,7 @@ class ProfileComponentsController extends AppController {
                     //Strings
                     if($f->type == 'string'){
                         if($f->field == 'owner'){
-                            array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                            array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                         }else{
                             $col = $this->modelClass.'.'.$f->field;
                             array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -898,12 +898,12 @@ class ProfileComponentsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }       
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -932,7 +932,7 @@ class ProfileComponentsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 

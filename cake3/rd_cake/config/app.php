@@ -66,9 +66,9 @@ return [
     'Security' => [
         //'salt' => env('SECURITY_SALT', '2763e707d236f7fa6a3f41bf14d94264eff41e78023bf3270dbd5e6096e63709'),
         'salt' => env('SECURITY_SALT', 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9miAA'),
-        
+
     ],
-    
+
     //Configure::write('Security.salt', 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
 
     /**

@@ -20,8 +20,8 @@ class ApActionsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         if(isset($this->request->query['ap_id'])){
             array_push($c['conditions'],array("ApAction.ap_id" => $this->request->query['ap_id']));
@@ -42,12 +42,12 @@ class ApActionsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
-        $items  = array();     
+        $items  = array();
         //If there are more than one
         if($q_r){
-            foreach($q_r as $item){          
+            foreach($q_r as $item){
                 array_push($items,array(
                     'id'        =>  $item['ApAction']['id'],
                     'action'    =>  $item['ApAction']['action'],
@@ -55,7 +55,7 @@ class ApActionsController extends AppController {
                     'status'    =>  $item['ApAction']['status'],
                     'created'   =>  $item['ApAction']['created'],
                     'modified'  =>  $item['ApAction']['modified'],
-                )); 
+                ));
             }
         }
         //___ FINAL PART ___
@@ -81,7 +81,7 @@ class ApActionsController extends AppController {
                 $d['ap_id']   = $this->request->data[$key];
 				$d['command']	= $this->request->data['command'];
                 $this->{$this->modelClass}->create();
-                $this->{$this->modelClass}->save($d);   
+                $this->{$this->modelClass}->save($d);
             }
         }
 
@@ -113,7 +113,7 @@ class ApActionsController extends AppController {
 		));
 	}
 
-   
+
     //FIXME check rights
     public function delete($id = null) {
 		if (!$this->request->is('post')) {
@@ -167,7 +167,7 @@ class ApActionsController extends AppController {
 
 		$mac = $this->request->data['mac'];
 		$this->ApAction->contain('Ap');
-		$q_r = $this->ApAction->find('all', 
+		$q_r = $this->ApAction->find('all',
 				array('conditions' => array('Ap.mac' => $mac,'ApAction.status' => 'awaiting')
 		)); //Only awaiting actions
 
@@ -175,7 +175,7 @@ class ApActionsController extends AppController {
 		foreach($q_r as $i){
 			$id		= $i['ApAction']['id'];
 			$c 		= $i['ApAction']['command'];
-			array_push($items,array('id' => $id,'command' => $c));	
+			array_push($items,array('id' => $id,'command' => $c));
 		}
 
 		//Run through this list and mark them as 'fetched'
@@ -184,7 +184,7 @@ class ApActionsController extends AppController {
 		    if($this->ApAction->id){
 		        $this->ApAction->saveField('status','fetched');
 		    }
-		}	
+		}
 
 		$this->set(array(
 			'items'		=> $items,
@@ -192,7 +192,7 @@ class ApActionsController extends AppController {
             '_serialize' => array('success','items')
         ));
 	}
-	
+
 	public function restart_aps(){
 
 		$user = $this->Aa->user_for_token($this);
@@ -203,7 +203,7 @@ class ApActionsController extends AppController {
 		foreach($this->request->data['aps'] as $n){
 			$ap_id	= $n['id'];
 			$this->ApAction->contain();
-			$already = $this->ApAction->find('count', array('conditions' => 
+			$already = $this->ApAction->find('count', array('conditions' =>
 				array('ApAction.command' => 'reboot','ApAction.ap_id' => $node_id, 'ApAction.status' => 'awaiting' )
 			));
 
@@ -243,7 +243,7 @@ class ApActionsController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-reload', 'glyph' => Configure::read('icnReload'), 'scale' => 'large', 'itemId' => 'reload',   'tooltip'=> __('Reload')),
                     array('xtype' => 'button', 'iconCls' => 'b-add',    'glyph' => Configure::read('icnAdd'),  'scale' => 'large', 'itemId' => 'add',   'tooltip'=> __('Add')),
                     array('xtype' => 'button', 'iconCls' => 'b-delete', 'glyph' => Configure::read('icnDelete'), 'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
-                ))  
+                ))
             );
         }
 
@@ -254,23 +254,23 @@ class ApActionsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
-                'iconCls'   => 'b-reload', 
-                'glyph'     => Configure::read('icnReload'), 
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'iconCls'   => 'b-reload',
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'add')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-add', 
-                    'glyph'     => Configure::read('icnAdd'), 
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-add',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
                     'itemId'    => 'add',
-                    'disabled'  => false,   
+                    'disabled'  => false,
                     'tooltip'   => __('Add')));
             }
 
@@ -278,12 +278,12 @@ class ApActionsController extends AppController {
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-delete', 
-                    'glyph'     => Configure::read('icnDelete'), 
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-delete',
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => false,   
+                    'disabled'  => false,
                     'tooltip'   => __('Delete')));
             }
 
@@ -302,7 +302,7 @@ class ApActionsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -315,10 +315,10 @@ class ApActionsController extends AppController {
         $sort   = 'ApAction.created';
         $dir    = 'ASC';
 
-        if(isset($this->request->query['sort'])){  
+        if(isset($this->request->query['sort'])){
             $sort = $this->modelClass.'.'.$this->request->query['sort'];
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -327,9 +327,9 @@ class ApActionsController extends AppController {
         if(isset($this->request->query['filter'])){
             $filter = json_decode($this->request->query['filter']);
             foreach($filter as $f){
-            
+
                 $f = $this->GridFilter->xformFilter($f);
-            
+
                 //Strings
                 if($f->type == 'string'){
                     $col = $this->modelClass.'.'.$f->field;
@@ -367,12 +367,12 @@ class ApActionsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                   ////  array_push($tree_array,array('Na.user_id' => $id));
-                }       
-            }   
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -400,7 +400,7 @@ class ApActionsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 

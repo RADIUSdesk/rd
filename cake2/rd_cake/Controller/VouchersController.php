@@ -10,19 +10,19 @@ class VouchersController extends AppController {
 
     protected  $read_only_attributes = array(
             'Rd-User-Type', 'Rd-Device-Owner', 'Rd-Account-Disabled', 'User-Profile', 'Expiration',
-            'Rd-Account-Activation-Time', 'Rd-Not-Track-Acct', 'Rd-Not-Track-Auth', 'Rd-Auth-Type', 
+            'Rd-Account-Activation-Time', 'Rd-Not-Track-Acct', 'Rd-Not-Track-Auth', 'Rd-Auth-Type',
             'Rd-Cap-Type-Data', 'Rd-Cap-Type-Time' ,'Rd-Realm', 'Cleartext-Password', 'Rd-Voucher'
         );
 
 	private $singleField	= true;
-	
+
 	protected $AclCache = array();
 
     //-------- BASIC CRUD -------------------------------
 
 	public function pdf_export_settings(){
 
-		Configure::load('Vouchers'); 
+		Configure::load('Vouchers');
         $data       = Configure::read('voucher_dafaults'); //Read the defaults
 
 		$this->set(array(
@@ -34,7 +34,7 @@ class VouchersController extends AppController {
 
   	public function export_csv(){
 
-        set_time_limit(60); //Double it 
+        set_time_limit(60); //Double it
 
         $this->autoRender   = false;
 
@@ -50,7 +50,7 @@ class VouchersController extends AppController {
         $q_r        = $this->{$this->modelClass}->find('all', $c);
 
         //Create file
-        $this->ensureTmp();     
+        $this->ensureTmp();
         $tmpFilename    = TMP . $this->tmpDir . DS .  strtolower( Inflector::pluralize($this->modelClass) ) . '-' . date('Ymd-Hms') . '.csv';
         $fp             = fopen($tmpFilename, 'w');
 
@@ -77,7 +77,7 @@ class VouchersController extends AppController {
                         $owner_tree     = $this->_find_parents($owner_id);
                         array_push($csv_line,$owner_tree);
                     }else{
-                        array_push($csv_line,$i['Voucher']["$column_name"]);  
+                        array_push($csv_line,$i['Voucher']["$column_name"]);
                     }
                 }
                 fputcsv($fp, $csv_line,';','"');
@@ -94,10 +94,10 @@ class VouchersController extends AppController {
     }
 
 
-  
+
     public function export_pdf(){
 
-        set_time_limit(60); //Double it 
+        set_time_limit(60); //Double it
 
         $user = $this->_ap_right_check();
         if(!$user){
@@ -108,14 +108,14 @@ class VouchersController extends AppController {
 		App::import('Vendor', 'voucher_pdf');
         App::import('Vendor', 'label_pdf');
 
-        
+
         $this->response->type('application/pdf');
         $this->layout = 'pdf';
 
 		//We improve this function by also allowing the user to specify certain values
 		//which in turn will influence the outcome of the PDF
 		Configure::load('Vouchers');
- 
+
         $output_instr  	= Configure::read('voucher_dafaults'); //Read the defaults
 
 		foreach(array_keys($output_instr) as $k){
@@ -124,7 +124,7 @@ class VouchersController extends AppController {
 					$output_instr["$k"] 	= $this->request->query["$k"];
 				}else{
 					$output_instr["$k"] = true;
-				}    
+				}
 		    }else{
 				if(!(($k == 'language')||($k == 'format')||($k == 'orientation'))){
 					$output_instr["$k"] = false;
@@ -151,7 +151,7 @@ class VouchersController extends AppController {
             $selected = json_decode($this->request->query['selected']);
             $sel_condition = array();
             foreach($selected as $i){
-                array_push($sel_condition, array("Voucher.id" => $i)); 
+                array_push($sel_condition, array("Voucher.id" => $i));
             }
 
             $voucher_data = array();
@@ -174,13 +174,13 @@ class VouchersController extends AppController {
                     $voucher_data[$realm]['vouchers'] = array();
                 }
 
-                array_push($voucher_data[$realm]['vouchers'],$v);   
+                array_push($voucher_data[$realm]['vouchers'],$v);
             }
             $this->set('voucher_data',$voucher_data);
         }else{
             //Check if there is a filter applied
-           
-     
+
+
             $c          = $this->_build_common_query($user);
             $q_r        = $this->{$this->modelClass}->find('all', $c);
 
@@ -203,8 +203,8 @@ class VouchersController extends AppController {
                     $voucher_data[$realm] = $r['Realm'];
                     $voucher_data[$realm]['vouchers'] = array();
                 }
-                array_push($voucher_data[$realm]['vouchers'],$v); 
-                
+                array_push($voucher_data[$realm]['vouchers'],$v);
+
             }
             $this->set('voucher_data',$voucher_data);
         }
@@ -214,8 +214,8 @@ class VouchersController extends AppController {
         //-- Required query attributes: token;
         //-- Optional query attribute: sel_language (for i18n error messages)
         //-- also LIMIT: limit, page, start (optional - use sane defaults)
-        //-- FILTER 
-        //-- AND SORT ORDER 
+        //-- FILTER
+        //-- AND SORT ORDER
 
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
@@ -223,7 +223,7 @@ class VouchersController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-        $c = $this->_build_common_query($user); 
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -240,22 +240,22 @@ class VouchersController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total      = $this->{$this->modelClass}->find('count'  , $c);  
+        $total      = $this->{$this->modelClass}->find('count'  , $c);
         $q_r        = $this->{$this->modelClass}->find('all'    , $c_page);
         $items      = array();
         $af_hash    = array();
 
-        foreach($q_r as $i){            
+        foreach($q_r as $i){
             $owner_id   = $i['Voucher']['user_id'];
 
             if(!array_key_exists($owner_id,$af_hash)){ //Avoid duplicate queries
                 $af_hash["$owner_id"] = $this->_get_action_flags($user,$owner_id,$i['Realm']);
             }
-           
-            if($af_hash["$owner_id"]['read']){     
+
+            if($af_hash["$owner_id"]['read']){
                 array_push($items,
                     array(
-                        'id'                    => $i['Voucher']['id'], 
+                        'id'                    => $i['Voucher']['id'],
                         'owner'                 => $i['User']['username'],
                         'user_id'               => $i['User']['id'],
                         'batch'                 => $i['Voucher']['batch'],
@@ -283,7 +283,7 @@ class VouchersController extends AppController {
                 );
             }
         }
-        
+
         $this->set(array(
             'items'         => $items,
             'success'       => true,
@@ -304,7 +304,7 @@ class VouchersController extends AppController {
         if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
             $this->request->data['user_id'] = $user_id;
         }
-   
+
         //___Two fields should be tested for first___:
         if(array_key_exists('activate_on_login',$this->request->data)){
             $this->request->data['activate_on_login'] = 1;
@@ -314,7 +314,7 @@ class VouchersController extends AppController {
             $this->request->data['never_expire'] = 1;
         }
         //____ END OF TWO FIELD CHECK ___
-    
+
         //_____We need the profile name / if and the realm name / id before we can continue___
         $profile    = false;
         $profile_id = false;
@@ -323,7 +323,7 @@ class VouchersController extends AppController {
             $this->Profile->contain();
             $q_r        = $this->Profile->findByName($profile);
             $profile_id = $q_r['Profile']['id'];
-            $this->request->data['profile_id'] = $profile_id;   
+            $this->request->data['profile_id'] = $profile_id;
         }
 
         if(array_key_exists('profile_id',$this->request->data)){
@@ -331,7 +331,7 @@ class VouchersController extends AppController {
             $this->Profile->contain();
             $q_r        = $this->Profile->findById($profile_id);
             $profile    = $q_r['Profile']['name'];
-            $this->request->data['profile'] = $profile;    
+            $this->request->data['profile'] = $profile;
         }
 
         if(($profile == false)||($profile_id == false)){
@@ -346,21 +346,21 @@ class VouchersController extends AppController {
 
         $realm      = false;
         $realm_id   = false;
-        
+
         //We also check if we need to add a suffix to the username
         $suffix          = '';
         $suffix_vouchers = false;
-        
-        
+
+
         if(array_key_exists('realm',$this->request->data)){
             $realm      = $this->request->data['realm'];
             $this->Realm->contain();
             $q_r        = $this->Realm->findByName($realm);
-            $realm_id   = $q_r['Realm']['id']; 
-            $this->request->data['realm_id'] = $realm_id; 
-            
-            $suffix     =  $q_r['Realm']['suffix']; 
-            $suffix_vouchers = $q_r['Realm']['suffix_vouchers']; 
+            $realm_id   = $q_r['Realm']['id'];
+            $this->request->data['realm_id'] = $realm_id;
+
+            $suffix     =  $q_r['Realm']['suffix'];
+            $suffix_vouchers = $q_r['Realm']['suffix_vouchers'];
         }
 
         if(array_key_exists('realm_id',$this->request->data)){
@@ -368,10 +368,10 @@ class VouchersController extends AppController {
             $this->Realm->contain();
             $q_r        = $this->Realm->findById($realm_id);
             $realm      = $q_r['Realm']['name'];
-            $this->request->data['realm'] = $realm; 
-            
-            $suffix     =  $q_r['Realm']['suffix']; 
-            $suffix_vouchers = $q_r['Realm']['suffix_vouchers'];    
+            $this->request->data['realm'] = $realm;
+
+            $suffix     =  $q_r['Realm']['suffix'];
+            $suffix_vouchers = $q_r['Realm']['suffix_vouchers'];
         }
 
         if(($realm == false)||($realm_id == false)){
@@ -383,10 +383,10 @@ class VouchersController extends AppController {
             ));
             return;
         }
-        
-        
-       
-        
+
+
+
+
         //______ END of Realm and Profile check _____
 
 		//Check if this is a single field voucher or not
@@ -401,7 +401,7 @@ class VouchersController extends AppController {
 				foreach($t_v_names as $n){
 					$v_name = $n['Voucher']['name'];
 					array_push($this->VoucherGenerator->voucherNames, $v_name);
-				}	
+				}
 			}
 		}
 
@@ -421,17 +421,17 @@ class VouchersController extends AppController {
 					//	$this->log('Add a voucher with name and password specified', 'debug');
 					//}else{
 						$pwd = $this->VoucherGenerator->generateVoucher();
-						
-						$this->request->data['name']      = $pwd; 
-		        		$this->request->data['password']  = $pwd;		        		
-		        		
+
+						$this->request->data['name']      = $pwd;
+		        		$this->request->data['password']  = $pwd;
+
 		        		//Update the auto add of the suffix if it is specified and enabled
                         if(($suffix != '')&&($suffix_vouchers)){
                             $this->request->data['name'] = $pwd.'@'.$suffix;
                             $this->request->data['password'] = $pwd.'@'.$suffix;
                         }
-		        		
-					//}	
+
+					//}
 				}
 
                 $this->{$this->modelClass}->create();
@@ -458,12 +458,12 @@ class VouchersController extends AppController {
                 'data'    => $data,
                 '_serialize' => array('success','data')
             ));
-        }  
+        }
     }
-    
-    
+
+
     public function add_csv(){
-    
+
         $user = $this->_ap_right_check();
         if(!$user){
             return;
@@ -474,7 +474,7 @@ class VouchersController extends AppController {
         if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
             $this->request->data['user_id'] = $user_id;
         }
-   
+
         //___Two fields should be tested for first___:
         if(array_key_exists('activate_on_login',$this->request->data)){
             $this->request->data['activate_on_login'] = 1;
@@ -484,7 +484,7 @@ class VouchersController extends AppController {
             $this->request->data['never_expire'] = 1;
         }
         //____ END OF TWO FIELD CHECK ___
-    
+
         //_____We need the profile name / if and the realm name / id before we can continue___
         $profile    = false;
         $profile_id = false;
@@ -493,7 +493,7 @@ class VouchersController extends AppController {
             $this->Profile->contain();
             $q_r        = $this->Profile->findByName($profile);
             $profile_id = $q_r['Profile']['id'];
-            $this->request->data['profile_id'] = $profile_id;   
+            $this->request->data['profile_id'] = $profile_id;
         }
 
         if(array_key_exists('profile_id',$this->request->data)){
@@ -501,7 +501,7 @@ class VouchersController extends AppController {
             $this->Profile->contain();
             $q_r        = $this->Profile->findById($profile_id);
             $profile    = $q_r['Profile']['name'];
-            $this->request->data['profile'] = $profile;    
+            $this->request->data['profile'] = $profile;
         }
 
         if(($profile == false)||($profile_id == false)){
@@ -520,8 +520,8 @@ class VouchersController extends AppController {
             $realm      = $this->request->data['realm'];
             $this->Realm->contain();
             $q_r        = $this->Realm->findByName($realm);
-            $realm_id   = $q_r['Realm']['id']; 
-            $this->request->data['realm_id'] = $realm_id;  
+            $realm_id   = $q_r['Realm']['id'];
+            $this->request->data['realm_id'] = $realm_id;
         }
 
         if(array_key_exists('realm_id',$this->request->data)){
@@ -529,7 +529,7 @@ class VouchersController extends AppController {
             $this->Realm->contain();
             $q_r        = $this->Realm->findById($realm_id);
             $realm      = $q_r['Realm']['name'];
-            $this->request->data['realm'] = $realm;    
+            $this->request->data['realm'] = $realm;
         }
 
         if(($realm == false)||($realm_id == false)){
@@ -542,8 +542,8 @@ class VouchersController extends AppController {
             return;
         }
         //______ END of Realm and Profile check _____
-        
-        
+
+
         //___ Email message ____
         $message_id = false;
         //If the email_title and email_message is not empty we will create an entry into the email_messages table
@@ -563,36 +563,36 @@ class VouchersController extends AppController {
                 $message_id = $this->EmailMessage->id;
             }
         }
-          
-        
-        $this->layout   = 'ext_file_upload'; 
+
+
+        $this->layout   = 'ext_file_upload';
         $temp_file      = "/tmp/csv_file.csv";
-        
-        
+
+
         move_uploaded_file ($_FILES['csv_file']['tmp_name'] , $temp_file);
-        $batch          = $this->request->data['batch'];   
+        $batch          = $this->request->data['batch'];
         $voucher_list   = $this->VoucherCsv->generateVoucherList($temp_file,$batch,$message_id);
-        
+
         $success_flag = true;
         foreach($voucher_list as $v){
-        
-            $this->request->data['name']        = $v['name']; 
+
+            $this->request->data['name']        = $v['name'];
 		    $this->request->data['password']    = $v['password'];
 		    $this->request->data['extra_name']  = $v['extra_name'];
 		    $this->request->data['extra_value'] = $v['extra_value'];
             if (!$this->{$this->modelClass}->save($this->request->data)) {
-               $success_flag = false; 
+               $success_flag = false;
             }
             $this->{$this->modelClass}->id = null;
         }
-          
-        $json_return            = array();   
+
+        $json_return            = array();
         $json_return['success'] = true;
         $json_return['t']       = $voucher_list;
         $this->set('json_return',$json_return);
-    
+
     }
-    
+
 
     public function delete($id = null) {
 		if (!$this->request->is('post')) {
@@ -634,7 +634,7 @@ class VouchersController extends AppController {
                 $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
                 $this->_delete_clean_up_voucher($username);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -687,7 +687,7 @@ class VouchersController extends AppController {
 
         //TODO Check if the owner of this voucher is in the chain of the APs
         if(isset($this->request->query['voucher_id'])){
-        
+
             $this->{$this->modelClass}->contain();
             $q_r = $this->{$this->modelClass}->findById($this->request->query['voucher_id']);
             if($q_r){
@@ -703,9 +703,9 @@ class VouchersController extends AppController {
                 if($q_r['Voucher']['time_valid'] != ''){
                     $items['activate_on_login'] = 'activate_on_login';
                     $pieces                     = explode("-", $q_r['Voucher']['time_valid']);
-                    $items['days_valid']        = $pieces[0];  
+                    $items['days_valid']        = $pieces[0];
                     $items['hours_valid']       = $pieces[1];
-                    $items['minutes_valid']     = $pieces[2]; 
+                    $items['minutes_valid']     = $pieces[2];
 
                 }
 
@@ -753,7 +753,7 @@ class VouchersController extends AppController {
 					$items['ssid_list'] = $ssid_list;
 					$items['ssid_only'] = true;
 				}
-            } 
+            }
         }
 
         $this->set(array(
@@ -785,7 +785,7 @@ class VouchersController extends AppController {
             $this->request->data['ssid_only'] = 1;
         }
         //____ END OF TWO FIELD CHECK ___
-    
+
         //_____We need the profile name / if and the realm name / id before we can continue___
         $profile    = false;
         $profile_id = false;
@@ -794,7 +794,7 @@ class VouchersController extends AppController {
             $this->Profile->contain();
             $q_r        = $this->Profile->findByName($profile);
             $profile_id = $q_r['Profile']['id'];
-            $this->request->data['profile_id'] = $profile_id;   
+            $this->request->data['profile_id'] = $profile_id;
         }
 
         if(array_key_exists('profile_id',$this->request->data)){
@@ -802,7 +802,7 @@ class VouchersController extends AppController {
             $this->Profile->contain();
             $q_r        = $this->Profile->findById($profile_id);
             $profile    = $q_r['Profile']['name'];
-            $this->request->data['profile'] = $profile;    
+            $this->request->data['profile'] = $profile;
         }
 
         if(($profile == false)||($profile_id == false)){
@@ -821,8 +821,8 @@ class VouchersController extends AppController {
             $realm      = $this->request->data['realm'];
             $this->Realm->contain();
             $q_r        = $this->Realm->findByName($realm);
-            $realm_id   = $q_r['Realm']['id']; 
-            $this->request->data['realm_id'] = $realm_id;  
+            $realm_id   = $q_r['Realm']['id'];
+            $this->request->data['realm_id'] = $realm_id;
         }
 
         if(array_key_exists('realm_id',$this->request->data)){
@@ -830,7 +830,7 @@ class VouchersController extends AppController {
             $this->Realm->contain();
             $q_r        = $this->Realm->findById($realm_id);
             $realm      = $q_r['Realm']['name'];
-            $this->request->data['realm'] = $realm;    
+            $this->request->data['realm'] = $realm;
         }
 
         if(($realm == false)||($realm_id == false)){
@@ -877,11 +877,11 @@ class VouchersController extends AppController {
                 if(in_array($i['Radcheck']['attribute'],$this->read_only_attributes)){
                     $edit_flag      = false;
                     $delete_flag    = false;
-                }     
+                }
 
                 array_push($items,array(
                     'id'        => 'chk_'.$i['Radcheck']['id'],
-                    'type'      => 'check', 
+                    'type'      => 'check',
                     'attribute' => $i['Radcheck']['attribute'],
                     'op'        => $i['Radcheck']['op'],
                     'value'     => $i['Radcheck']['value'],
@@ -897,11 +897,11 @@ class VouchersController extends AppController {
                 if(in_array($i['Radreply']['attribute'],$this->read_only_attributes)){
                     $edit_flag      = false;
                     $delete_flag    = false;
-                }     
+                }
 
                 array_push($items,array(
                     'id'        => 'rpl_'.$i['Radreply']['id'],
-                    'type'      => 'reply', 
+                    'type'      => 'reply',
                     'attribute' => $i['Radreply']['attribute'],
                     'op'        => $i['Radreply']['op'],
                     'value'     => $i['Radreply']['value'],
@@ -1132,11 +1132,11 @@ class VouchersController extends AppController {
                     }else{
                         $rc->id = $type_id[1];
                         $rc->delete();
-                    }            
+                    }
                 }
             }
 
-            if(preg_match("/^rpl_/",$this->request->data['id'])){   
+            if(preg_match("/^rpl_/",$this->request->data['id'])){
                 $rr->id = $type_id[1];
                 $rr->delete();
             }
@@ -1154,13 +1154,13 @@ class VouchersController extends AppController {
                         }else{
                             $rc->id = $type_id[1];
                             $rc->delete();
-                        }            
+                        }
                     }
                 }
-                if(preg_match("/^rpl_/",$d['id'])){   
+                if(preg_match("/^rpl_/",$d['id'])){
                     $rr->id = $type_id[1];
                     $rr->delete();
-                }            
+                }
             }
         }
 
@@ -1192,7 +1192,7 @@ class VouchersController extends AppController {
 
         $rc = ClassRegistry::init('Radcheck');
 
-		$q_r = $rc->find('all', array('conditions' => 
+		$q_r = $rc->find('all', array('conditions' =>
 			array(
 				'Radcheck.attribute' 	=> 'Rd-Voucher-Device-Owner',
 				'Radcheck.value'		=> $username
@@ -1249,7 +1249,7 @@ class VouchersController extends AppController {
 					$realm = $i['Radcheck']['value'];
 				}
 			}
-		
+
 			if(($type == 'voucher')&&($realm)&&($profile)){
 
 				//User-Type = voucher-device
@@ -1294,7 +1294,7 @@ class VouchersController extends AppController {
             $rc->deleteAll(
             	array('Radcheck.username' => $mac), false
         	);
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
                 $mac 	= $d['mac'];
@@ -1302,13 +1302,13 @@ class VouchersController extends AppController {
 		        	array('Radcheck.username' => $mac), false
 		    	);
             }
-        }  
+        }
         $this->set(array(
             'success' => true,
             '_serialize' => array('success')
-        ));    
+        ));
 	}
- 
+
     public function change_password(){
 
         //__ Authentication + Authorization __
@@ -1318,7 +1318,7 @@ class VouchersController extends AppController {
         }
         $user_id    = $user['id'];
 
-        //For this action to sucees on the User model we need: 
+        //For this action to sucees on the User model we need:
         // id; group_id; password; token should be empty ('')
         $success = false;
 
@@ -1372,7 +1372,7 @@ class VouchersController extends AppController {
 
 		        if(isset($this->request->data['name'])){
 		            $this->_replace_radcheck_item($this->request->data['name'],'Cleartext-Password',$this->request->data['password']);
-		            $success    = true; 
+		            $success    = true;
 		        }
 
 				$this->set(array(
@@ -1459,28 +1459,28 @@ class VouchersController extends AppController {
             $menu = array(
                     array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                         array( 'xtype' =>  'splitbutton',  'glyph' => Configure::read('icnReload'),  'scale'   => 'large', 'itemId'    => 'reload',   'tooltip'    => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">Reload every:</b>',
                                     array( 'text'  => _('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => _('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => _('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => _('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
                     array(
-						'xtype' 	=> 'splitbutton',   
-						'glyph' 	=> Configure::read('icnAdd'),    
-						'scale' 	=> 'large', 
-						'itemId' 	=> 'add',      
+						'xtype' 	=> 'splitbutton',
+						'glyph' 	=> Configure::read('icnAdd'),
+						'scale' 	=> 'large',
+						'itemId' 	=> 'add',
 						'tooltip'	=> __('Add'),
-						'menu'  => array( 
-                                'items' => array( 
+						'menu'  => array(
+                                'items' => array(
                                     array( 'text'  => _('Single field'),      		'itemId'    => 'addSingle', 'group' => 'add', 'checked' => true ),
-                                    array( 'text'  => _('Username and Password'),   'itemId'    => 'addDouble', 'group' => 'add' ,'checked' => false), 
-                                    array( 'text'  => _('Import CSV List'),         'itemId'    => 'addCsvList','group' => 'add' ,'checked' => false),  
+                                    array( 'text'  => _('Username and Password'),   'itemId'    => 'addDouble', 'group' => 'add' ,'checked' => false),
+                                    array( 'text'  => _('Import CSV List'),         'itemId'    => 'addCsvList','group' => 'add' ,'checked' => false),
                                 )
                             )
 					),
@@ -1491,10 +1491,10 @@ class VouchersController extends AppController {
                     array('xtype' => 'button', 'glyph' => Configure::read('icnPdf'),    'scale' => 'large', 'itemId' => 'pdf',     'tooltip'=> __('Export to PDF')),
                     array('xtype' => 'button', 'glyph' => Configure::read('icnCsv'),    'scale' => 'large', 'itemId' => 'csv',      'tooltip'=> __('Export CSV')),
                     array(
-                        'xtype'     => 'button', 
+                        'xtype'     => 'button',
                         'glyph'     => Configure::read('icnEmail'),
-                        'scale'     => 'large', 
-                        'itemId'    => 'email', 
+                        'scale'     => 'large',
+                        'itemId'    => 'email',
                         'tooltip'   => __('e-Mail voucher')
                     )
                 )),
@@ -1502,13 +1502,13 @@ class VouchersController extends AppController {
                     array('xtype' => 'button', 'glyph' => Configure::read('icnLock'), 'scale' => 'large', 'itemId' => 'password', 'tooltip'=> __('Change password')),
                     array('xtype' => 'button', 'glyph' => Configure::read('icnRadius'),    'scale' => 'large', 'itemId' => 'test_radius',  'tooltip'=> __('Test RADIUS')),
                     array(
-                        'xtype'     => 'button', 
-                        'glyph'     => Configure::read('icnGraph'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'graph',  
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnGraph'),
+                        'scale'     => 'large',
+                        'itemId'    => 'graph',
                         'tooltip'   => __('Graphs')
                     )
-                )) 
+                ))
             );
         }
 
@@ -1521,34 +1521,34 @@ class VouchersController extends AppController {
             $specific_group = array();
 
             //Reload
-            array_push($action_group,array( 
-                'xtype'     =>  'splitbutton',  
+            array_push($action_group,array(
+                'xtype'     =>  'splitbutton',
                 'glyph'     => Configure::read('icnReload'),
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload'),
-                'menu'      => array(             
-                    'items'     => array( 
-                                    '<b class="menu-title">Reload every:</b>',            
+                'menu'      => array(
+                    'items'     => array(
+                                    '<b class="menu-title">Reload every:</b>',
                     array( 'text'  => _('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                     array( 'text'  => _('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                     array( 'text'  => _('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
-                    array( 'text'  => _('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )                                  
+                    array( 'text'  => _('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
                 ))));
 
             //Add
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
                     'xtype'     => 'splitbutton',
-                    'glyph'     => Configure::read('icnAdd'),   
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add'),
                     'menu'  => array(
                                  'items' => array(
                                     array( 'text'  => _('Single field'),   'itemId'    => 'addSingle', 'group' => 'add', 'checked' => true ),
                                     array( 'text'  => _('Username and Password'),   'itemId'    => 'addDouble', 'group' => 'add' ,'checked' => false),
-                                    array( 'text'  => _('Import CSV List'),         'itemId'    => 'addCsvList','group' => 'add' ,'checked' => false), 
+                                    array( 'text'  => _('Import CSV List'),         'itemId'    => 'addCsvList','group' => 'add' ,'checked' => false),
                                  )
                              )
            			));
@@ -1556,46 +1556,46 @@ class VouchersController extends AppController {
             //Delete
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnDelete'),  
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'edit_basic_info')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnEdit'),   
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){
 
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnPdf'),    
-                    'scale'     => 'large', 
-                    'itemId'    => 'pdf',      
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnPdf'),
+                    'scale'     => 'large',
+                    'itemId'    => 'pdf',
                     'tooltip'   => __('Export to PDF')));
 
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnCsv'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnCsv'),
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
 
                  array_push($document_group,array(
-                        'xtype'     => 'button', 
+                        'xtype'     => 'button',
                         'glyph'     => Configure::read('icnEmail'),
-                        'scale'     => 'large', 
-                        'itemId'    => 'email', 
+                        'scale'     => 'large',
+                        'itemId'    => 'email',
                         'tooltip'   => __('e-Mail voucher')
                     ));
 
@@ -1604,28 +1604,28 @@ class VouchersController extends AppController {
            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'change_password')){
 
                 array_push($specific_group, array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'glyph'     => Configure::read('icnLock'),
-                    'scale'     => 'large', 
-                    'itemId'    => 'password', 
+                    'scale'     => 'large',
+                    'itemId'    => 'password',
                     'disabled'  => true,
                     'tooltip'   => __('Change password')));
 
 
                 array_push($specific_group, array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnRadius'),   
-                    'scale'     => 'large', 
-                    'itemId'    => 'test_radius',  
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnRadius'),
+                    'scale'     => 'large',
+                    'itemId'    => 'test_radius',
                     'tooltip'   => __('Test RADIUS')));
 
             }
-            
+
                 array_push($specific_group, array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnGraph'),   
-                    'scale'     => 'large', 
-                    'itemId'    => 'graph',  
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnGraph'),
+                    'scale'     => 'large',
+                    'itemId'    => 'graph',
                     'tooltip'   => __('Graphs')));
 
             $menu = array(
@@ -1657,8 +1657,8 @@ class VouchersController extends AppController {
             $menu = array(
                     array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                         array( 'xtype'=>  'button', 'glyph' => Configure::read('icnReload'), 'scale' => 'large', 'itemId' => 'reload',   'tooltip'   => __('Reload')),
-                        array('xtype' => 'button',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete')), 
-                )) 
+                        array('xtype' => 'button',  'glyph' => Configure::read('icnDelete'),'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete')),
+                ))
             );
         }
 
@@ -1670,15 +1670,15 @@ class VouchersController extends AppController {
                 array( 'xtype'=>  'button', 'glyph' => Configure::read('icnReload'), 'scale' => 'large', 'itemId' => 'reload',   'tooltip'   => __('Reload'))
             );
 
-           
+
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'delete_accounting_data')){
                 array_push($actions,
                     array('xtype' => 'button', 'glyph'  => Configure::read('icnDelete'), 'scale' => 'large', 'itemId' => 'delete',   'tooltip'   => __('Delete'))
-                );             
+                );
             }
 
             $menu = array(
-                    array('xtype' => 'buttongroup','title' => __('Action'), 'items' => $actions) 
+                    array('xtype' => 'buttongroup','title' => __('Action'), 'items' => $actions)
             );
         }
 
@@ -1697,13 +1697,13 @@ class VouchersController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
         $c['contain']   = array(
                             'User',
-                            'Realm'                         
+                            'Realm'
                         );
 
         //===== SORT =====
@@ -1718,7 +1718,7 @@ class VouchersController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
 
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
@@ -1728,7 +1728,7 @@ class VouchersController extends AppController {
             $u_id = $this->request->query['user_id'];
             array_push($c['conditions'],array($this->modelClass.".user_id" => $u_id));
         }
-        
+
         //If it is a combobox filter
         if(isset($this->request->query['query'])){
             $query = $this->request->query['query'];
@@ -1740,7 +1740,7 @@ class VouchersController extends AppController {
         if(isset($this->request->query['filter'])){
             $filter = json_decode($this->request->query['filter']);
             foreach($filter as $f){
-                
+
                 //Clause for the PDF filter style
                 if(array_key_exists('data',$f)){
                     print_r($f->data->type);
@@ -1753,7 +1753,7 @@ class VouchersController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -1782,8 +1782,8 @@ class VouchersController extends AppController {
 
         //====== AP FILTER =====
         //If the user is an AP; we need to add an extra clause to only show all the AP's downward from its position in the tree
-        if($user['group_name'] == Configure::read('group.ap')){  //AP 
-        
+        if($user['group_name'] == Configure::read('group.ap')){  //AP
+
             $tree_array = array();
             $user_id    = $user['id'];
 
@@ -1794,29 +1794,29 @@ class VouchersController extends AppController {
                 $i_id = $i['User']['id'];
                 if($i_id != $user_id){ //upstream
                     if($this->Acl->check(array(
-                        'model'         => 'User', 
-                        'foreign_key'   => $user_id), 
+                        'model'         => 'User',
+                        'foreign_key'   => $user_id),
                         "Access Providers/Other Rights/View users or vouchers not created self")
                     ){
                         array_push($tree_array,array('Realm.user_id' => $i_id,'Realm.available_to_siblings' => true));
-                    }   
+                    }
                 }else{
                     array_push($tree_array,array('Realm.user_id' => $i_id));
                 }
             }
-  
+
             //** ALL the AP's children
             $ap_children    = $this->User->find_access_provider_children($user_id);
             if($ap_children){   //Only if the AP has any children...
                 foreach($ap_children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array('User.id' => $id));
-                }       
+                }
             }
-                
+
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
         //====== END AP FILTER =====
         return $c;
     }
@@ -1850,22 +1850,22 @@ class VouchersController extends AppController {
         $this->Radcheck->deleteAll(
             array('Radcheck.username' => $username), false
         );
-        $this->Radreply->deleteAll( 
+        $this->Radreply->deleteAll(
             array('Radreply.username' => $username), false
         );
-        $this->Radacct->deleteAll( 
+        $this->Radacct->deleteAll(
             array('Radacct.username' => $username), false
         );
-        $this->Radpostauth->deleteAll( 
+        $this->Radpostauth->deleteAll(
             array('Radpostauth.username' => $username), false
         );
 
-		$this->UserStat->deleteAll( 
+		$this->UserStat->deleteAll(
             array('UserStat.username' => $username), false
         );
 
 		$user_ssid = ClassRegistry::init('UserSsid');
-        $user_ssid->deleteAll( 
+        $user_ssid->deleteAll(
             array('UserSsid.username' => $username), false
         );
     }
@@ -1896,13 +1896,13 @@ class VouchersController extends AppController {
             if($user['id'] == $owner_id){
                 return array('update' => true, 'delete' => true, 'read' => true);
             }
-            
+
             $realm_id = $realm['id'];
-            
+
             if(array_key_exists($realm_id,$this->AclCache)){
                 return $this->AclCache[$realm_id];
             }else{
-            
+
                 //If the Realm is owned by the $user or someone owned by the $user we allow them
                 $ap_children    = $this->User->find_access_provider_children($user['id']);
                 if($ap_children){   //Only if the AP has any children...
@@ -1910,31 +1910,31 @@ class VouchersController extends AppController {
                         $c_id = $i['id'];
                         if($c_id == $realm['user_id']){
                             $this->AclCache[$realm_id] =  array('update' => true, 'delete' => true,'read' => true);
-                            return array('update' => true, 'delete' => true, 'read' => true); 
+                            return array('update' => true, 'delete' => true, 'read' => true);
                         }
-                    }       
+                    }
                 }
-              
+
                 if($this->Acl->check(array(
-                    'model'         => 'User', 
-                    'foreign_key'   => $user['id']), 
+                    'model'         => 'User',
+                    'foreign_key'   => $user['id']),
                     "Access Providers/Other Rights/View users or vouchers not created self")
                 ){
                     $read = $this->Acl->check(
-                                array('model' => 'User', 'foreign_key' => $user['id']), 
+                                array('model' => 'User', 'foreign_key' => $user['id']),
                                 array('model' => 'Realms','foreign_key' => $realm_id), 'read');
                 }else{
                     $read = false; //Since the user is not the owner and they can not view other's vouchers we leave it out
-                }  
-                    
+                }
+
                 $update = $this->Acl->check(
-                                array('model' => 'User', 'foreign_key' => $user['id']), 
+                                array('model' => 'User', 'foreign_key' => $user['id']),
                                 array('model' => 'Realms','foreign_key' => $realm_id), 'update');
                 $delete = $this->Acl->check(
-                                array('model' => 'User', 'foreign_key' => $user['id']), 
+                                array('model' => 'User', 'foreign_key' => $user['id']),
                                 array('model' => 'Realms','foreign_key' => $realm_id), 'delete');
-                //Prime it                 
-                $this->AclCache[$realm_id] =  array('update' => $update, 'delete' => $delete,'read' => $read);      
+                //Prime it
+                $this->AclCache[$realm_id] =  array('update' => $update, 'delete' => $delete,'read' => $read);
                 return array('update' => $update, 'delete' => $delete,'read' => $read);
             }
         }
@@ -1965,7 +1965,7 @@ class VouchersController extends AppController {
     }
 
     private function _extjs_format_radius_date($d){
-        //Format will be day month year 20 Mar 2013 and need to be month/date/year eg 03/06/2013 
+        //Format will be day month year 20 Mar 2013 and need to be month/date/year eg 03/06/2013
         $arr_date   = explode(' ',$d);
         $month      = $arr_date[1];
         $m_arr      = array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');

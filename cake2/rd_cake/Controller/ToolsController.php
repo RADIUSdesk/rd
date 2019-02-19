@@ -13,7 +13,7 @@ class ToolsController extends AppController {
 
 		$username 	= $this->request->query['username'];
         $q_r  		= $this->Radacct->find('all',
-						array('conditions' => 
+						array('conditions' =>
 							array(
 								'Radacct.username' 		=> $username,
 								'Radacct.acctstoptime' 	=> null
@@ -37,7 +37,7 @@ class ToolsController extends AppController {
 				)
 			);
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -51,7 +51,7 @@ class ToolsController extends AppController {
 		$acctsessionid 	= $this->request->query['acctsessionid'];
 
 		$q_r  			= $this->Radacct->find('first',
-							array('conditions' => 
+							array('conditions' =>
 								array(
 									'Radacct.acctsessionid' 		=> $acctsessionid
 								)
@@ -59,7 +59,7 @@ class ToolsController extends AppController {
 						   );
 
 		$data = array();
-		
+
 
 		if($q_r){
 			$username 			= $q_r['Radacct']['username'];
@@ -71,7 +71,7 @@ class ToolsController extends AppController {
 			$secret				= $this->secret;
 
 			exec("echo \"User-Name = $device_mac,Acct-Session-ID = $acctsessionid\"  | radclient -r 2 -t 2 $coova_ip:3799 40 $secret",$output);
-			
+
 			$data['username'] 	= $username;
 			exec("echo \"User-Name = $username,Acct-Session-ID = $acctsessionid\"  | radclient -r 2 -t 2 $coova_ip:3799 40 $secret",$output);
 		}
@@ -88,7 +88,7 @@ class ToolsController extends AppController {
         $vendor_file = APP.DS."Setup".DS."Scripts".DS."mac_lookup.txt";
        // $this->out("<info>Looking up vendor from file: $vendor_file </info>");
 
-        //Convert the MAC to be in the same format as the file 
+        //Convert the MAC to be in the same format as the file
         $mac    = strtoupper($mac);
         $pieces = explode("-", $mac);
 
@@ -105,10 +105,10 @@ class ToolsController extends AppController {
                 $vendor = preg_replace("/$big_match\s?/","",$i);
                 $vendor = preg_replace( "{[ \t]+}", ' ', $vendor );
                 $vendor = rtrim($vendor);
-                return $vendor;   
+                return $vendor;
             }
         }
-       
+
         if(!$big_match_found){
             foreach($lines as $i){
                 if(preg_match("/^$small_match/",$i)){
@@ -123,6 +123,6 @@ class ToolsController extends AppController {
         }
         $vendor = "Unkown";
     }
- 
-   
+
+
 }

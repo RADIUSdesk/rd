@@ -16,21 +16,21 @@ class NodeListsController extends AppController {
 		$items 	= array();
 		$q_r  	= $this->UnknownNode->find('all');
 		//print_r($q_r);
-		
+
 		App::uses('GeoIpLocation', 'GeoIp.Model');
         $GeoIpLocation = new GeoIpLocation();
 
 		foreach($q_r as $i){
-		
+
 		    $location = $GeoIpLocation->find($i['UnknownNode']['from_ip']);
             //$location = $GeoIpLocation->find('10.0.0.1');
-            
+
             //Some defaults:
             $country_code = '';
             $country_name = '';
             $city         = '';
             $postal_code  = '';
-            
+
             if(array_key_exists('GeoIpLocation',$location)){
                 if($location['GeoIpLocation']['country_code'] != ''){
                     $country_code = utf8_encode($location['GeoIpLocation']['country_code']);
@@ -49,11 +49,11 @@ class NodeListsController extends AppController {
 		    $i['UnknownNode']['country_name']   = $country_name;
 		    $i['UnknownNode']['city']           = $city;
 		    $i['UnknownNode']['postal_code']    = $postal_code;
-		
+
 		    $i['UnknownNode']['last_contact_human']     = $this->TimeCalculations->time_elapsed_string($i['UnknownNode']['last_contact']);
 			array_push($items,$i['UnknownNode']);
 		}
-		
+
 		$this->set(array(
             'items'         => $items,
             'success'       => true,
@@ -68,7 +68,7 @@ class NodeListsController extends AppController {
 		}
 
 	    if(isset($this->data['id'])){   //Single item delete
-            $message = "Single item ".$this->data['id']; 
+            $message = "Single item ".$this->data['id'];
             $this->UnknownNode->id = $this->data['id'];
             $this->UnknownNode->delete($this->UnknownNode->id, true);
         }else{                          //Assume multiple item delete
@@ -76,8 +76,8 @@ class NodeListsController extends AppController {
                     $this->UnknownNode->id = $d['id'];
                     $this->UnknownNode->delete($this->UnknownNode->id, true);
             }
-        } 
- 
+        }
+
         $this->set(array(
             'success' => true,
             '_serialize' => array('success')
@@ -93,11 +93,11 @@ class NodeListsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-        
+
         $mesh_lookup = array();
-        
-        $c = $this->_build_common_query($user); 
-		
+
+        $c = $this->_build_common_query($user);
+
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
         $page   = 1;
@@ -113,9 +113,9 @@ class NodeListsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-		
 
-        $total  = $this->Node->find('count',$c);      
+
+        $total  = $this->Node->find('count',$c);
         $q_r    = $this->Node->find('all',$c_page);
 
         $items      = array();
@@ -125,10 +125,10 @@ class NodeListsController extends AppController {
             $owner_id       = $i['Mesh']['user_id'];
             $owner_tree     = $this->_find_parents($owner_id);
             $action_flags   = $this->_get_action_flags($owner_id,$user);
-            
+
             $mesh_id        = $i['Mesh']['id'];
-            
-            $dead_after     = $this->_get_dead_after($mesh_id);  
+
+            $dead_after     = $this->_get_dead_after($mesh_id);
             $l_contact      = $i['Node']['last_contact'];
             //Find the dead time (only once)
             if($l_contact == null){
@@ -141,14 +141,14 @@ class NodeListsController extends AppController {
                     $state = 'up';
                 }
             }
-            
+
             //We add this for a visual display of the gateway nodes or non-gateway nodes
             $gateway = 'yes';
 			if(count($i['NodeNeighbor'])>0){
 			    $gateway = $i['NodeNeighbor'][0]['gateway'];
 			}
 			$i['Node']['gateway'] = $gateway;
-					
+
 			if($gateway == 'yes'){
 			    //See if there are any Openvpn connections
 			    $this->OpenvpnServerClient->contain('OpenvpnServer');
@@ -157,7 +157,7 @@ class NodeListsController extends AppController {
 			        if(!isset($mesh_lookup[$mesh_id])){ //This will ensure we only to it once per mesh :-)
 			            $i['Node']['openvpn_list'] = array();
 			            foreach($q_vpn as $vpn){
-			                $vpn_name           = $vpn['OpenvpnServer']['name']; 
+			                $vpn_name           = $vpn['OpenvpnServer']['name'];
 			                $vpn_description    = $vpn['OpenvpnServer']['description'];
 			                $last_contact_to_server  = $vpn['OpenvpnServerClient']['last_contact_to_server'];
 			                if($last_contact_to_server != null){
@@ -178,8 +178,8 @@ class NodeListsController extends AppController {
 			        }
 			    }
 			}
-            
-            
+
+
             $i['Node']['last_contact_human']     = $this->TimeCalculations->time_elapsed_string($i['Node']['last_contact']);
             $i['Node']['state']     = $state;
 			$i['Node']['update']    = $action_flags['update'];
@@ -190,7 +190,7 @@ class NodeListsController extends AppController {
             array_push($items,$i['Node']);
 
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -205,28 +205,28 @@ class NodeListsController extends AppController {
 		$menu = array();
 		$menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
-                     array( 
-                        'xtype'     =>  'splitbutton',  
+                     array(
+                        'xtype'     =>  'splitbutton',
                         'iconCls'   => 'b-reload',
-                        'glyph'     => Configure::read('icnReload'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'reload',   
+                        'glyph'     => Configure::read('icnReload'),
+                        'scale'     => 'large',
+                        'itemId'    => 'reload',
                         'tooltip'   => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnAttach'), 'scale' => 'large', 'itemId' => 'attach',      'tooltip'=> __('Attach')),
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnDelete'), 'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnRedirect'), 'scale' => 'large', 'itemId' => 'redirect',   'tooltip'=> __('Redirect')),
-                    
+
                 )),
             );
 
@@ -279,7 +279,7 @@ class NodeListsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -300,7 +300,7 @@ class NodeListsController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -315,7 +315,7 @@ class NodeListsController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'mesh'){
-                        array_push($c['conditions'],array("Mesh.name LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("Mesh.name LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -353,12 +353,12 @@ class NodeListsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array('Mesh.user_id' => $id));
-                }       
-            }       
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -386,10 +386,10 @@ class NodeListsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
-    
+
     private function _get_dead_after($mesh_id){
 		Configure::load('MESHdesk');
 		$data 		= Configure::read('common_node_settings'); //Read the defaults
@@ -398,11 +398,11 @@ class NodeListsController extends AppController {
             'conditions'    => array(
                 'NodeSetting.mesh_id' => $mesh_id
             )
-        )); 
+        ));
         if($n_s){
             $dead_after = $n_s['NodeSetting']['heartbeat_dead_after'];
         }
 		return $dead_after;
 	}
-    
+
 }

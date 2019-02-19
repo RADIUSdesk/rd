@@ -27,8 +27,8 @@ class TopUpsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -45,7 +45,7 @@ class TopUpsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
 
         $items      = array();
@@ -69,7 +69,7 @@ class TopUpsController extends AppController {
 
             array_push($items,$row);
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -78,7 +78,7 @@ class TopUpsController extends AppController {
             '_serialize' => array('items','success','totalCount')
         ));
     }
- 
+
     public function add() {
 
         //__ Authentication + Authorization __
@@ -103,7 +103,7 @@ class TopUpsController extends AppController {
                 }
                 if($this->request->data['data_unit'] == 'gb'){
                     $multiplier = 1073741824; //(1024*1024*1024)
-                }            
+                }
             }
             $this->request->data['data'] = $this->request->data['value'] * $multiplier;
         }
@@ -117,10 +117,10 @@ class TopUpsController extends AppController {
                 }
                 if($this->request->data['time_unit'] == 'hours'){
                     $multiplier = 3600; //(60 seconds * 60 minutes)
-                } 
+                }
                 if($this->request->data['time_unit'] == 'days'){
                     $multiplier = 86400; //(60 seconds * 60 minutes * 24 Hours)
-                }             
+                }
             }
             $this->request->data['time'] = $this->request->data['value'] * $multiplier;
         }
@@ -166,23 +166,23 @@ class TopUpsController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item           = $this->{$this->modelClass}->findById($this->data['id']);
             $owner_id       = $item['TopUp']['user_id'];
             if($owner_id != $user_id){
                 if($this->_is_sibling_of($user_id,$owner_id)== true){
                     $this->{$this->modelClass}->id = $this->data['id'];
                     $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
-                  
+
                 }else{
                     $fail_flag = true;
                 }
             }else{
                 $this->{$this->modelClass}->id = $this->data['id'];
                 $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
-            
+
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -191,7 +191,7 @@ class TopUpsController extends AppController {
                 if($owner_id != $user_id){
                     if($this->_is_sibling_of($user_id,$owner_id) == true){
                         $this->{$this->modelClass}->id = $d['id'];
-                        $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);    
+                        $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
                     }else{
                         $fail_flag = true;
                     }
@@ -251,54 +251,54 @@ class TopUpsController extends AppController {
 
             $menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
-                    array( 
-                        'xtype'     =>  'splitbutton',  
-                        'glyph'     => Configure::read('icnReload'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'reload',   
+                    array(
+                        'xtype'     =>  'splitbutton',
+                        'glyph'     => Configure::read('icnReload'),
+                        'scale'     => 'large',
+                        'itemId'    => 'reload',
                         'tooltip'   => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
                     array(
-                        'xtype'     => 'button', 
-                        'glyph'     => Configure::read('icnAdd'), 
-                        'scale'     => 'large', 
-                        'itemId'    => 'add',      
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnAdd'),
+                        'scale'     => 'large',
+                        'itemId'    => 'add',
                         'tooltip'   => __('Add')
                     ),
                     array(
-                        'xtype'     => 'button', 
-                        'glyph'     => Configure::read('icnDelete'), 
-                        'scale'     => 'large', 
-                        'itemId'    => 'delete',   
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnDelete'),
+                        'scale'     => 'large',
+                        'itemId'    => 'delete',
                         'tooltip'   => __('Delete')
                     ),
                     array(
-                        'xtype'     => 'button', 
-                        'glyph'     => Configure::read('icnEdit'), 
-                        'scale'     => 'large', 
-                        'itemId'    => 'edit',     
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnEdit'),
+                        'scale'     => 'large',
+                        'itemId'    => 'edit',
                         'tooltip'   => __('Edit')
                     )
                 )),
-                array('xtype' => 'buttongroup','title' => __('Document'), 'width' => 100, 'items' => array(  
+                array('xtype' => 'buttongroup','title' => __('Document'), 'width' => 100, 'items' => array(
                     array(
                         'xtype'     => 'button',
-                        'glyph'     => Configure::read('icnCsv'), 
-                        'scale'     => 'large', 
-                        'itemId'    => 'csv',      
+                        'glyph'     => Configure::read('icnCsv'),
+                        'scale'     => 'large',
+                        'itemId'    => 'csv',
                         'tooltip'   => __('Export CSV')
                     ),
-                ))   
+                ))
             );
         }
 
@@ -309,20 +309,20 @@ class TopUpsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array( 
-                'xtype'     =>  'splitbutton',  
-                'glyph'     => Configure::read('icnReload'),   
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+            array_push($action_group,array(
+                'xtype'     =>  'splitbutton',
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload'),
-                    'menu'  => array( 
-                        'items' => array( 
+                    'menu'  => array(
+                        'items' => array(
                             '<b class="menu-title">'.__('Reload every').':</b>',
                             array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                             array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                             array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                             array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                           
+
                         )
                     )
             ));
@@ -330,53 +330,53 @@ class TopUpsController extends AppController {
             //Add
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-add',
-                    'glyph'     => Configure::read('icnAdd'),      
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),   
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'manage_components')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),     
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
-            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
+                        'xtype'     => 'button',
                         'iconCls'   => 'b-note',
-                        'glyph'     => Configure::read('icnNote'),      
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',      
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 /*
-            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){ 
+            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-csv',     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-csv',
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 */
@@ -434,7 +434,7 @@ class TopUpsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -455,7 +455,7 @@ class TopUpsController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -470,7 +470,7 @@ class TopUpsController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -508,12 +508,12 @@ class TopUpsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }       
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -541,7 +541,7 @@ class TopUpsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 }

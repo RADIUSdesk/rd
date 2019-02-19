@@ -1,5 +1,5 @@
 <?php
-//The groups that is defined 
+//The groups that is defined
 $config['group']['admin']   = 'Administrators';     //Has all the rights
 $config['group']['ap']      = 'Access Providers';   //Has selected right
 $config['group']['user']    = 'Permanent Users';              //Has very limited rights
@@ -60,16 +60,16 @@ $config['voucher_formats'][3]     = array('name' => 'Avery 5161',               
 $config['voucher_formats'][4]     = array('name' => 'Avery 5162',               'id' => '5162',             'active' => true);
 $config['voucher_formats'][5]     = array('name' => 'Avery 5163',               'id' => '5163',             'active' => true);
 $config['voucher_formats'][6]     = array('name' => 'Avery 5164',               'id' => '5164',             'active' => false); //gives trouble
-$config['voucher_formats'][7]     = array('name' => 'Avery 8600',               'id' => '8600',             'active' => true); 
-$config['voucher_formats'][8]     = array('name' => 'Avery L7160',              'id' => 'L7160',            'active' => true); 
-$config['voucher_formats'][9]     = array('name' => 'Avery L7161',              'id' => 'L7161',            'active' => true); 
-$config['voucher_formats'][10]    = array('name' => 'Avery L7163',              'id' => 'L7163',            'active' => true); 
+$config['voucher_formats'][7]     = array('name' => 'Avery 8600',               'id' => '8600',             'active' => true);
+$config['voucher_formats'][8]     = array('name' => 'Avery L7160',              'id' => 'L7160',            'active' => true);
+$config['voucher_formats'][9]     = array('name' => 'Avery L7161',              'id' => 'L7161',            'active' => true);
+$config['voucher_formats'][10]    = array('name' => 'Avery L7163',              'id' => 'L7163',            'active' => true);
 
 
 //FIXME To incorporate
 $config['paths']['wallpaper_location']  = "/rd/resources/images/wallpapers/";
 
-$config['paths']['dynamic_photos']      = "/cake2/rd_cake/webroot/img/dynamic_photos/";   
+$config['paths']['dynamic_photos']      = "/cake2/rd_cake/webroot/img/dynamic_photos/";
 $config['paths']['dynamic_detail_icon'] = "/cake2/rd_cake/webroot/img/dynamic_details/";
 
 //Define default settings for the users:
@@ -96,7 +96,7 @@ $config['EmailServer']						= 'default';
 //== 30/3/16 -> Some server wide configurations ==
 $config['server_settings']['user_stats_cut_off_days']   = 90; //3 months (make zero to have no cut off)
 $config['server_settings']['radacct_cut_off_days']      = 90; //3 months (make zero to have no cut off)
- 
+
 //== End server wide configurations ==
 
 $config['webFont']      = 'FontAwesome';
@@ -176,10 +176,10 @@ $config['icnWizard']    = 'xf0d0@'.$config['webFont'];
 /*--- This has to be the same value as the ons specified in--
 sudo vi /etc/freeradius/sites-enabled/dynamic-clients
        FreeRADIUS-Client-Secret = "testing123"
-       
+
 TIP: Also remember to change the values in:
 ApProfiles.php
-MESHdesk.php 
+MESHdesk.php
 */
 $config['DynamicClients']['shared_secret'] = 'testing123';
 

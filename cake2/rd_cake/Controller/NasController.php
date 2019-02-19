@@ -29,7 +29,7 @@ class NasController extends AppController {
         $q_r        = $this->Na->find('all',$c);
 
         //Create file
-        $this->ensureTmp();     
+        $this->ensureTmp();
         $tmpFilename    = TMP . $this->tmpDir . DS .  strtolower( Inflector::pluralize($this->modelClass) ) . '-' . date('Ymd-Hms') . '.csv';
         $fp             = fopen($tmpFilename, 'w');
 
@@ -65,7 +65,7 @@ class NasController extends AppController {
                         $tags   = '';
                         foreach($i['NaTag'] as $nr){
                             if(!$this->_test_for_private_parent($nr['Tag'],$user)){
-                                $tags = $tags.'['.$nr['Tag']['name'].']';    
+                                $tags = $tags.'['.$nr['Tag']['name'].']';
                             }
                         }
                         array_push($csv_line,$tags);
@@ -73,14 +73,14 @@ class NasController extends AppController {
                         $notes   = '';
                         foreach($i['NaNote'] as $n){
                             if(!$this->_test_for_private_parent($n['Note'],$user)){
-                                $notes = $notes.'['.$n['Note']['note'].']';    
+                                $notes = $notes.'['.$n['Note']['note'].']';
                             }
                         }
                         array_push($csv_line,$notes);
                     }elseif($column_name =='owner'){
                         $owner_id       = $i['Na']['user_id'];
                         $owner_tree     = $this->_find_parents($owner_id);
-                        array_push($csv_line,$owner_tree); 
+                        array_push($csv_line,$owner_tree);
                     }elseif($column_name == 'status'){
                         //Status
                         if(empty($i['NaState'])){
@@ -97,7 +97,7 @@ class NasController extends AppController {
                         }
                         array_push($csv_line,$status." ".$status_time);
                     }else{
-                        array_push($csv_line,$i['Na']["$column_name"]);  
+                        array_push($csv_line,$i['Na']["$column_name"]);
                     }
                 }
                 fputcsv($fp, $csv_line,';','"');
@@ -125,7 +125,7 @@ class NasController extends AppController {
         }
         $user_id    = $user['id'];
 
-        $c = $this->_build_common_query($user); 
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -144,7 +144,7 @@ class NasController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->Na->find('count',$c);       
+        $total  = $this->Na->find('count',$c);
         $q_r    = $this->Na->find('all',$c_page);
 
         $items = array();
@@ -177,20 +177,20 @@ class NasController extends AppController {
 			$r_n = $nr['Realm']['name'];
 			$r_s = $nr['Realm']['available_to_siblings'];
 		   }
-                    array_push($realms, 
+                    array_push($realms,
                         array(
                             'id'                    => $r_id,
                             'name'                  => $r_n,
                             'available_to_siblings' => $r_s
                         ));
                 }
-            } 
+            }
 
             //Create tags list
             $tags       = array();
             foreach($i['NaTag'] as $nr){
                 if(!$this->_test_for_private_parent($nr['Tag'],$user)){
-                    array_push($tags, 
+                    array_push($tags,
                         array(
                             'id'                    => $nr['Tag']['id'],
                             'name'                  => $nr['Tag']['name'],
@@ -211,9 +211,9 @@ class NasController extends AppController {
             $owner_id       = $i['Na']['user_id'];
             $owner_tree     = $this->_find_parents($owner_id);
             $action_flags   = $this->_get_action_flags($owner_id,$user);
-      
+
             array_push($items,array(
-                'id'                    => $i['Na']['id'], 
+                'id'                    => $i['Na']['id'],
                 'nasname'               => $i['Na']['nasname'],
                 'shortname'             => $i['Na']['shortname'],
                 'nasidentifier'         => $i['Na']['nasidentifier'],
@@ -236,7 +236,7 @@ class NasController extends AppController {
                 'lat'                   => $i['Na']['lat'],
                 'lon'                   => $i['Na']['lon'],
                 'photo_file_name'       => $i['Na']['photo_file_name'],
-                'owner'                 => $owner_tree, 
+                'owner'                 => $owner_tree,
                 'user_id'               => $i['Na']['user_id'],
                 'available_to_siblings' => $i['Na']['available_to_siblings'],
                 'notes'                 => $notes_flag,
@@ -300,7 +300,7 @@ class NasController extends AppController {
                         //-------------
                     }
                 }
-            }   
+            }
             $this->request->data['id'] = $this->{$this->modelClass}->id;
             $this->set(array(
                 'success' => true,
@@ -448,7 +448,7 @@ class NasController extends AppController {
 
         if($q_r){
             $ip         = $q_r['Na']['nasname'];
-            $next_ip    = $this->_get_next_ip($ip);           
+            $next_ip    = $this->_get_next_ip($ip);
             $not_available = true;
             while($not_available){
                 if($this->_check_if_available($next_ip)){
@@ -458,7 +458,7 @@ class NasController extends AppController {
                 }else{
                     $next_ip = $this->_get_next_ip($next_ip);
                 }
-            }              
+            }
         }else{ //The very first entry
             $this->request->data['nasname'] = $start_ip;
         }
@@ -479,7 +479,7 @@ class NasController extends AppController {
                         //-------------
                     }
                 }
-            }   
+            }
             $this->request->data['id'] = $this->{$this->modelClass}->id;
             $this->set(array(
                 'success' => true,
@@ -567,7 +567,7 @@ class NasController extends AppController {
 
             //Save the new ID to the PptpClient....
             $this->{$this->modelClass}->PptpClient->saveField('na_id', $this->{$this->modelClass}->id);
-          
+
             $this->request->data['id'] = $this->{$this->modelClass}->id;
             $this->set(array(
                 'success' => true,
@@ -636,7 +636,7 @@ class NasController extends AppController {
                 $this->request->data['id']      = $id;
                 $this->request->data['subnet']  = $q_r['OpenvpnClient']['subnet'];
                 $this->request->data['peer1']   = $q_r['OpenvpnClient']['peer1'];
-                $this->request->data['peer2']   = $q_r['OpenvpnClient']['peer2'];  
+                $this->request->data['peer2']   = $q_r['OpenvpnClient']['peer2'];
             }
 
             if(!$this->Na->OpenvpnClient->save($this->request->data)){
@@ -806,7 +806,7 @@ class NasController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-     
+
 
         if(array_key_exists('on_public_maps',$this->request->data)){
             $this->request->data['on_public_maps'] = 1;
@@ -827,7 +827,7 @@ class NasController extends AppController {
         if(array_key_exists('ignore_acct',$this->request->data)){
             $this->request->data['ignore_acct'] = 1;
         }else{
-            $this->request->data['ignore_acct']         = 0; 
+            $this->request->data['ignore_acct']         = 0;
         }
 
 
@@ -890,7 +890,7 @@ class NasController extends AppController {
 
         //Now add....
         $data['photo_file_name']  = $unique.'.'.$path_parts['extension'];
-       
+
         $this->{$this->modelClass}->id = $this->request->data['id'];
        // $this->{$this->modelClass}->saveField('photo_file_name', $unique.'.'.$path_parts['extension']);
         if($this->{$this->modelClass}->saveField('photo_file_name', $unique.'.'.$path_parts['extension'])){
@@ -971,10 +971,10 @@ class NasController extends AppController {
 
         $this->UserSetting = ClassRegistry::init('UserSetting');
 
-        if(array_key_exists('zoom',$this->request->data)){        
+        if(array_key_exists('zoom',$this->request->data)){
             $q_r = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'map_zoom')));
             if(!empty($q_r)){
-                $this->UserSetting->id = $q_r['UserSetting']['id'];    
+                $this->UserSetting->id = $q_r['UserSetting']['id'];
                 $this->UserSetting->saveField('value', $this->request->data['zoom']);
             }else{
                 $d['UserSetting']['user_id']= $user_id;
@@ -986,10 +986,10 @@ class NasController extends AppController {
             }
         }
 
-        if(array_key_exists('type',$this->request->data)){        
+        if(array_key_exists('type',$this->request->data)){
             $q_r = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'map_type')));
             if(!empty($q_r)){
-                $this->UserSetting->id = $q_r['UserSetting']['id'];    
+                $this->UserSetting->id = $q_r['UserSetting']['id'];
                 $this->UserSetting->saveField('value', $this->request->data['type']);
             }else{
                 $d['UserSetting']['user_id']= $user_id;
@@ -1001,10 +1001,10 @@ class NasController extends AppController {
             }
         }
 
-        if(array_key_exists('lat',$this->request->data)){        
+        if(array_key_exists('lat',$this->request->data)){
             $q_r = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'map_lat')));
             if(!empty($q_r)){
-                $this->UserSetting->id = $q_r['UserSetting']['id'];    
+                $this->UserSetting->id = $q_r['UserSetting']['id'];
                 $this->UserSetting->saveField('value', $this->request->data['lat']);
             }else{
                 $d['UserSetting']['user_id']= $user_id;
@@ -1017,10 +1017,10 @@ class NasController extends AppController {
             }
         }
 
-        if(array_key_exists('lng',$this->request->data)){        
+        if(array_key_exists('lng',$this->request->data)){
             $q_r = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'map_lng')));
             if(!empty($q_r)){
-                $this->UserSetting->id = $q_r['UserSetting']['id'];    
+                $this->UserSetting->id = $q_r['UserSetting']['id'];
                 $this->UserSetting->saveField('value', $this->request->data['lng']);
             }else{
                 $d['UserSetting']['user_id']= $user_id;
@@ -1106,7 +1106,7 @@ class NasController extends AppController {
                 //-------------
             }
         }
-     
+
         $this->set(array(
                 'success' => true,
                 '_serialize' => array('success')
@@ -1144,7 +1144,7 @@ class NasController extends AppController {
         }
 
         //This will be with all of them
-       /// array_push($items, array( 'title'  => __('NAS'), 'itemId' => 'tabNas', 'layout' => 'hbox', 
+       /// array_push($items, array( 'title'  => __('NAS'), 'itemId' => 'tabNas', 'layout' => 'hbox',
        ///     'items' => array('xtype' => 'frmNasBasic', 'height' => '100%', 'width' => 500)
        /// ));
          array_push($items, array( 'title'  => __('NAS'), 'itemId' => 'tabNas', 'xtype' => 'pnlNasNas', 'nn_disabled' => $nn_disabled));
@@ -1177,13 +1177,13 @@ class NasController extends AppController {
         if(!$user){
             return;
         }
-        $user_id    = $user['id'];  
+        $user_id    = $user['id'];
 
 	    if(isset($this->data['id'])){   //Single item delete
             $message = __("Single item")." ".$this->data['id'];
             $this->{$this->modelClass}->id = $this->data['id'];
             $this->{$this->modelClass}->delete();
-      
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
                 $this->{$this->modelClass}->id = $d['id'];
@@ -1214,7 +1214,7 @@ class NasController extends AppController {
 
         //MAC format fine; see if defined
         $this->{$this->modelClass}->contain();
-        $q_r = $this->{$this->modelClass}->find('first', array('conditions' => 
+        $q_r = $this->{$this->modelClass}->find('first', array('conditions' =>
             array('Na.community' => $mac,'Na.type' => 'CoovaChilli-Heartbeat'))
         );
 
@@ -1222,13 +1222,13 @@ class NasController extends AppController {
             $nas_id = $q_r['Na']['nasidentifier'];
             $nas_ip = $q_r['Na']['nasname'];
             if(($nas_id == '')||($nas_ip == '')){
-                $response = "HEARTBEAT=NO\nERROR=DATA MISSING\n"; 
+                $response = "HEARTBEAT=NO\nERROR=DATA MISSING\n";
             }else{
-                $response = "HEARTBEAT=YES\nNAS-ID=$nas_id\nNAS-IP=$nas_ip\n";         
+                $response = "HEARTBEAT=YES\nNAS-ID=$nas_id\nNAS-IP=$nas_ip\n";
             }
-            
+
         }else{
-            $response = "HEARTBEAT=NO\nERROR=NO MATCH FOR MAC $mac\n"; 
+            $response = "HEARTBEAT=NO\nERROR=NO MATCH FOR MAC $mac\n";
         }
         $this->response->body($response);
     }
@@ -1246,7 +1246,7 @@ class NasController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $na_id  = $this->request->query['for_id'];
-            $q_r    = $this->Na->NaNote->find('all', 
+            $q_r    = $this->Na->NaNote->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('NaNote.na_id' => $na_id)
@@ -1259,8 +1259,8 @@ class NasController extends AppController {
                     $afs        = $this->_get_action_flags($owner_id,$user);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => $afs['delete']
@@ -1268,7 +1268,7 @@ class NasController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -1299,7 +1299,7 @@ class NasController extends AppController {
 
         $success    = false;
         $msg        = array('message' => __('Could not create note'));
-        $this->Na->NaNote->Note->create(); 
+        $this->Na->NaNote->Note->create();
         //print_r($this->request->data);
         if ($this->Na->NaNote->Note->save($this->request->data)) {
             $d                      = array();
@@ -1342,7 +1342,7 @@ class NasController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->Na->NaNote->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -1356,7 +1356,7 @@ class NasController extends AppController {
                 $this->Na->NaNote->Note->id = $this->data['id'];
                 $this->Na->NaNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -1373,7 +1373,7 @@ class NasController extends AppController {
                     $this->Na->NaNote->Note->id = $d['id'];
                     $this->Na->NaNote->Note->delete($d['id'],true);
                 }
-   
+
             }
         }
 
@@ -1434,7 +1434,7 @@ class NasController extends AppController {
     }
 
     //------ List of configured nas types  ------
-    //This is displayed as a select to choose from when the user specifies the NAS detail 
+    //This is displayed as a select to choose from when the user specifies the NAS detail
     public function nas_types(){
         $items = array();
         $ct = Configure::read('nas_types');
@@ -1468,15 +1468,15 @@ class NasController extends AppController {
             $menu = array(
                     array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
                         array( 'xtype' =>  'splitbutton',  'glyph'     => Configure::read('icnReload'),'scale'   => 'large', 'itemId'    => 'reload',   'tooltip'    => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                   //  array( 'text'   => _('Cancel auto reload'),   'itemId' => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true ),
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
@@ -1492,7 +1492,7 @@ class NasController extends AppController {
                      array('xtype' => 'button', 'glyph'    => Configure::read('icnGraph'),'scale' => 'large', 'itemId' => 'graph',  'tooltip'=> __('Graphs')),
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnTag'),'scale' => 'large', 'itemId' => 'tag',     'tooltip'=> __('Manage tags')),
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnMap'),'scale' => 'large', 'itemId' => 'map',      'tooltip'=> __('Map'))
-                )) 
+                ))
             );
         }
 
@@ -1503,68 +1503,68 @@ class NasController extends AppController {
             $action_group   = array();
             $document_group = array();
             $specific_group = array();
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
-                'glyph'     => Configure::read('icnReload'),  
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnAdd'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnDelete'), 
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnEdit'),   
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
-                        'glyph'     => Configure::read('icnNote'),     
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',      
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnCsv'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnCsv'),
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 
             //Graph
             array_push($specific_group,array(
-                'xtype'     => 'button', 
+                'xtype'     => 'button',
                 'glyph'     => Configure::read('icnGraph'),
-                'scale'     => 'large', 
-                'itemId'    => 'graph',    
+                'scale'     => 'large',
+                'itemId'    => 'graph',
                 'tooltip'   => __('Graphs'))
             );
 
@@ -1572,19 +1572,19 @@ class NasController extends AppController {
             //Tags
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'manage_tags')){
                 array_push($specific_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnMeta'),    
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnMeta'),
+                    'scale'     => 'large',
                     'itemId'    => 'tag',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'=> __('Manage tags')));
             }
 
             array_push($specific_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnMap'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'map',      
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnMap'),
+                    'scale'     => 'large',
+                    'itemId'    => 'map',
                     'tooltip'   => __('Maps')));
 
            // array_push($menu,array('xtype' => 'tbfill'));
@@ -1622,7 +1622,7 @@ class NasController extends AppController {
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnAdd'), 'scale' => 'large', 'itemId' => 'add',      'tooltip'=> __('Add')),
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnDelete'), 'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnEdit'), 'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit'))
-                )) 
+                ))
             );
         }
         //FIXME Fine tune the menu based on AP rights
@@ -1635,7 +1635,7 @@ class NasController extends AppController {
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnAdd'), 'scale' => 'large', 'itemId' => 'add',      'tooltip'=> __('Add')),
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnDelete'), 'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnEdit'), 'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit'))
-                )) 
+                ))
             );
 
         }
@@ -1722,7 +1722,7 @@ class NasController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true ,'manage_tags' => true);
                 }
-            }  
+            }
         }
     }
 
@@ -1730,7 +1730,7 @@ class NasController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -1754,7 +1754,7 @@ class NasController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -1807,7 +1807,7 @@ class NasController extends AppController {
                             'alias'         => 'Realm',
                             'type'          => 'INNER',
                             'conditions'    => array('Realm.id = NaRealm.realm_id',array('OR' => $list_array))
-                        ));                     
+                        ));
                     }else{
                         $list_array = array();
                         foreach($f->value as $filter_list){
@@ -1821,7 +1821,7 @@ class NasController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -1859,12 +1859,12 @@ class NasController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }    
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 

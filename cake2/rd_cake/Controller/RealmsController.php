@@ -26,12 +26,12 @@ class RealmsController extends AppController {
         list_realms_for_nas_owner
         dummy_edit
         update_na_realm
-        
+
         list_realms_for_dynamic_client_owner
         update_dynamic_client_realm
 
     //---- END ACL ------- */
-    
+
 
 
 //------------------------------------------------------------------------
@@ -49,7 +49,7 @@ class RealmsController extends AppController {
 
         $user_id    = null;
         $admin_flag = false;
-    
+
         if($user['group_name'] == Configure::read('group.admin')){  //Admin
             $user_id    = $user['id'];
             $admin_flag = true;
@@ -59,7 +59,7 @@ class RealmsController extends AppController {
             $user_id = $user['id'];
         }
         $items      = array();
-        
+
         $ap_id = false;
         if(isset($this->request->query['ap_id'])){
             $ap_id      = $this->request->query['ap_id'];
@@ -81,9 +81,9 @@ class RealmsController extends AppController {
             if($ap_id == 0){
                 $ap_id = $user_id;
             }
-            $q_r        = $this->User->getPath($ap_id); //Get all the parents up to the root   
-                   
-            foreach($q_r as $i){    
+            $q_r        = $this->User->getPath($ap_id); //Get all the parents up to the root
+
+            foreach($q_r as $i){
                 $user_id    = $i['User']['id'];
                 $this->Realm->contain();
                 $r        = $this->Realm->find('all',array('conditions' => array('Realm.user_id' => $user_id, 'Realm.available_to_siblings' => true)));
@@ -91,7 +91,7 @@ class RealmsController extends AppController {
                     $id     = $j['Realm']['id'];
                     $name   = $j['Realm']['name'];
                     $create = $this->Acl->check(
-                                array('model' => 'User', 'foreign_key' => $ap_id), 
+                                array('model' => 'User', 'foreign_key' => $ap_id),
                                 array('model' => 'Realm','foreign_key' => $id), 'create');
                     if($create == true){
                         array_push($items,array('id' => $id, 'name' => $name));
@@ -99,25 +99,25 @@ class RealmsController extends AppController {
                 }
             }
 
-            //All the realms owned by anyone this access provider created (and also itself) 
+            //All the realms owned by anyone this access provider created (and also itself)
             //will automatically be under full controll of this access provider
-            
+
             $this->children    = $this->User->find_access_provider_children($ap_id);
             $tree_array     = array();
             if($this->children){   //Only if the AP has any children...
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array('Realm.user_id' => $id));
-                }       
-            }  
+                }
+            }
             $this->Realm->contain();
-            $r_sub  = $this->Realm->find('all',array('conditions' => array('OR' => $tree_array))); 
+            $r_sub  = $this->Realm->find('all',array('conditions' => array('OR' => $tree_array)));
             foreach($r_sub  as $j){
                 $id     = $j['Realm']['id'];
                 $name   = $j['Realm']['name'];
                 array_push($items,array('id' => $id, 'name' => $name));
             }
-           
+
         }
 
         $this->set(array(
@@ -148,7 +148,7 @@ class RealmsController extends AppController {
             $admin_flag = true;
         }
         $items      = array();
-        
+
         $ap_id = false;
         if(isset($this->request->query['ap_id'])){
             $ap_id      = $this->request->query['ap_id'];
@@ -168,12 +168,12 @@ class RealmsController extends AppController {
              if($ap_id == false){
                 $ap_id      = $user_id;
             }
-            
+
             if($ap_id == 0){
                 $ap_id = $user_id;
             }
-            $q_r        = $this->User->getPath($ap_id); //Get all the parents up to the root           
-            foreach($q_r as $i){    
+            $q_r        = $this->User->getPath($ap_id); //Get all the parents up to the root
+            foreach($q_r as $i){
                 $user_id    = $i['User']['id'];
                 $this->Realm->contain();
                 $r        = $this->Realm->find('all',array('conditions' => array('Realm.user_id' => $user_id, 'Realm.available_to_siblings' => true)));
@@ -182,34 +182,34 @@ class RealmsController extends AppController {
                     $id     = $j['Realm']['id'];
                     $name   = $j['Realm']['name'];
                     $create = $this->Acl->check(
-                                array('model' => 'User', 'foreign_key' => $ap_id), 
+                                array('model' => 'User', 'foreign_key' => $ap_id),
                                 array('model' => 'Realm','foreign_key' => $id), 'update');
                     if($create == true){
                         array_push($items,array('id' => $id, 'name' => $name));
                     }
                 }
             }
-   
-            
-            //All the realms owned by anyone this access provider created (and also itself) 
+
+
+            //All the realms owned by anyone this access provider created (and also itself)
             //will automatically be under full controll of this access provider
-            
+
             $this->children    = $this->User->find_access_provider_children($ap_id);
             $tree_array     = array();
             if($this->children){   //Only if the AP has any children...
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array('Realm.user_id' => $id));
-                }       
-            }  
+                }
+            }
             $this->Realm->contain();
-            $r_sub  = $this->Realm->find('all',array('conditions' => array('OR' => $tree_array))); 
+            $r_sub  = $this->Realm->find('all',array('conditions' => array('OR' => $tree_array)));
             foreach($r_sub  as $j){
                 $id     = $j['Realm']['id'];
                 $name   = $j['Realm']['name'];
                 array_push($items,array('id' => $id, 'name' => $name));
             }
-            
+
         }
 
         $this->set(array(
@@ -245,9 +245,9 @@ class RealmsController extends AppController {
             $ap_id      = $this->request->query['ap_id'];
 
             //Get all the parents up to the root
-            $q_r        = $this->User->getPath($ap_id); 
+            $q_r        = $this->User->getPath($ap_id);
             foreach($q_r as $i){
-                
+
                 $user_id    = $i['User']['id'];
                 $this->Realm->contain();
                 $r        = $this->Realm->find('all',array('conditions' => array('Realm.user_id' => $user_id, 'Realm.available_to_siblings' => true)));
@@ -255,23 +255,23 @@ class RealmsController extends AppController {
                     $id     = $j['Realm']['id'];
                     $name   = $j['Realm']['name'];
                     $create = $this->Acl->check(
-                                array('model' => 'User', 'foreign_key' => $ap_id), 
+                                array('model' => 'User', 'foreign_key' => $ap_id),
                                 array('model' => 'Realm','foreign_key' => $id), 'create');
                     $read   = $this->Acl->check(
-                                array('model' => 'User', 'foreign_key' => $ap_id), 
+                                array('model' => 'User', 'foreign_key' => $ap_id),
                                 array('model' => 'Realm','foreign_key' => $id), 'read');
                     $update = $this->Acl->check(
-                                array('model' => 'User', 'foreign_key' => $ap_id), 
+                                array('model' => 'User', 'foreign_key' => $ap_id),
                                 array('model' => 'Realm','foreign_key' => $id), 'update');
                     $delete = $this->Acl->check(
-                                array('model' => 'User', 'foreign_key' => $ap_id), 
+                                array('model' => 'User', 'foreign_key' => $ap_id),
                                 array('model' => 'Realm','foreign_key' => $id), 'delete');
                     array_push($items,array('id' => $id, 'name' => $name, 'create' => $create, 'read' => $read, 'update' => $update, 'delete' => $delete));
                 }
             }
 
-            
-            //All the realms owned by anyone this access provider created (and also itself) 
+
+            //All the realms owned by anyone this access provider created (and also itself)
             //will automatically be under full controll of this access provider
             $this->children    = $this->User->find_access_provider_children($ap_id);
             $tree_array     = array();
@@ -279,17 +279,17 @@ class RealmsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array('Realm.user_id' => $id));
-                }       
-            }  
+                }
+            }
             $this->Realm->contain();
-            $r_sub  = $this->Realm->find('all',array('conditions' => array('OR' => $tree_array))); 
+            $r_sub  = $this->Realm->find('all',array('conditions' => array('OR' => $tree_array)));
             foreach($r_sub  as $j){
                 $id     = $j['Realm']['id'];
                 $name   = $j['Realm']['name'];
                 array_push($items,array('id' => $id, 'name' => $name, 'create' => true, 'read' => true, 'update' => true, 'delete' => true));
             }
-              
-        }  
+
+        }
 
         $this->set(array(
             'items' => $items,
@@ -325,13 +325,13 @@ class RealmsController extends AppController {
         }
 
         if(isset($this->request->query['available_to_siblings'])){
-            $a_to_s      = $this->request->query['available_to_siblings'];  
+            $a_to_s      = $this->request->query['available_to_siblings'];
         }
 
         //By default nas_id not included
         $nas_id = false;
         if(isset($this->request->query['nas_id'])){
-            $nas_id      = $this->request->query['nas_id'];  
+            $nas_id      = $this->request->query['nas_id'];
         }
 
         //========== CLEAR FIRST CHECK =======
@@ -343,7 +343,7 @@ class RealmsController extends AppController {
             }
         }
 
-        if($clear_flag){    //If we first need to remove previous associations!   
+        if($clear_flag){    //If we first need to remove previous associations!
             $this->Realm->NaRealm->deleteAll(array('NaRealm.na_id' => $nas_id),false);
         }
         //========== END CLEAR FIRST CHECK =======
@@ -368,7 +368,7 @@ class RealmsController extends AppController {
                             $selected = true;
                         }
                     }
-                    array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));                
+                    array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));
                 }
 
                 //When it got down to the owner; also get the private realms
@@ -385,7 +385,7 @@ class RealmsController extends AppController {
                                 $selected = true;
                             }
                         }
-                        array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));                
+                        array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));
                     }
                 }
             }
@@ -410,9 +410,9 @@ class RealmsController extends AppController {
                         }
                     }
                 }
-                array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));                
+                array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));
             }
-            
+
             //Now get all the realms of the siblings of the owner
             $this->children    = $this->User->find_access_provider_children($owner_id);
             if($this->children){   //Only if the AP has any children...
@@ -432,13 +432,13 @@ class RealmsController extends AppController {
                                     $selected = true;
                                 }
                             }
-                        }   
-                        array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));                
+                        }
+                        array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));
                     }
-                }       
-            }    
+                }
+            }
         }
-       
+
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -475,7 +475,7 @@ class RealmsController extends AppController {
                     $d['NaRealm']['realm_id']   = $realm_id;
                     $this->Realm->NaRealm->save($d);
                 }else{
-                    $this->Realm->NaRealm->deleteAll(array('NaRealm.na_id' => $nas_id,'NaRealm.realm_id' => $realm_id), false);        
+                    $this->Realm->NaRealm->deleteAll(array('NaRealm.na_id' => $nas_id,'NaRealm.realm_id' => $realm_id), false);
                 }
             }else{                          //Assume multiple item select
                 foreach($this->data as $d){
@@ -487,7 +487,7 @@ class RealmsController extends AppController {
                             $d['NaRealm']['realm_id']   = $realm_id;
                             $this->Realm->NaRealm->save($d);
                         }else{
-                            $this->Realm->NaRealm->deleteAll(array('NaRealm.na_id' => $nas_id,'NaRealm.realm_id' => $realm_id), false);        
+                            $this->Realm->NaRealm->deleteAll(array('NaRealm.na_id' => $nas_id,'NaRealm.realm_id' => $realm_id), false);
                         }
                     }
                 }
@@ -499,7 +499,7 @@ class RealmsController extends AppController {
             '_serialize' => array('success')
         ));
     }
-    
+
     public function list_realms_for_dynamic_client_owner(){
 
         $user = $this->Aa->user_for_token($this);
@@ -527,13 +527,13 @@ class RealmsController extends AppController {
         }
 
         if(isset($this->request->query['available_to_siblings'])){
-            $a_to_s      = $this->request->query['available_to_siblings'];  
+            $a_to_s      = $this->request->query['available_to_siblings'];
         }
 
         //By default nas_id not included
         $dynamic_client_id = false;
         if(isset($this->request->query['dynamic_client_id'])){
-            $dynamic_client_id      = $this->request->query['dynamic_client_id'];  
+            $dynamic_client_id      = $this->request->query['dynamic_client_id'];
         }
 
         //========== CLEAR FIRST CHECK =======
@@ -545,7 +545,7 @@ class RealmsController extends AppController {
             }
         }
 
-        if($clear_flag){    //If we first need to remove previous associations!   
+        if($clear_flag){    //If we first need to remove previous associations!
             $this->Realm->DynamicClientRealm->deleteAll(array('DynamicClientRealm.dynamic_client_id' => $dynamic_client_id),false);
         }
         //========== END CLEAR FIRST CHECK =======
@@ -570,7 +570,7 @@ class RealmsController extends AppController {
                             $selected = true;
                         }
                     }
-                    array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));                
+                    array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));
                 }
 
                 //When it got down to the owner; also get the private realms
@@ -587,7 +587,7 @@ class RealmsController extends AppController {
                                 $selected = true;
                             }
                         }
-                        array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));                
+                        array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));
                     }
                 }
             }
@@ -612,9 +612,9 @@ class RealmsController extends AppController {
                         }
                     }
                 }
-                array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));                
+                array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));
             }
-            
+
             //Now get all the realms of the siblings of the owner
             $this->children    = $this->User->find_access_provider_children($owner_id);
             if($this->children){   //Only if the AP has any children...
@@ -634,21 +634,21 @@ class RealmsController extends AppController {
                                     $selected = true;
                                 }
                             }
-                        }   
-                        array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));                
+                        }
+                        array_push($items,array('id' => $j['Realm']['id'], 'name' => $j['Realm']['name'],'selected' => $selected));
                     }
-                }       
-            }    
+                }
+            }
         }
-       
+
         $this->set(array(
             'items'     => $items,
             'success'   => true,
             '_serialize' => array('items','success')
         ));
     }
-    
-    
+
+
     public function update_dynamic_client_realm(){
 
         if (!$this->request->is('post')) {
@@ -672,7 +672,7 @@ class RealmsController extends AppController {
                 }else{
                     $this->Realm->DynamicClientRealm->deleteAll(
                         array('DynamicClientRealm.dynamic_client_id' => $dynamic_client_id,'DynamicClientRealm.realm_id' => $realm_id),
-                    false);        
+                    false);
                 }
             }else{                          //Assume multiple item select
                 foreach($this->data as $d){
@@ -685,8 +685,8 @@ class RealmsController extends AppController {
                             $this->Realm->DynamicClientRealm->save($d);
                         }else{
                             $this->Realm->DynamicClientRealm->deleteAll(
-                                array('DynamicClientRealm.dynamic_client_id' => $dynamic_client_id,'DynamicClientRealm.realm_id' => $realm_id), 
-                            false);        
+                                array('DynamicClientRealm.dynamic_client_id' => $dynamic_client_id,'DynamicClientRealm.realm_id' => $realm_id),
+                            false);
                         }
                     }
                 }
@@ -698,7 +698,7 @@ class RealmsController extends AppController {
             '_serialize' => array('success')
         ));
     }
-    
+
     public function edit_ap(){
 
         //The ap_id who's realm rights HAS to be a sibling of the user who initiated the request
@@ -728,43 +728,43 @@ class RealmsController extends AppController {
             $id     = $this->request->data['id'];
             if($this->request->data['create'] == true){
                 $this->Acl->allow(
-                array('model' => 'User', 'foreign_key' => $ap_id), 
+                array('model' => 'User', 'foreign_key' => $ap_id),
                 array('model' => 'Realm','foreign_key' => $id), 'create');
             }else{
                 $this->Acl->deny(
-                array('model' => 'User', 'foreign_key' => $ap_id), 
+                array('model' => 'User', 'foreign_key' => $ap_id),
                 array('model' => 'Realm','foreign_key' => $id), 'create');
-            } 
+            }
 
             if($this->request->data['read'] == true){
                 $this->Acl->allow(
-                array('model' => 'User', 'foreign_key' => $ap_id), 
+                array('model' => 'User', 'foreign_key' => $ap_id),
                 array('model' => 'Realm','foreign_key' => $id), 'read');
             }else{
                 $this->Acl->deny(
-                array('model' => 'User', 'foreign_key' => $ap_id), 
+                array('model' => 'User', 'foreign_key' => $ap_id),
                 array('model' => 'Realm','foreign_key' => $id), 'read');
             }
 
             if($this->request->data['update'] == true){
                 $this->Acl->allow(
-                array('model' => 'User', 'foreign_key' => $ap_id), 
+                array('model' => 'User', 'foreign_key' => $ap_id),
                 array('model' => 'Realm','foreign_key' => $id), 'update');
             }else{
                 $this->Acl->deny(
-                array('model' => 'User', 'foreign_key' => $ap_id), 
+                array('model' => 'User', 'foreign_key' => $ap_id),
                 array('model' => 'Realm','foreign_key' => $id), 'update');
-            } 
-            
+            }
+
             if($this->request->data['delete'] == true){
                 $this->Acl->allow(
-                array('model' => 'User', 'foreign_key' => $ap_id), 
+                array('model' => 'User', 'foreign_key' => $ap_id),
                 array('model' => 'Realm','foreign_key' => $id), 'delete');
             }else{
                 $this->Acl->deny(
-                array('model' => 'User', 'foreign_key' => $ap_id), 
+                array('model' => 'User', 'foreign_key' => $ap_id),
                 array('model' => 'Realm','foreign_key' => $id), 'delete');
-            }  
+            }
         }
 
         $this->set(array(
@@ -795,7 +795,7 @@ class RealmsController extends AppController {
         $q_r        = $this->Realm->find('all',$c);
 
         //Create file
-        $this->ensureTmp();     
+        $this->ensureTmp();
         $tmpFilename    = TMP . $this->tmpDir . DS .  strtolower( Inflector::pluralize($this->modelClass) ) . '-' . date('Ymd-Hms') . '.csv';
         $fp             = fopen($tmpFilename, 'w');
 
@@ -823,16 +823,16 @@ class RealmsController extends AppController {
                         $notes   = '';
                         foreach($i['RealmNote'] as $n){
                             if(!$this->_test_for_private_parent($n['Note'],$user)){
-                                $notes = $notes.'['.$n['Note']['note'].']';    
+                                $notes = $notes.'['.$n['Note']['note'].']';
                             }
                         }
                         array_push($csv_line,$notes);
                     }elseif($column_name =='owner'){
                         $owner_id       = $i['Realm']['user_id'];
                         $owner_tree     = $this->_find_parents($owner_id);
-                        array_push($csv_line,$owner_tree); 
+                        array_push($csv_line,$owner_tree);
                     }else{
-                        array_push($csv_line,$i['Realm']["$column_name"]);  
+                        array_push($csv_line,$i['Realm']["$column_name"]);
                     }
                 }
                 fputcsv($fp, $csv_line,';','"');
@@ -864,9 +864,9 @@ class RealmsController extends AppController {
 			'id',		'name',			'phone',		'fax',			'cell',		'email',
 			'url',		'street_no',	'street',		'town_suburb',	'city',		'country',
 			'lat',		'lon',			'twitter',		'facebook',		'youtube',	'google_plus',
-			'linkedin',	't_c_title',	't_c_content',	'available_to_siblings'	
+			'linkedin',	't_c_title',	't_c_content',	'available_to_siblings'
 		);
-      
+
         $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
@@ -884,7 +884,7 @@ class RealmsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total              = $this->{$this->modelClass}->find('count',$c);       
+        $total              = $this->{$this->modelClass}->find('count',$c);
         $q_r                = $this->{$this->modelClass}->find('all',$c_page);
 
         $items              = array();
@@ -955,14 +955,14 @@ class RealmsController extends AppController {
             foreach($q_r as $i){
                 $name   = $i['Realm']['name'];
                 array_push($items,array(
-                        'id'                    => $name, 
+                        'id'                    => $name,
                         'text'                  => $name
                     ));
             }
         }
 
         //_____ AP _____
-        if($user['group_name'] == Configure::read('group.ap')){  
+        if($user['group_name'] == Configure::read('group.ap')){
 
             //If it is an Access Provider that requested this list; we should show:
             //1.) all those realms that he is allowed to use from parents with the available_to_sibling flag set (no edit or delete)
@@ -975,7 +975,7 @@ class RealmsController extends AppController {
             //Loop through this list. Only if $user_id is a sibling of $owner_id we will add it to the list
             $ap_child_count = $this->User->childCount($user_id);
 
-            foreach($q_r as $i){        
+            foreach($q_r as $i){
                 $name           = $i['Realm']['name'];
                 $owner_id     = $i['Realm']['user_id'];
                 $a_t_s          = $i['Realm']['available_to_siblings'];
@@ -986,7 +986,7 @@ class RealmsController extends AppController {
                         //Only those available to siblings:
                         if($a_t_s == 1){
                             array_push($items,array(
-                                'id'                    => $name, 
+                                'id'                    => $name,
                                 'text'                  => $name
                             ));
                         }
@@ -994,7 +994,7 @@ class RealmsController extends AppController {
                     if($ap_child_count != 0){ //See if this realm is perhaps not one of those created by a sibling of the Access Provider
                         if($this->_is_sibling_of($user_id,$owner_id)){ //Is the owner a downstream sibling of the AP - Full rights
                             array_push($items,array(
-                                'id'                    => $name, 
+                                'id'                    => $name,
                                 'text'                  => $name
                             ));
                         }
@@ -1002,9 +1002,9 @@ class RealmsController extends AppController {
                 }
 
                 //Created himself
-                if($owner_id == $user_id){    
+                if($owner_id == $user_id){
                     array_push($items,array(
-                        'id'                    => $name, 
+                        'id'                    => $name,
                         'text'                  => $name
                     ));
                 }
@@ -1039,13 +1039,13 @@ class RealmsController extends AppController {
         }else{
             $this->request->data['available_to_siblings'] = 0;
         }
-        
+
         if(isset($this->request->data['suffix_permanent_users'])){
             $this->request->data['suffix_permanent_users'] = 1;
         }else{
             $this->request->data['suffix_permanent_users'] = 0;
         }
-        
+
         if(isset($this->request->data['suffix_vouchers'])){
             $this->request->data['suffix_vouchers'] = 1;
         }else{
@@ -1084,13 +1084,13 @@ class RealmsController extends AppController {
         }else{
             $this->request->data['available_to_siblings'] = 0;
         }
-        
+
         if(isset($this->request->data['suffix_permanent_users'])){
             $this->request->data['suffix_permanent_users'] = 1;
         }else{
             $this->request->data['suffix_permanent_users'] = 0;
         }
-        
+
         if(isset($this->request->data['suffix_vouchers'])){
             $this->request->data['suffix_vouchers'] = 1;
         }else{
@@ -1125,7 +1125,7 @@ class RealmsController extends AppController {
             $message = "Single item ".$this->data['id'];
             $this->Realm->id = $this->data['id'];
             $this->Realm->delete($this->Realm->id,true);
-      
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
                 $this->Realm->id = $d['id'];
@@ -1173,7 +1173,7 @@ class RealmsController extends AppController {
 				$items['owner']                     = $owner_tree;
             }
         }
-        
+
         $this->set(array(
             'data'     => $items,
             'success'   => true,
@@ -1194,7 +1194,7 @@ class RealmsController extends AppController {
 
         //Now add....
         $data['photo_file_name']  = $unique.'.'.$path_parts['extension'];
-       
+
         $this->{$this->modelClass}->id = $this->request->data['id'];
        // $this->{$this->modelClass}->saveField('photo_file_name', $unique.'.'.$path_parts['extension']);
         if($this->{$this->modelClass}->saveField('icon_file_name', $unique.'.'.$path_parts['extension'])){
@@ -1223,7 +1223,7 @@ class RealmsController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $realm_id = $this->request->query['for_id'];
-            $q_r    = $this->Realm->RealmNote->find('all', 
+            $q_r    = $this->Realm->RealmNote->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('RealmNote.realm_id' => $realm_id)
@@ -1236,8 +1236,8 @@ class RealmsController extends AppController {
                     $afs        = $this->_get_action_flags($owner_id,$user);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => $afs['delete']
@@ -1245,7 +1245,7 @@ class RealmsController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -1276,7 +1276,7 @@ class RealmsController extends AppController {
 
         $success    = false;
         $msg        = array('message' => __('Could not create note'));
-        $this->Realm->RealmNote->Note->create(); 
+        $this->Realm->RealmNote->Note->create();
         //print_r($this->request->data);
         if ($this->Realm->RealmNote->Note->save($this->request->data)) {
             $d                      = array();
@@ -1319,7 +1319,7 @@ class RealmsController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->Realm->RealmNote->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -1333,7 +1333,7 @@ class RealmsController extends AppController {
                 $this->Realm->RealmNote->Note->id = $this->data['id'];
                 $this->Realm->RealmNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -1350,7 +1350,7 @@ class RealmsController extends AppController {
                     $this->Realm->RealmNote->Note->id = $d['id'];
                     $this->Realm->RealmNote->Note->delete($d['id'],true);
                 }
-   
+
             }
         }
 
@@ -1396,7 +1396,7 @@ class RealmsController extends AppController {
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnGraph'),'scale' => 'large', 'itemId' => 'graph',    'tooltip'=> __('Graphs')),
                     array('xtype' => 'button', 'glyph'     => Configure::read('icnCamera'),'scale' => 'large', 'itemId' => 'logo',     'tooltip'=> __('Edit logo')),
                 ))
-                
+
             );
         }
 
@@ -1407,59 +1407,59 @@ class RealmsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
-                'glyph'     => Configure::read('icnReload'), 
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnAdd'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnDelete'), 
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnEdit'),    
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
-            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
-                        'glyph'     => Configure::read('icnNote'),     
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',      
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 
-            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){ 
+            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnCsv'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnCsv'),
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 
@@ -1468,20 +1468,20 @@ class RealmsController extends AppController {
                         array('xtype' => 'buttongroup','title' => __('Document'),   'items' => $document_group),
                         array('xtype' => 'buttongroup','title' => __('More'), 'items' => array(
                             array(
-                                'xtype'     => 'button', 
+                                'xtype'     => 'button',
                                 'glyph'     => Configure::read('icnGraph'),
-                                'scale'     => 'large', 
-                                'itemId'    => 'graph',    
+                                'scale'     => 'large',
+                                'itemId'    => 'graph',
                                 'tooltip'   => __('Graphs')
                             ),
                             array(
-                                'xtype'     => 'button', 
+                                'xtype'     => 'button',
                                 'glyph'     => Configure::read('icnCamera'),
-                                'scale'     => 'large', 
-                                'itemId'    => 'logo',     
+                                'scale'     => 'large',
+                                'itemId'    => 'logo',
                                 'tooltip'   => __('Edit logo')
                             ),
-                        ))        
+                        ))
                    );
         }
         $this->set(array(
@@ -1533,7 +1533,7 @@ class RealmsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -1554,7 +1554,7 @@ class RealmsController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -1569,7 +1569,7 @@ class RealmsController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -1609,11 +1609,11 @@ class RealmsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
+                }
             }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));   
-        }       
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
         //====== END AP FILTER =====
 
         return $c;
@@ -1643,7 +1643,7 @@ class RealmsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 

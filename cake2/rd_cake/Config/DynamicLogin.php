@@ -3,7 +3,7 @@
 //The "Custom" theme will still redirect to the browser detection page but will redirect based on the page settings defined in the DB
 
 $config['DynamicLogin']['theme']['Custom'] = array(
-	
+
 );
 
 

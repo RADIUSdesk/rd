@@ -22,8 +22,8 @@ class PhraseValuesController extends AppController {
 
         $this->set(array(
             'data'          => array(
-                                'phrases'       => $phrases, 
-                                'languages'     => $languages, 
+                                'phrases'       => $phrases,
+                                'languages'     => $languages,
                                 'selLanguage'   => $selLanguage
                             ),
             'success'       => true,
@@ -58,7 +58,7 @@ class PhraseValuesController extends AppController {
 
         $new_lang_id = false;
         if($q_r){
-           $new_lang_id = $q_r['Language']['id']; 
+           $new_lang_id = $q_r['Language']['id'];
         }else{
             if ($this->PhraseValue->Language->save($this->request->data)) {
                 $new_lang_id = $this->PhraseValue->Language->id;
@@ -134,7 +134,7 @@ class PhraseValuesController extends AppController {
         if ($this->PhraseValue->PhraseKey->save($this->request->data)) {
             //Add this key to each distinct Country / Language combination in the PhraseValues table
             $new_key_id = $this->PhraseValue->PhraseKey->id;
-            $q = $this->PhraseValue->find('all', 
+            $q = $this->PhraseValue->find('all',
                 array('fields' => array('DISTINCT PhraseValue.language_id, PhraseValue.country_id')));
             foreach($q as $i){
                 $this->PhraseValue->create();
@@ -173,7 +173,7 @@ class PhraseValuesController extends AppController {
                 'success'       => true,
             '_serialize' => array('items','success')
             ));
-            return; 
+            return;
         }
 
         $eng_flag = false;
@@ -181,12 +181,12 @@ class PhraseValuesController extends AppController {
         $this->PhraseValue->Country->contain();
         $eng_country    = $this->PhraseValue->Country->findByIsoCode($this->engCountry_iso,'Country.id');
         $eng_country    = $eng_country['Country']['id'];
-        
+
         $this->PhraseValue->Language->contain();
         $eng_language   = $this->PhraseValue->Language->findByIsoCode($this->engLanguage_iso,'Language.id');
         $eng_language   = $eng_language['Language']['id'];
 
-        
+
         $country_language   = explode( '_', $language );
         $country            = $country_language[0];
         $language           = $country_language[1];
@@ -225,7 +225,7 @@ class PhraseValuesController extends AppController {
                                     )
                                 )
                             )
-                            
+
                         )
                     )
             )));
@@ -265,12 +265,12 @@ class PhraseValuesController extends AppController {
                 print("Blank value");
             }else{
                 //push to array and clear the blank flag
-                array_push($return_items, 
+                array_push($return_items,
                     array(  'id'        => $phrase_id,  'key'       => $key_name,
                             'comment'   => $key_comment, 'english'  => $eng_phrase,
                             'translated'=> $trans_phrase, 'key_id'  => $key_id
                      ));
-                $phrase_id = false;  
+                $phrase_id = false;
             }
         }
 
@@ -278,7 +278,7 @@ class PhraseValuesController extends AppController {
             'items'         => $return_items,
             'success'       => true,
             '_serialize' => array('items','success')
-        )); 
+        ));
     }
 
     function update_phrase($id){

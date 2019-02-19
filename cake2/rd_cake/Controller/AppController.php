@@ -48,9 +48,9 @@ class AppController extends Controller {
     public function beforeFilter() {
 
         //If it was requested as a POST or PUT it will be in the $this->data array
-        
+
         //____POTENTIAL PUT BUG____
-        //WARNING It looks like PUT request is not converted correct but rather kept in JSON 
+        //WARNING It looks like PUT request is not converted correct but rather kept in JSON
         if ($this->request->is('put')) {
             if(!is_array($this->request->data)){
                 $converted = json_decode($this->request->data,true);
@@ -71,8 +71,8 @@ class AppController extends Controller {
         if(array_key_exists('sel_language',$this->request->query)){
             $language = $this->request->query['sel_language'];
             $this->_set_language($language);
-        }   
- 
+        }
+
     }
 
     private function _set_language($language){
@@ -99,7 +99,7 @@ class AppController extends Controller {
 
     protected function _ap_right_check(){
         //This is a common function which will check the right for an access provider on the called action.
-        //We have this as a common function but beware that each controlleer which uses it; 
+        //We have this as a common function but beware that each controlleer which uses it;
         //have to set the value of 'base' in order for it to work correct.
 
         $action = $this->request->action;
@@ -128,7 +128,7 @@ class AppController extends Controller {
 
     protected function _test_for_private_parent($item,$user){
 
-        
+
         //Most tables that has entries which belongs to an Access Provider as the user_id also includes
         // and available_to_siblings flag which if not set; makes the entry private
         // This piece of code will take the current user making the request; and compare it with fields in an entry from a table
@@ -136,10 +136,10 @@ class AppController extends Controller {
         if($user['group_name'] == Configure::read('group.admin')){  //Admin
             return false;
         }
-        
+
 
         if($user['group_name'] == Configure::read('group.ap')){  //AP
- 
+
             $user_id = $user['id'];
             $owner_id= $item['user_id'];
             $open    = $item['available_to_siblings'];
@@ -189,11 +189,11 @@ class AppController extends Controller {
     */
     protected function cleanupTmp( $tmp_file='' ) {
         $realpath = realpath( $tmp_file );
-         
+
         if ( substr( $realpath, 0, strlen( TMP ) ) != TMP ) {
             throw new Exception('I refuse to delete a file outside of ' . TMP );
         }
-         
+
         if ( file_exists( $tmp_file ) ) {
             unlink( $tmp_file );
         }

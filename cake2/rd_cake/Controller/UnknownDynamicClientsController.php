@@ -19,8 +19,8 @@ class UnknownDynamicClientsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -37,23 +37,23 @@ class UnknownDynamicClientsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
 
         $items      = array();
-        
+
         App::uses('GeoIpLocation', 'GeoIp.Model');
         $GeoIpLocation = new GeoIpLocation();
 
         foreach($q_r as $i){
             $location = $GeoIpLocation->find($i['UnknownDynamicClient']['last_contact_ip']);
-                   
+
             //Some defaults:
             $country_code = '';
             $country_name = '';
             $city         = '';
             $postal_code  = '';
-            
+
             if(array_key_exists('GeoIpLocation',$location)){
                 if($location['GeoIpLocation']['country_code'] != ''){
                     $country_code = utf8_encode($location['GeoIpLocation']['country_code']);
@@ -73,16 +73,16 @@ class UnknownDynamicClientsController extends AppController {
                 'id'                    => $i['UnknownDynamicClient']['id'],
                 'nasidentifier'         => $i['UnknownDynamicClient']['nasidentifier'],
                 'calledstationid'       => $i['UnknownDynamicClient']['calledstationid'],
-                'last_contact'          => $i['UnknownDynamicClient']['last_contact'], 
+                'last_contact'          => $i['UnknownDynamicClient']['last_contact'],
                 'last_contact_ip'       => $i['UnknownDynamicClient']['last_contact_ip'],
-                'last_contact_human'    => $this->TimeCalculations->time_elapsed_string($i['UnknownDynamicClient']['last_contact']), 
+                'last_contact_human'    => $this->TimeCalculations->time_elapsed_string($i['UnknownDynamicClient']['last_contact']),
                 'country_code'          => $country_code,
                 'country_name'          => $country_name,
                 'city'                  => $city,
                 'postal_code'           => $postal_code
             ));
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -92,8 +92,8 @@ class UnknownDynamicClientsController extends AppController {
         ));
     }
 
-   
-   
+
+
 
     public function delete($id = null) {
 		if (!$this->request->is('post')) {
@@ -109,11 +109,11 @@ class UnknownDynamicClientsController extends AppController {
         $user_id    = $user['id'];
         $fail_flag = false;
 
-	    if(isset($this->data['id'])){   //Single item delete    
+	    if(isset($this->data['id'])){   //Single item delete
             $this->{$this->modelClass}->id = $this->data['id'];
             $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
         }else{                          //Assume multiple item delete
-            foreach($this->data as $d){   
+            foreach($this->data as $d){
                 $this->{$this->modelClass}->id = $d['id'];
                 $this->{$this->modelClass}->delete($this->{$this->modelClass}->id, true);
             }
@@ -174,37 +174,37 @@ class UnknownDynamicClientsController extends AppController {
 
 		$menu = array(
                 array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
-                     array( 
-                        'xtype'     =>  'splitbutton',  
+                     array(
+                        'xtype'     =>  'splitbutton',
                         'iconCls'   => 'b-reload',
-                        'glyph'     => Configure::read('icnReload'),   
-                        'scale'     => 'large', 
-                        'itemId'    => 'reload',   
+                        'glyph'     => Configure::read('icnReload'),
+                        'scale'     => 'large',
+                        'itemId'    => 'reload',
                         'tooltip'   => __('Reload'),
-                            'menu'  => array( 
-                                'items' => array( 
+                            'menu'  => array(
+                                'items' => array(
                                     '<b class="menu-title">'.__('Reload every').':</b>',
                                     array( 'text'  => __('30 seconds'),      'itemId'    => 'mnuRefresh30s', 'group' => 'refresh','checked' => false ),
                                     array( 'text'  => __('1 minute'),        'itemId'    => 'mnuRefresh1m', 'group' => 'refresh' ,'checked' => false),
                                     array( 'text'  => __('5 minutes'),       'itemId'    => 'mnuRefresh5m', 'group' => 'refresh', 'checked' => false ),
                                     array( 'text'  => __('Stop auto reload'),'itemId'    => 'mnuRefreshCancel', 'group' => 'refresh', 'checked' => true )
-                                   
+
                                 )
                             )
                     ),
                     array(
-                        'xtype' => 'button', 
-                        'glyph'     => Configure::read('icnAttach'), 
-                        'scale' => 'large', 
-                        'itemId' => 'attach',      
+                        'xtype' => 'button',
+                        'glyph'     => Configure::read('icnAttach'),
+                        'scale' => 'large',
+                        'itemId' => 'attach',
                         'tooltip'=> __('Attach')
                     ),
                     array(
-                        'xtype' => 'button', 
-                        'glyph'     => Configure::read('icnDelete'), 
-                        'scale' => 'large', 'itemId' => 'delete',   
+                        'xtype' => 'button',
+                        'glyph'     => Configure::read('icnDelete'),
+                        'scale' => 'large', 'itemId' => 'delete',
                         'tooltip'=> __('Delete')
-                    ),    
+                    ),
                 )),
             );
 
@@ -219,19 +219,19 @@ class UnknownDynamicClientsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
-       
+
         //===== SORT =====
         //Default values for sort and dir
         $sort   = 'UnknownDynamicClient.last_contact';
         $dir    = 'DESC';
 
-        if(isset($this->request->query['sort'])){ 
+        if(isset($this->request->query['sort'])){
             $sort = $this->modelClass.'.'.$this->request->query['sort'];
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -255,7 +255,7 @@ class UnknownDynamicClientsController extends AppController {
                 }
             }
         }
-        //====== END REQUEST FILTER =====  
+        //====== END REQUEST FILTER =====
         return $c;
     }
 }

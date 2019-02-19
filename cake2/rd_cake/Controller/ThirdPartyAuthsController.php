@@ -5,16 +5,16 @@ App::uses('AppController', 'Controller');
 class ThirdPartyAuthsController extends AppController {
 
 	//------------------------------------------------------------------------------------
-	//--This is the place where we will redirect a user to after they authenticated fine-- 
+	//--This is the place where we will redirect a user to after they authenticated fine--
 	//--using an OAuth service------------------------------------------------------------
 	//------------------------------------------------------------------------------------
 	public function opauth_complete() {
 
 		//During initial authentication we set a session variable which we can then use again here to redirect the user back to their login page
 		$qs = CakeSession::read('rd.qs');
-		
 
-		//Build the URL	
+
+		//Build the URL
 		$query = $this->_queryToArray($qs);
 		$new_query_string = "";
 		$following = false;
@@ -30,7 +30,7 @@ class ThirdPartyAuthsController extends AppController {
 				($k != 'sl_type')&&
 				($k != 'sl_value')&&
 				($k != 'sl_name')
-			){ 
+			){
 				if($following){
 					$new_query_string = $new_query_string."&".$k."=".$query["$k"];
 				}else{ //First time
@@ -48,7 +48,7 @@ class ThirdPartyAuthsController extends AppController {
 			$record_info = false;
 
 			$conditions = array("OR" =>array());
-      
+
 		    foreach(array_keys($wanted_query_items) as $key){
 		        array_push($conditions["OR"],
 		            array("DynamicPair.name" => $key, "DynamicPair.value" =>  $wanted_query_items[$key])
@@ -60,11 +60,11 @@ class ThirdPartyAuthsController extends AppController {
 				array('DynamicDetail' => array('DynamicDetailSocialLogin'))
 			);
 
-		    $q_r = $this->DynamicDetail->DynamicPair->find('first', 
+		    $q_r = $this->DynamicDetail->DynamicPair->find('first',
 		        array('conditions' => $conditions, 'order' => 'DynamicPair.priority DESC')); //Return the one with the highest priority
 			//print_r($q_r);
 
-			//Loop through all the DynamicDetailSocialLogin entries and see if one compares with 
+			//Loop through all the DynamicDetailSocialLogin entries and see if one compares with
 			//$this->data[auth][provider]
 			$social_login_info = array();
 			foreach($q_r['DynamicDetail']['DynamicDetailSocialLogin'] as $i){
@@ -75,7 +75,7 @@ class ThirdPartyAuthsController extends AppController {
 				}
 			}
 
-			if(array_key_exists('type',$social_login_info)){ 
+			if(array_key_exists('type',$social_login_info)){
 				//There was a hit now we need to check if there are either a Voucher or Permanent User
 				//With extra_name = $this->data['auth']['provider'] and extra_value = ($social_login_info['dynamic_detail_id']."_".
 				//$this->data['auth']['uid']
@@ -92,7 +92,7 @@ class ThirdPartyAuthsController extends AppController {
 				if($type == 'voucher'){
 					$this->Voucher = ClassRegistry::init('Voucher');
 					$this->Voucher->contain();
-					$q_voucher =  $this->Voucher->find('first', 
+					$q_voucher =  $this->Voucher->find('first',
 						array('conditions' => array('Voucher.extra_name' => $extra_name,'Voucher.extra_value'=> $extra_value)));
 					if(!$q_voucher){
 						$social_login_info['extra_name'] 	= $extra_name;
@@ -105,19 +105,19 @@ class ThirdPartyAuthsController extends AppController {
 				if($type == 'user'){
 					$this->PermanentUser = ClassRegistry::init('PermanentUser');
 					$this->PermanentUser->contain();
-					$q_user =  $this->PermanentUser->find('first', 
+					$q_user =  $this->PermanentUser->find('first',
 						array('conditions' => array('PermanentUser.extra_name' => $extra_name,'PermanentUser.extra_value'=> $extra_value)));
 					if(!$q_user){
 						$social_login_info['extra_name'] 	= $extra_name;
 						$social_login_info['extra_value'] 	= $extra_value;
 						$social_login_info['user_id'] 		= intval($q_r['DynamicDetail']['user_id']);
 						//Some personal info
-											
+
 						$social_login_info['name']    = '';
 						if(array_key_exists('first_name',$this->data['auth']['info'])){
 							$social_login_info['name'] 	= $this->data['auth']['info']['first_name'];
 						}
-						
+
 						$social_login_info['surname']	    = '';
 						if(array_key_exists('last_name',$this->data['auth']['info'])){
 							$social_login_info['surname']   = $this->data['auth']['info']['last_name'];
@@ -139,11 +139,11 @@ class ThirdPartyAuthsController extends AppController {
 				//Check if there is a realm entry for this user and if not add it
 				$this->SocialLoginUserRealm = ClassRegistry::init('SocialLoginUserRealm');
 				$this->SocialLoginUserRealm->contain();
-				$count = $this->SocialLoginUserRealm->find('count', 
+				$count = $this->SocialLoginUserRealm->find('count',
 				    array('conditions' => array(
 				            'SocialLoginUserRealm.realm_id' => $realm_id,
 				            'SocialLoginUserRealm.social_login_user_id' => $social_login_user_id,
-				        )  
+				        )
 				    )
 		        );
 		        if($count == 0){    //If not found we need to add it since we want to tie it to a real in order to filter the list for Access Providers
@@ -182,7 +182,7 @@ class ThirdPartyAuthsController extends AppController {
                 ));
 				return;
 			}
-			
+
 			if($this->request->query['sl_type'] == 'user'){
 				$user_info = $this->_find_username_and_password($this->request->query['sl_name'],$this->request->query['sl_value']);
 				$this->set(array(
@@ -198,7 +198,7 @@ class ThirdPartyAuthsController extends AppController {
 				'success'   => false,
 				'errors'	=> array('errors' => "Missing values in query string"),
 				'_serialize' => array('success','errors')
-			));	
+			));
 			return;
 		}
 	}
@@ -234,7 +234,7 @@ class ThirdPartyAuthsController extends AppController {
 
 		$postData = array(
 			'extra_name'	=>	$i['extra_name'],
-			'extra_value'	=>  $i['extra_value'],	
+			'extra_value'	=>  $i['extra_value'],
 			'never_expire'	=>	'never_expire',
 			'profile_id'	=>  intval($i['profile_id']),
 			'quantity'		=>	1,
@@ -247,7 +247,7 @@ class ThirdPartyAuthsController extends AppController {
 		// Setup cURL
         $ch = curl_init($url);
         curl_setopt_array($ch, array(
-         
+
             CURLOPT_POST            => TRUE,
             CURLOPT_RETURNTRANSFER  => TRUE,
             CURLOPT_HTTPHEADER => array(
@@ -289,7 +289,7 @@ class ThirdPartyAuthsController extends AppController {
 		// Setup cURL
         $ch = curl_init($url);
         curl_setopt_array($ch, array(
-         
+
             CURLOPT_POST            => TRUE,
             CURLOPT_RETURNTRANSFER  => TRUE,
             CURLOPT_HTTPHEADER => array(
@@ -308,14 +308,14 @@ class ThirdPartyAuthsController extends AppController {
        // $possible = "!#$%^&*()+=?0123456789bBcCdDfFgGhHjJkmnNpPqQrRstTvwxyz";
         $possible = "0123456789bBcCdDfFgGhHjJkmnNpPqQrRstTvwxyz";
         // set up a counter
-        $i = 0; 
+        $i = 0;
         // add random characters to $password until $length is reached
-        while ($i < $length) { 
+        while ($i < $length) {
 
             // pick a random character from the possible ones
             $char = substr($possible, mt_rand(0, strlen($possible)-1), 1);
             // we don't want this character if it's already in the password
-            if (!strstr($password, $char)) { 
+            if (!strstr($password, $char)) {
                 $password .= $char;
                 $i++;
             }
@@ -335,7 +335,7 @@ class ThirdPartyAuthsController extends AppController {
 			$user_data['username'] = $un;
 			$this->Radcheck = ClassRegistry::init('Radcheck');
 
-			$q_pw = $this->Radcheck->find('first', 
+			$q_pw = $this->Radcheck->find('first',
 				array('conditions' => array('Radcheck.username' => $un,'Radcheck.attribute' => 'Cleartext-Password'))
 			);
 
@@ -358,7 +358,7 @@ class ThirdPartyAuthsController extends AppController {
 			$voucher_data['username'] = $un;
 			$this->Radcheck = ClassRegistry::init('Radcheck');
 
-			$q_pw = $this->Radcheck->find('first', 
+			$q_pw = $this->Radcheck->find('first',
 				array('conditions' => array('Radcheck.username' => $un,'Radcheck.attribute' => 'Cleartext-Password'))
 			);
 
@@ -374,7 +374,7 @@ class ThirdPartyAuthsController extends AppController {
 		$common_info 	= array('image', 'name', 'first_name', 'last_name', 'email');
 
 		$facebook_info 	= array('gender','locale','timezone');
-		$google_info	= array('locale','timezone'); 
+		$google_info	= array('locale','timezone');
 
 		//First check if there are a social_login_user with this uuid from the provider and then update the entry
 		$provider 	= $this->data['auth']['provider'];
@@ -386,12 +386,12 @@ class ThirdPartyAuthsController extends AppController {
 		$data['uid']        = $uid;
 
 		$this->SocialLoginUser = ClassRegistry::init('SocialLoginUser');
-		$q_r = $this->SocialLoginUser->find('first',array('conditions' 
+		$q_r = $this->SocialLoginUser->find('first',array('conditions'
 			=> array('SocialLoginUser.provider' => $provider,'SocialLoginUser.uid' =>$uid)
 		));
 
 		if($q_r){
-			$data['id']     = $q_r['SocialLoginUser']['id'];	
+			$data['id']     = $q_r['SocialLoginUser']['id'];
 		}
 
 		//Common info
@@ -407,7 +407,7 @@ class ThirdPartyAuthsController extends AppController {
 				if(array_key_exists($f,$this->data['auth']['raw'])){
 					$data["$f"] = $this->data['auth']['raw']["$f"];
 				}
-			}	
+			}
 		}
 
 		//Gather the data
@@ -416,14 +416,14 @@ class ThirdPartyAuthsController extends AppController {
 				if(array_key_exists($g,$this->data['auth']['raw'])){
 					$data["$g"] = $this->data['auth']['raw']["$g"];
 				}
-			}	
+			}
 		}
 
 		//Update the last_connect_time
-		$data['last_connect_time'] =date('Y-m-d H:i:s'); 
+		$data['last_connect_time'] =date('Y-m-d H:i:s');
 		//Save the data
 		$this->SocialLoginUser->save($data);
-		
+
 		//--Return the ID--
 		return $this->SocialLoginUser->getID();
 	}

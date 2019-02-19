@@ -6,16 +6,16 @@ class ApsController extends AppController {
     public $name        = 'Aps';
     public $uses        = array('Ap', 'UnknownAp','User','Na','ApProfileSetting','ApStation','ApProfileEntry','OpenvpnServer');
     public $components  = array('MacVendors','Aa','Formatter','TimeCalculations','GridFilter');
-    
+
     protected $base     = "Access Providers/Controllers/Aps/";
-    
+
     protected $ApId     = '';
 	protected $Hardware = 'dragino'; //Some default value
 	protected $Power	= '10'; //Some default
     protected $RadioSettings = array();
-    
+
     protected $special_mac = "30-B5-C2-B3-80-B1"; //hack
-    
+
     public function get_config_for_ap(){
 
         if(isset($this->request->query['mac'])){
@@ -34,7 +34,7 @@ class ApsController extends AppController {
                 $this->ApId     = $q_r['Ap']['id'];
                 $this->Mac      = $mac;
 				$this->Hardware	= $q_r['Ap']['hardware'];
-				
+
                 $this->Ap->ApProfile->contain(
                     'ApProfileExit.ApProfileExitApProfileEntry',
                     'ApProfileEntry',
@@ -47,7 +47,7 @@ class ApsController extends AppController {
 
                 $ap_profile['ApDetail'] = $q_r['Ap'];
                //// print_r($ap_profile);
-                
+
 
 				//Update the last_contact field
 				$data = array();
@@ -55,7 +55,7 @@ class ApsController extends AppController {
 				$data['last_contact']	        = date("Y-m-d H:i:s", time());
 				$data['last_contact_from_ip']   = $this->request->clientIp();
 				$this->Ap->save($data);
-               
+
                 $json = $this->_build_json($ap_profile);
                 $this->set(array(
                     'config_settings'   => $json['config_settings'],
@@ -63,7 +63,7 @@ class ApsController extends AppController {
                     'success' => true,
                     '_serialize' => array('config_settings','success','timestamp')
                 ));
-                
+
             }else{
                 //Write this to an "unknown nodes" table....
 				$ip 					        = $this->request->clientIp();
@@ -73,7 +73,7 @@ class ApsController extends AppController {
 				$data['last_contact']	        = date("Y-m-d H:i:s", time());
 
 				$q_r 	= $this->UnknownAp->find('first',array('conditions' => array('UnknownAp.mac' => $mac)));
-				
+
 				$include_new_server     = false;
 
 				if($q_r){
@@ -105,7 +105,7 @@ class ApsController extends AppController {
                     ));
                 }
             }
-        }else{  			
+        }else{
              $this->set(array(
                 'error' => "MAC Address of node not specified",
                 'success' => false,
@@ -113,7 +113,7 @@ class ApsController extends AppController {
             ));
         }
     }
-    
+
      //This we can just accept... i think
     public function redirect_unknown(){
         $this->request->data['new_server_status'] = 'awaiting';
@@ -128,7 +128,7 @@ class ApsController extends AppController {
             '_serialize' => array('success')
         ));
     }
-    
+
     //____ BASIC CRUD Manager ________
     public function index(){
 
@@ -138,8 +138,8 @@ class ApsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-        $c = $this->_build_common_query($user); 
-		
+        $c = $this->_build_common_query($user);
+
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
         $page   = 1;
@@ -154,18 +154,18 @@ class ApsController extends AppController {
         $c_page['page']     = $page;
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
-        
-        $OpenvpnServerLookup= array();
-        	
 
-        $total  = $this->Ap->find('count',$c);      
+        $OpenvpnServerLookup= array();
+
+
+        $total  = $this->Ap->find('count',$c);
         $q_r    = $this->Ap->find('all',$c_page);
 
         $items      = array();
-        
+
         //Create a hardware lookup for proper names of hardware
-	    $hardware = $this->_make_hardware_lookup();  
-        
+	    $hardware = $this->_make_hardware_lookup();
+
         App::uses('GeoIpLocation', 'GeoIp.Model');
         $GeoIpLocation = new GeoIpLocation();
 
@@ -173,16 +173,16 @@ class ApsController extends AppController {
 
             $owner_id       = $i['ApProfile']['user_id'];
             $owner_tree     = $this->_find_parents($owner_id);
-            $action_flags   = $this->_get_action_flags($owner_id,$user); 
-            
-            
+            $action_flags   = $this->_get_action_flags($owner_id,$user);
+
+
             //----
             //Some defaults:
             $country_code = '';
             $country_name = '';
             $city         = '';
             $postal_code  = '';
-            
+
             if($i['Ap']['last_contact_from_ip'] != null){
                 $location = $GeoIpLocation->find($i['Ap']['last_contact_from_ip']);
                 if(array_key_exists('GeoIpLocation',$location)){
@@ -200,15 +200,15 @@ class ApsController extends AppController {
                     }
                 }
             }
-            //----  
-            
-            			
+            //----
+
+
 			$hw_id 		    = $i['Ap']['hardware'];
 			$hw_human	    = $hardware["$hw_id"]; 	//Human name for Hardware
 			$ap_profile_id  = $i['ApProfile']['id'];
-			
+
 			$l_contact      = $i['Ap']['last_contact'];
-		
+
 			//Get the 'dead_after' value
 		    $dead_after = $this->_get_dead_after($ap_profile_id);
             if($l_contact == null){
@@ -221,15 +221,15 @@ class ApsController extends AppController {
                     $state = 'up';
                 }
             }
-            
+
             $ap_id      = $i['Ap']["id"];
             $modified 	= $this->_get_timespan(); //Default will be an hour
-            
+
             $this->ApProfileEntry->contain();
             $q_e = $this->ApProfileEntry->find('all', array('conditions'=>array('ApProfileEntry.ap_profile_id' => $ap_profile_id)));
             $entries_list = array();
-             
-            
+
+
             $this->ApStation->contain('ApProfileEntry.name');
             $q_s = $this->ApStation->find('all',array(
                 'conditions'    => array(
@@ -240,34 +240,34 @@ class ApsController extends AppController {
                     'DISTINCT(mac)'
                 )
             ));
-            
+
             $array_ssids = array();
             foreach($q_e as $e){
                 $name = $e['ApProfileEntry']['name'];
                 array_push($array_ssids, array('name' => $name,'users' => 0));
             }
-            
-            $ssid_devices = array();    
+
+            $ssid_devices = array();
             foreach($q_s as $s){
                 $mac = $s['ApStation']['mac'];
                 $name  = $s['ApProfileEntry']['name'];
                 if(array_key_exists($name,$ssid_devices)){
-                    $ssid_devices["$name"] =  $ssid_devices["$name"] + 1;  
+                    $ssid_devices["$name"] =  $ssid_devices["$name"] + 1;
                 }else{
                     $ssid_devices["$name"] = 1;
                 }
             }
-            
+
             $c = 0;
             foreach($array_ssids as $ssid){
                 $n = $ssid['name'];
                 if(array_key_exists($n,$ssid_devices)){
                     $users = $ssid_devices["$n"];
                     $array_ssids[$c] = array('name' => $n,'users' => $users);
-                }              
+                }
                 $c++;
             }
-            
+
             //Get the newest visitor
             $this->ApStation->contain();
             $q_mac = $this->ApStation->find('first',array(
@@ -276,7 +276,7 @@ class ApsController extends AppController {
                     ),
                     'order' => array('ApStation.created' => 'desc')
                 ));
-            
+
             $newest_vendor  = "N/A";
             $newest_time    = "N/A";
             $newest_station = "N/A";
@@ -286,7 +286,7 @@ class ApsController extends AppController {
                 $newest_time    = $this->TimeCalculations->time_elapsed_string($q_mac['ApStation']['modified']);
                 $newest_station = $q_mac['ApStation']['mac'];
             }
-            
+
             //Get data usage
             $this->ApStation->contain();
             $q_t = $this->ApStation->find('first', array(
@@ -299,14 +299,14 @@ class ApsController extends AppController {
                             'SUM(ApStation.rx_bytes)as rx_bytes'
                         )
                     ));
-                    
+
             $data_past_hour = '0kb';
             if($q_t){
                  $t_bytes    = $q_t[0]['tx_bytes'];
-                 $r_bytes    = $q_t[0]['rx_bytes'];    
+                 $r_bytes    = $q_t[0]['rx_bytes'];
                   $data_past_hour = $this->Formatter->formatted_bytes(($t_bytes+$r_bytes));
             }
-            
+
             //Merge the last command (if present)
 			if(count($i['ApAction'])>0){
 				$last_action = $i['ApAction'][0];
@@ -314,26 +314,26 @@ class ApsController extends AppController {
 				$i['Ap']['last_cmd'] 			= $last_action['command'];
 				$i['Ap']['last_cmd_status'] 	= $last_action['status'];
 			}
-			
+
 			//List any OpenVPN connections
-			
+
 			if(count($i['OpenvpnServerClient'])>0){
 			    $i['Ap']['openvpn_list'] = array();
-		        foreach($i['OpenvpnServerClient'] as $vpn){ 
+		        foreach($i['OpenvpnServerClient'] as $vpn){
 		            //Do a lookup to save Query time
 		            $s_id = $vpn['openvpn_server_id'];
 		            if(!isset($OpenvpnServerLookup[$s_id])){
 		                $this->OpenvpnServer->contain();
 		                $q_s                = $this->OpenvpnServer->findById($vpn['openvpn_server_id']);
-		                $vpn_name           = $q_s['OpenvpnServer']['name']; 
+		                $vpn_name           = $q_s['OpenvpnServer']['name'];
                         $vpn_description    = $q_s['OpenvpnServer']['description'];
 		                $l_array = array('name' => $vpn_name, 'description' => $vpn_description);
 		                $OpenvpnServerLookup[$s_id] = $l_array;
 		            }else{
-		                $vpn_name           = $OpenvpnServerLookup[$s_id]['name']; 
+		                $vpn_name           = $OpenvpnServerLookup[$s_id]['name'];
                         $vpn_description    = $OpenvpnServerLookup[$s_id]['description'];
 		            }
-		               
+
                     $last_contact_to_server  = $vpn['last_contact_to_server'];
                     if($last_contact_to_server != null){
                         $lc_human           = $this->TimeCalculations->time_elapsed_string($last_contact_to_server);
@@ -347,14 +347,14 @@ class ApsController extends AppController {
                         'lc_human'      => $lc_human,
                         'state'         => $vpn_state
                     ));
-                    }	
-			}	
-                
+                    }
+			}
+
 			$i['Ap']['update']      = $action_flags['update'];
             $i['Ap']['delete'] 	    = $action_flags['delete'];
 			$i['Ap']['owner'] 	    = $owner_tree;
 			$i['Ap']['ap_profile']  = $i['ApProfile']['name'];
-			
+
 			$i['Ap']['last_contact_human']  = $this->TimeCalculations->time_elapsed_string($i['Ap']["last_contact"]);
 			$i['Ap']['state']               = $state;
 			$i['Ap']['data_past_hour']      = $data_past_hour;
@@ -364,15 +364,15 @@ class ApsController extends AppController {
 
 			$i['Ap']['hw_human']            = $hw_human;
 			$i['Ap']['ssids']               = $array_ssids;
-			
+
 			$i['Ap']['country_code']        = $country_code;
             $i['Ap']['country_name']        = $country_name;
             $i['Ap']['city']                = $city;
             $i['Ap']['postal_code']         = $postal_code;
-            	
+
             array_push($items,$i['Ap']);
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -381,7 +381,7 @@ class ApsController extends AppController {
             '_serialize' => array('items','success','totalCount')
         ));
     }
-        
+
     //-- List available hardware options --
     public function hardware_options(){
 
@@ -400,7 +400,7 @@ class ApsController extends AppController {
             '_serialize' => array('items','success')
         ));
     }
-    
+
     private function _find_parents($id){
 
         $this->User->contain();//No dependencies
@@ -425,7 +425,7 @@ class ApsController extends AppController {
             return __("orphaned");
         }
     }
-    
+
     private function _is_sibling_of($parent_id,$user_id){
         $this->User->contain();//No dependencies
         $q_r        = $this->User->getPath($user_id);
@@ -438,12 +438,12 @@ class ApsController extends AppController {
         //No match
         return false;
     }
-    
+
     function _build_common_query($user){
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -465,7 +465,7 @@ class ApsController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -474,13 +474,13 @@ class ApsController extends AppController {
         if(isset($this->request->query['filter'])){
             $filter = json_decode($this->request->query['filter']);
             foreach($filter as $f){
-            
+
                 $f = $this->GridFilter->xformFilter($f);
-            
+
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'ap_profile'){
-                        array_push($c['conditions'],array("ApProfile.name LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("ApProfile.name LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -518,12 +518,12 @@ class ApsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array('ApProfile.user_id' => $id));
-                }       
-            }       
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -551,10 +551,10 @@ class ApsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
-    
+
     //___________________ AP Settings and related functions _________________
     private function  _build_json($ap_profile){
 
@@ -579,28 +579,28 @@ class ApsController extends AppController {
         //========== Gateway  ======
         $json['config_settings']['gateways']        = $net_return[2]; //Gateways
         $json['config_settings']['captive_portals'] = $net_return[3]; //Captive portals
-        
+
         $openvpn_bridges                            = $this->_build_openvpn_bridges($net_return[4]);
         $json['config_settings']['openvpn_bridges'] = $openvpn_bridges; //Openvpn Bridges
-        
+
 		//======== System related settings ======
 		$system_data 		= $this->_build_system($ap_profile);
 		$json['config_settings']['system'] = $system_data;
 
-        return $json; 
+        return $json;
     }
-    
+
      private function _build_openvpn_bridges($openvpn_list){
-        $openvpn_bridges = array();    
+        $openvpn_bridges = array();
         foreach($openvpn_list as $o){
-        
-            $br                 = array(); 
+
+            $br                 = array();
             $br['interface']    = $o['interface'];
             $br['up']           = "ap_".$this->Mac."\n".md5("ap_".$this->Mac)."\n";
             $br['ca']           = $o['ca_crt'];
             $br['vpn_gateway_address'] = $o['vpn_gateway_address'];
             $br['vpn_client_id'] = $o['vpn_client_id'];
-            
+
             Configure::load('OpenvpnClientPresets');
             $config_file    = Configure::read('OpenvpnClientPresets.'.$o['config_preset']); //Read the defaults
 
@@ -608,13 +608,13 @@ class ApsController extends AppController {
             $config_file['up']      = '"/etc/openvpn/up.sh br-'.$o['interface'].'"';
             $config_file['proto']   = $o['protocol'];
             $config_file['ca']      = '/etc/openvpn/'.$o['interface'].'_ca.crt';
-            $config_file['auth_user_pass'] = '/etc/openvpn/'.$o['interface'].'_up';  
+            $config_file['auth_user_pass'] = '/etc/openvpn/'.$o['interface'].'_up';
             $br['config_file']      = $config_file;
             array_push($openvpn_bridges,$br);
         }
         return $openvpn_bridges;
     }
-    
+
     private function _build_system($ap_profile){
         //print_r($ap_profile);
 		//Get the root password
@@ -637,10 +637,10 @@ class ApsController extends AppController {
 		    $data = Configure::read('common_ap_settings'); //Read the defaults
 		    $ss['password_hash'] 		= $data['password_hash'];
 		    $ss['heartbeat_interval']	= $data['heartbeat_interval'];
-		    $ss['heartbeat_dead_after']	= $data['heartbeat_dead_after'];   
+		    $ss['heartbeat_dead_after']	= $data['heartbeat_dead_after'];
         }
 
-       
+
         //Timezone
         if(array_key_exists('tz_value', $ap_profile['ApProfileSetting'])) {
             if($ap_profile['ApProfileSetting']['tz_value'] != ''){
@@ -659,7 +659,7 @@ class ApsController extends AppController {
                 $ss['gw_use_previous']          = $ap_profile['ApProfileSetting']['gw_use_previous'];
                 $ss['gw_auto_reboot']           = $ap_profile['ApProfileSetting']['gw_auto_reboot'];
                 $ss['gw_auto_reboot_time']      = $ap_profile['ApProfileSetting']['gw_auto_reboot_time'];
-            } 
+            }
         }else{
             Configure::load('ApProfiles');
 			$data = Configure::read('common_ap_settings'); //Read the defaults
@@ -677,7 +677,7 @@ class ApsController extends AppController {
 		}
 		return $ss;
 	}
-    
+
     private function _build_network($ap_profile){
 
         $network 				= array();
@@ -709,15 +709,15 @@ class ApsController extends AppController {
 		        array(
 		            "interface"    => "lan",
 		            "options"   => array(
-		                "ifname"        => "$br_int", 
+		                "ifname"        => "$br_int",
 		                "type"          => "bridge",
 		                "proto"         => "dhcp"
 		           )
 		   	));
 		}
-		
 
-        //Now we will loop all the defined exits **that has entries assigned** to them and add them as bridges as we loop. 
+
+        //Now we will loop all the defined exits **that has entries assigned** to them and add them as bridges as we loop.
         //The members of these bridges will be determined by which entries are assigned to them and specified
         //in the wireless configuration file
 
@@ -741,21 +741,21 @@ class ApsController extends AppController {
             //This is used to fetch info eventually about the entry points
             if(count($ap_profile_e['ApProfileExitApProfileEntry']) > 0){
                 $has_entries_attached = true;
-                foreach($ap_profile_e['ApProfileExitApProfileEntry'] as $entry){    
+                foreach($ap_profile_e['ApProfileExitApProfileEntry'] as $entry){
                     if($type == 'bridge'){ //The gateway needs the entry points to be bridged to the LAN
                         array_push($entry_point_data,array('network' => 'lan','entry_id' => $entry['ap_profile_entry_id']));
                     }else{
                         array_push($entry_point_data,array('network' => $if_name,'entry_id' => $entry['ap_profile_entry_id']));
-                    }        
+                    }
                 }
             }
-          
+
             if($has_entries_attached == true){
-            
+
                 $captive_portal_count = 1;
-                
+
                 if($type == 'tagged_bridge'){
-                
+
 					$br_int = $this->_eth_br_for($this->Hardware);
 					if(preg_match('/eth1/', $br_int)){	//If it has two add both
                     	$interfaces =  "eth0.".$vlan." eth1.".$vlan;
@@ -799,28 +799,28 @@ class ApsController extends AppController {
                     $current_interfaces = $network[1]['options']['ifname'];
                     $interfaces =  "bridge0.".$start_number;
                     $network[1]['options']['ifname'] = $current_interfaces." ".$interfaces;
-                    
+
                     $start_number++;
                    */
                     continue; //We dont care about the other if's
                 }
 
                 if($type == 'captive_portal'){
-                
+
                     //---WIP Start---
-                    if($ap_profile_e['ApProfileExitCaptivePortal']['dnsdesk'] == true){ 
+                    if($ap_profile_e['ApProfileExitCaptivePortal']['dnsdesk'] == true){
                         $if_ip      = "10.$captive_portal_count.0.2";
                     }
                     $captive_portal_count++; //Up it for the next one
                     //---WIP END---
-                       
-                
+
+
                     //Add the captive portal's detail
                     if($type =='captive_portal'){
                         $a = $ap_profile_e['ApProfileExitCaptivePortal'];
                         $a['hslan_if']      = 'br-'.$if_name;
                         $a['network']       = $if_name;
-                        
+
                         //---WIP Start---
                         if($ap_profile_e['ApProfileExitCaptivePortal']['dnsdesk'] == true){
                             $a['dns1']      = $if_ip;
@@ -829,32 +829,32 @@ class ApsController extends AppController {
                             $a['upstream_dns2'] = Configure::read('dnsfilter.dns2'); //Read the defaults
                         }
                         //---WIP END---
-                        
-                        
+
+
                         //Generate the NAS ID
                         $ap_profile_name    = preg_replace('/\s+/', '_', $ap_profile['ApProfile']['name']);
                         $a['radius_nasid']  = $ap_profile_name.'_'.$ap_profile['ApDetail']['name'].'_cp_'.$ap_profile_e['ApProfileExitCaptivePortal']['ap_profile_exit_id'];
-                        array_push($captive_portal_data,$a);             
+                        array_push($captive_portal_data,$a);
                     }
-                    
+
 
                     if($ap_profile_e['ApProfileExitCaptivePortal']['dnsdesk'] == true){
-                    
+
                         array_push($network,
                             array(
                                 "interface"    => "$if_name",
                                 "options"   => array(
                                     "type"      => "bridge",
                                     "proto"     => "none",
-                                    
+
                                     //---WIP Start--- // Add the special bridged interface IP
                                     "ipaddr"    => "$if_ip",
                                     "netmask"   => "255.255.255.0",
                                     "proto"     => "static",
-                                    //---WIP END--- 
+                                    //---WIP END---
                             ))
-                        ); 
-                    
+                        );
+
                     }else{
                         array_push($network,
                             array(
@@ -862,19 +862,19 @@ class ApsController extends AppController {
                                 "options"   => array(
                                     "type"      => "bridge",
                                     "proto"     => "none"
-     
+
                             ))
-                        ); 
+                        );
                     }
-                        
-                             
+
+
                     $start_number++;
                     continue; //We dont care about the other if's
                 }
-                
-                
+
+
                 //___ OpenVPN Bride ________
-                if($type == 'openvpn_bridge'){               
+                if($type == 'openvpn_bridge'){
                     $openvpn_server_client = ClassRegistry::init('OpenvpnServerClient');
                     $openvpn_server_client->contain();
                     $q_c = $openvpn_server_client->find('first',
@@ -884,26 +884,26 @@ class ApsController extends AppController {
                             'OpenvpnServerClient.ap_id'                 => $this->ApId,
                         ))
                     );
-                    
+
                     $a              = $q_c['OpenvpnServerClient'];
                     $a['bridge']    = 'br-'.$if_name;
                     $a['interface'] = $if_name;
-                    
+
                     //Get the info for the OpenvpnServer
                     $openvpn_server = ClassRegistry::init('OpenvpnServer');
                     $q_s            = $openvpn_server->findById($q_c['OpenvpnServerClient']['openvpn_server_id']);
-                    
+
                     $a['protocol']  = $q_s['OpenvpnServer']['protocol'];
                     $a['ip_address']= $q_s['OpenvpnServer']['ip_address'];
                     $a['port']      = $q_s['OpenvpnServer']['port'];
                     $a['vpn_mask']  = $q_s['OpenvpnServer']['vpn_mask'];
-                    $a['ca_crt']    = $q_s['OpenvpnServer']['ca_crt'];   
-                    
-                    $a['config_preset']         = $q_s['OpenvpnServer']['config_preset'];  
+                    $a['ca_crt']    = $q_s['OpenvpnServer']['ca_crt'];
+
+                    $a['config_preset']         = $q_s['OpenvpnServer']['config_preset'];
                     $a['vpn_gateway_address']   = $q_s['OpenvpnServer']['vpn_gateway_address'];
-                    $a['vpn_client_id']         = $q_c['OpenvpnServerClient']['id'];                     
-                    array_push($openvpn_bridge_data,$a);             
-                    
+                    $a['vpn_client_id']         = $q_c['OpenvpnServerClient']['id'];
+                    array_push($openvpn_bridge_data,$a);
+
                     array_push($network,
                         array(
                             "interface"    => "$if_name",
@@ -912,21 +912,21 @@ class ApsController extends AppController {
                                 'ipaddr'    => $q_c['OpenvpnServerClient']['ip_address'],
                                 'netmask'   => $a['vpn_mask'],
                                 'proto'     => 'static'
-                                
+
                         ))
                     );
                     $start_number++;
                     continue; //We dont care about the other if's
-                }            
+                }
             }
-        } 
+        }
         return array($network,$entry_point_data,$nat_data,$captive_portal_data,$openvpn_bridge_data);
     }
-    
+
     private function _build_wireless($ap_profile,$entry_point_data){
-    
+
         //print_r($entry_point_data);
-    
+
         //First get the WiFi settings wether default or specific
         $this->_setWiFiSettings();
 
@@ -942,29 +942,29 @@ class ApsController extends AppController {
 			return $wireless;
         }
     }
-    
+
     private function _build_single_radio_wireless($ap_profile,$entry_point_data){
-    
+
         //print_r($ap_profile);
 
         $wireless = array();
-        
+
         $channel = 8;
         $hwmode  = '11g';
         $band    = 'two';
-        
+
         if($this->RadioSettings[0]['radio0_band'] == '24'){
             $channel = $this->RadioSettings[0]['radio0_channel_two'];
             $hwmode  = '11g';
             $band   = 'two';
         }
-        
+
         if($this->RadioSettings[0]['radio0_band'] == '5'){
             $channel = $this->RadioSettings[0]['radio0_channel_five'];
             $hwmode  = '11a';
             $band   = 'five';
         }
-        
+
         //Country
         if(array_key_exists('country', $ap_profile['ApProfileSetting'])) {
             if($ap_profile['ApProfileSetting']['country'] != ''){
@@ -1012,11 +1012,11 @@ class ApsController extends AppController {
                 array_push($radio_zero_capab,array('name'    => 'ht_capab', 'value'  => $c));
             }
         }
-        
+
         if(array_key_exists('radio0_disable_b', $this->RadioSettings[0])) {
-            array_push($radio_zero_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000')); 
+            array_push($radio_zero_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000'));
         }
-        
+
         array_push( $wireless,
                 array(
                     "wifi-device"   => "radio0",
@@ -1035,7 +1035,7 @@ class ApsController extends AppController {
                     ),
                     'lists'          => $radio_zero_capab
                 ));
-                
+
         $start_number = 0;
 
         //Check if we need to add this wireless VAP
@@ -1050,9 +1050,9 @@ class ApsController extends AppController {
                     if(
                         ($ap_profile_e['frequency_band'] == 'both')||
                         ($ap_profile_e['frequency_band'] == $band)){
-                        
+
                             //print_r($ap_profile_e);
-                            
+
                             $base_array = array(
                                         "device"        => "radio0",
                                         "ifname"        => "$if_name"."0",
@@ -1066,11 +1066,11 @@ class ApsController extends AppController {
                                         "auth_server"   => $ap_profile_e['auth_server'],
                                         "auth_secret"   => $ap_profile_e['auth_secret']
                                    );
-                        
+
                             if($ap_profile_e['chk_maxassoc']){
                                 $base_array['maxassoc'] = $ap_profile_e['maxassoc'];
                             }
-                            
+
                             if($ap_profile_e['macfilter'] != 'disable'){
                                 $base_array['macfilter']    = $ap_profile_e['macfilter'];
                                 //Replace later
@@ -1088,13 +1088,13 @@ class ApsController extends AppController {
                                     $base_array['maclist'] = implode(" ",$mac_list);
                                 }
                             }
-                        
+
                             array_push( $wireless,
                                 array(
                                     "wifi-iface"    => "$if_name",
                                     "options"   => $base_array
                                 ));
-                            
+
                     }
                     break;
                 }
@@ -1103,39 +1103,39 @@ class ApsController extends AppController {
        // print_r($wireless);
         return $wireless;
     }
-    
+
     private function _build_dual_radio_wireless($ap_profile,$entry_point_data){
 
         $wireless = array();
-        
+
         //$channel = 8;
         //$hwmode  = '11g';
         $band_0  = 'two';
-        
+
         if($this->RadioSettings[0]['radio0_band'] == '24'){
             $channel_0  = $this->RadioSettings[0]['radio0_channel_two'];
             $hwmode_0   = '11g';
             $band_0     = 'two';
         }
-        
+
         if($this->RadioSettings[0]['radio0_band'] == '5'){
             $channel_0 = $this->RadioSettings[0]['radio0_channel_five'];
             $hwmode_0  = '11a';
-            $band_0    = 'five';     
+            $band_0    = 'five';
         }
-        
+
         if($this->RadioSettings[1]['radio1_band'] == '24'){
             $channel_1 = $this->RadioSettings[1]['radio1_channel_two'];
             $hwmode_1  = '11g';
-            $band_1    = 'two';  
+            $band_1    = 'two';
         }
-        
+
         if($this->RadioSettings[1]['radio1_band'] == '5'){
             $channel_1 = $this->RadioSettings[1]['radio1_channel_five'];
             $hwmode_1  = '11a';
             $band_1    = 'five';
         }
-        
+
         //Country
         if(array_key_exists('country', $ap_profile['ApProfileSetting'])) {
             if($ap_profile['ApProfileSetting']['country'] != ''){
@@ -1186,9 +1186,9 @@ class ApsController extends AppController {
                 array_push($radio_zero_capab,array('name'    => 'ht_capab', 'value'  => $c));
             }
         }
-        
+
         if(array_key_exists('radio0_disable_b', $this->RadioSettings[0])) {
-            array_push($radio_zero_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000')); 
+            array_push($radio_zero_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000'));
         }
 
 		array_push( $wireless,
@@ -1214,7 +1214,7 @@ class ApsController extends AppController {
 
         //FIXME Ability to turn on and off one radio!
 		//===== RADIO ONE====
-		
+
 		 //Boolean flags
         $diversity1  = 0;
         $noscan1     = 0;
@@ -1247,9 +1247,9 @@ class ApsController extends AppController {
                 array_push($radio_one_capab,array('name'    => 'ht_capab', 'value'  => $c));
             }
         }
-        
+
         if(array_key_exists('radio1_disable_b', $this->RadioSettings[1])) {
-            array_push($radio_one_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000')); 
+            array_push($radio_one_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000'));
         }
 
 		array_push( $wireless,
@@ -1274,14 +1274,14 @@ class ApsController extends AppController {
       	));
 
         $start_number = 0;
-        
+
 		//____ ENTRY POINTS ____
         //Check if we need to add this wireless VAP
         foreach($ap_profile['ApProfileEntry'] as $ap_profile_e){
             $to_all     = false;
-            
+
             $entry_id   = $ap_profile_e['id'];
-            
+
             //Check if it is assigned to an exit point
             foreach($entry_point_data as $epd){
                 if($epd['entry_id'] == $entry_id){ //We found our man :-)
@@ -1289,8 +1289,8 @@ class ApsController extends AppController {
                         ($ap_profile_e['frequency_band'] == 'both')||
                         ($ap_profile_e['frequency_band'] == $band_0)){
                         $if_name    = $this->_number_to_word($start_number);
-                        
-                        
+
+
                         $base_array_0 = array(
                             "device"        => "radio0",
                             "ifname"        => "$if_name"."0",
@@ -1304,11 +1304,11 @@ class ApsController extends AppController {
                             "auth_server"   => $ap_profile_e['auth_server'],
                             "auth_secret"   => $ap_profile_e['auth_secret']
                         );
-                        
+
                         if($ap_profile_e['chk_maxassoc']){
                             $base_array_0['maxassoc'] = $ap_profile_e['maxassoc'];
                         }
-                        
+
                         if($ap_profile_e['macfilter'] != 'disable'){
                             $base_array_0['macfilter']    = $ap_profile_e['macfilter'];
                             //Replace later
@@ -1326,20 +1326,20 @@ class ApsController extends AppController {
                                 $base_array_0['maclist'] = implode(" ",$mac_list);
                             }
                         }
-                    
+
                         array_push( $wireless,
                             array(
                                 "wifi-iface"=> "$if_name",
                                 "options"   => $base_array_0
-                        ));  
+                        ));
                         $start_number++;
                     }
-                        
+
                     if(
                         ($ap_profile_e['frequency_band'] == 'both')||
-                        ($ap_profile_e['frequency_band'] == $band_1)){   
+                        ($ap_profile_e['frequency_band'] == $band_1)){
                         $if_name    = $this->_number_to_word($start_number);
-                        
+
                         $base_array_1 = array(
                             "device"        => "radio1",
                             "ifname"        => "$if_name"."0",
@@ -1353,11 +1353,11 @@ class ApsController extends AppController {
                             "auth_server"   => $ap_profile_e['auth_server'],
                             "auth_secret"   => $ap_profile_e['auth_secret']
                         );
-                        
+
                         if($ap_profile_e['chk_maxassoc']){
                             $base_array_1['maxassoc'] = $ap_profile_e['maxassoc'];
                         }
-                        
+
                         if($ap_profile_e['macfilter'] != 'disable'){
                             $base_array_1['macfilter']    = $ap_profile_e['macfilter'];
                             //Replace later
@@ -1375,24 +1375,24 @@ class ApsController extends AppController {
                                 $base_array_1['maclist'] = implode(" ",$mac_list);
                             }
                         }
-                    
+
                         array_push( $wireless,
                             array(
                                 "wifi-iface"=> "$if_name",
                                 "options"   => $base_array_1
-                        ));     
-                        $start_number++; 
-                    }           
-                        
+                        ));
+                        $start_number++;
+                    }
+
                     break;
-                }  
+                }
             }
         }
        // print_r($wireless);
         return $wireless;
     }
 
-      
+
      private function _setWiFiSettings(){
         $ap     = ClassRegistry::init('Ap');
         $ap->contain('ApWifiSetting');
@@ -1422,8 +1422,8 @@ class ApsController extends AppController {
                             array_push($ht_capab_one,$value);
                         }
                     }else{
-                        $this->RadioSettings[$radio_number][$name] = $value; 
-                    }  
+                        $this->RadioSettings[$radio_number][$name] = $value;
+                    }
                 }
                 $this->RadioSettings[0]['radio0_ht_capab'] = $ht_capab_zero;
                 $this->RadioSettings[1]['radio1_ht_capab'] = $ht_capab_one;
@@ -1442,7 +1442,7 @@ class ApsController extends AppController {
                                 if(preg_match('/^radio1_/',$key)){
                                     $radio_number = 1;
                                 }
-                                $this->RadioSettings[$radio_number][$key] = $h["$key"]; 
+                                $this->RadioSettings[$radio_number][$key] = $h["$key"];
                             }
                         }
                         break;
@@ -1452,8 +1452,8 @@ class ApsController extends AppController {
         }
     }
 
-    
-    
+
+
     private function _number_to_word($number) {
         $dictionary  = array(
             0                   => 'zero',
@@ -1481,7 +1481,7 @@ class ApsController extends AppController {
 
         return($dictionary[$number]);
     }
-    
+
     private function _get_hardware_setting($hw,$setting){
 		$return_val = false; //some default
 		Configure::load('ApProfiles');
@@ -1507,7 +1507,7 @@ class ApsController extends AppController {
         }
 		return $return_val;
 	}
-	
+
 	private function _get_dead_after($ap_profile_id){
 		Configure::load('ApProfiles');
 		$data 		= Configure::read('common_ap_settings'); //Read the defaults
@@ -1516,25 +1516,25 @@ class ApsController extends AppController {
             'conditions'    => array(
                 'ApProfileSetting.ap_profile_id' => $ap_profile_id
             )
-        )); 
+        ));
         if($n_s){
             $dead_after = $n_s['ApProfileSetting']['heartbeat_dead_after'];
         }
 		return $dead_after;
 	}
-	
+
 	private function _make_hardware_lookup(){
 		$hardware = array();
-		Configure::load('ApProfiles');        
+		Configure::load('ApProfiles');
 	    $hw   = Configure::read('ApProfiles.hardware');
 	    foreach($hw as $h){
 	        $id     = $h['id'];
-	        $name   = $h['name']; 
+	        $name   = $h['name'];
 	        $hardware["$id"]= $name;
 	    }
 		return $hardware;
 	}
-	
+
 	private function _get_timespan(){
 
 		$hour   = (60*60);
@@ -1562,5 +1562,5 @@ class ApsController extends AppController {
         }
 		return $modified;
 	}
-    
+
 }

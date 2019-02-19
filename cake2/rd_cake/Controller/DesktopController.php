@@ -15,7 +15,7 @@ class DesktopController extends AppController {
         $this->request->data['User']['password']     = $this->request->data['password'];
 
         if($this->Auth->identify($this->request,$this->response)){
-            
+
             //We can get the detail for the user
             $data = $this->_get_user_detail($this->request->data['User']['username']);
             $this->set(array(
@@ -54,7 +54,7 @@ class DesktopController extends AppController {
                     'success'       => false,
                     '_serialize'    => array('errors','success')
                 ));
-  
+
             }else{
                 $data = $this->_get_user_detail($q_r['User']['username']);
                 $this->set(array(
@@ -96,7 +96,7 @@ class DesktopController extends AppController {
                             //'img'   => "/cake2/rd_cake/webroot/files/image.php/image-name.jpg?width=200&height=200&image=".$r_wp_dir.$entry
                         ));
                         $id++;
-                    }     
+                    }
                 }
             }
             closedir($handle);
@@ -119,7 +119,7 @@ class DesktopController extends AppController {
             $this->UserSetting = ClassRegistry::init('UserSetting');
             $q_r = $this->UserSetting->find('first',array('conditions' => array('UserSetting.user_id' => $user_id,'UserSetting.name' => 'wallpaper')));
             if($q_r){
-                $this->UserSetting->id = $q_r['UserSetting']['id'];    
+                $this->UserSetting->id = $q_r['UserSetting']['id'];
                 $this->UserSetting->saveField('value', $path_parts['basename']);
             }else{
                 $d['UserSetting']['user_id']= $user_id;
@@ -147,7 +147,7 @@ class DesktopController extends AppController {
         $d['User']['id']        = $user_id;
         $d['User']['password']  = $this->request->data['password'];
         $d['User']['token']     = '';
-        
+
         $this->User             = ClassRegistry::init('User');
         $this->User->contain();
         $this->User->id         = $user_id;
@@ -170,11 +170,11 @@ class DesktopController extends AppController {
         }
         $user_id    = $user['id'];
         $items = array();
-        if($user['group_name'] == Configure::read('group.admin')){ 
+        if($user['group_name'] == Configure::read('group.admin')){
             $items = $this->_build_admin_shortcuts();
         }
 
-        if($user['group_name'] == Configure::read('group.ap')){ 
+        if($user['group_name'] == Configure::read('group.ap')){
             $items = $this->_build_ap_shortcuts($user_id);
         }
 
@@ -227,7 +227,7 @@ class DesktopController extends AppController {
             'menu'          =>  $menu,
             'user'          =>  array('id' => $id, 'username' => $username,'group' => $group,'cls' => $cls),
             'urlWallpaper'  =>  $wp_url,
-            'shortcuts'     =>  array() 
+            'shortcuts'     =>  array()
         );
     }
 
@@ -265,12 +265,12 @@ class DesktopController extends AppController {
                         array(  'text'  => __('RADIUS client'),     'glyph' => Configure::read('icnRadius'),'itemId' => 'cRadiusClient'),
                         array(  'text'  => __('Password manager'),  'glyph' => Configure::read('icnLock'),'itemId' => 'cPassword'),
                         array(  'text'  => __('Logfile viewer'),    'glyph' => Configure::read('icnLog'), 'itemId' => 'cLogViewer'),
-                        array(  'text'  => __('Debug output'),      'glyph' => Configure::read('icnBug'), 'itemId' => 'cDebug'), 
+                        array(  'text'  => __('Debug output'),      'glyph' => Configure::read('icnBug'), 'itemId' => 'cDebug'),
                         array(  'text'  => __('Translation manager'), 'glyph' => Configure::read('icnTranslate'),'itemId' => 'cI18n'),
                         array(  'text'  => __('Rights manager'),    'glyph' => Configure::read('icnKey'), 'itemId' => 'cAcos'),
 						array( 'text'  => __('IP Pools'),           'glyph' => Configure::read('icnIP'), 'itemId' => 'cIpPools'),
 						array( 'text'  => __('OpenVPN Servers'),    'glyph' => Configure::read('icnVPN'), 'itemId' => 'cOpenvpnServers'),
-                       // array( 'text'  => __('Licensing'),          'glyph' => Configure::read('icnLock'),'itemId' => 'cLicensing'),    
+                       // array( 'text'  => __('Licensing'),          'glyph' => Configure::read('icnLock'),'itemId' => 'cLicensing'),
                     )
                 )
             ),
@@ -290,23 +290,23 @@ class DesktopController extends AppController {
                             'itemId'    => 'cFinPaypalTransactions'
                         ),
                         array(
-                            'text'      => __('PayU'), 
-                            'glyph'     => Configure::read('icnOnlineShop'), 
+                            'text'      => __('PayU'),
+                            'glyph'     => Configure::read('icnOnlineShop'),
                             'itemId'    => 'cFinPayUTransactions'
                         ),
 						array(
-                            'text'      => __('Authorize.Net'), 
-                            'glyph'     => Configure::read('icnOnlineShop'), 
+                            'text'      => __('Authorize.Net'),
+                            'glyph'     => Configure::read('icnOnlineShop'),
                             'itemId'    => 'cFinAuthorizeNetTransactions'
                         ),
 						array(
-                            'text'      => __('MyGate'), 
-                            'glyph'     => Configure::read('icnOnlineShop'), 
+                            'text'      => __('MyGate'),
+                            'glyph'     => Configure::read('icnOnlineShop'),
                             'itemId'    => 'cFinMyGateTransactions'
                         ),
 						array(
-                            'text'      => __('Premium SMS'), 
-                            'glyph'     => Configure::read('icnOnlineShop'), 
+                            'text'      => __('Premium SMS'),
+                            'glyph'     => Configure::read('icnOnlineShop'),
                             'itemId'    => 'cFinPremiumSmsTransactions'
                         ),
                     )
@@ -323,13 +323,13 @@ class DesktopController extends AppController {
                             'itemId'    => 'cPermanentUsers'
                         ),
                         array(
-                            'text'      => __('BYOD Manager'), 
-                            'glyph'     => Configure::read('icnDevice'), 
+                            'text'      => __('BYOD Manager'),
+                            'glyph'     => Configure::read('icnDevice'),
                             'itemId'    => 'cDevices'
                         ),
                         array(
-                            'text'      => __('Top-ups'), 
-                            'glyph'     => Configure::read('icnTopUp'), 
+                            'text'      => __('Top-ups'),
+                            'glyph'     => Configure::read('icnTopUp'),
                             'itemId'    => 'cTopUps'
                         ),
                     )
@@ -347,8 +347,8 @@ class DesktopController extends AppController {
                             'itemId'    => 'cDynamicFirewallComponents'
                         ),
                         array(
-                            'text'      => __('Dynamic Firewalls'), 
-                            'glyph'     => Configure::read('icnLock'), 
+                            'text'      => __('Dynamic Firewalls'),
+                            'glyph'     => Configure::read('icnLock'),
                             'itemId'    => 'cDevices'
                         )
                     )
@@ -362,19 +362,19 @@ class DesktopController extends AppController {
             array(  'xtype' => 'menuseparator'),
             array(  'text'  => __('APdesk'),                'glyph' => Configure::read('icnCloud'),      'itemId' => 'cAccessPoints'),
             array(  'text'  => __('MESHdesk'),              'glyph' => Configure::read('icnMesh'),      'itemId' => 'cMeshes'),
-            
+
           //  array(  'xtype' => 'menuseparator'),
           //  array(  'text'  => __('Notifications'),         'glyph' => Configure::read('icnNotify'),    'itemId' => 'cNotifications')
         );
 
-        //Optional experimental stuff 
+        //Optional experimental stuff
         if(Configure::read('experimental.active') == true){
             array_push($menus,array(  'text'  => __('Auto Setup'), 'glyph' => Configure::read('icnConfigure'), 'itemId' => 'cAutoSetups'));
         }
 
         return $menus;
     }
-    
+
     private function _build_ap_menus($id){
 
         $menu   = array();
@@ -407,13 +407,13 @@ class DesktopController extends AppController {
         if ($sm_r_p != null) {
             array_push($menu, array(  'text'  => __('Realms and Providers'),  'glyph' => Configure::read('icnRealm'), 'menu'  => array('items' =>$sm_r_p)));
         }
-                 
-        
+
+
 
         //____ NAS devices _____
 
         $sm_nas_devices = array();
-        
+
         //__ DynamicClients __
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."DynamicClients/index")){
             array_push($sm_nas_devices, array('text' => __('Dynamic RADIUS Clients') ,  'glyph' => Configure::read('icnDynamicNas'), 'itemId' => 'cDynamicClients'));
@@ -424,13 +424,13 @@ class DesktopController extends AppController {
         //___Check the sub-menu rights___:
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Tags/index")){
             array_push($sm_nas_devices, array(  'text'  => __('NAS Device tags'),   'glyph' => Configure::read('icnTag'), 'itemId' => 'cTags'));
-        } 
+        }
         //___ END Sub Menu___
 
         if ($sm_nas_devices != null) {
             array_push($menu, array(  'text'  => __('NAS Devices'),  'glyph' => Configure::read('icnNas'), 'menu'  => array('items' =>$sm_nas_devices)));
         }
-        
+
 
         //____ Profiles _____
 
@@ -439,13 +439,13 @@ class DesktopController extends AppController {
         //___Check the sub-menu rights___:
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."ProfileComponents/index")){
             array_push($sm_profiles, array('text' => __('Profile Components') ,  'glyph' => Configure::read('icnComponent'), 'itemId' => 'cProfileComponents'));
-        } 
+        }
         //___ END Sub Menu___
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Profiles/index")) {
             array_push($sm_profiles, array('text' => __('Profiles'), 'glyph' => Configure::read('icnProfile'), 'itemId' => 'cProfiles'));
         }
         if ($sm_profiles != null) {
-            array_push($menu, array(  'text'  => __('Profiles'),  'glyph' => Configure::read('icnProfile'),  'menu'  => array('items' =>$sm_profiles)));     
+            array_push($menu, array(  'text'  => __('Profiles'),  'glyph' => Configure::read('icnProfile'),  'menu'  => array('items' =>$sm_profiles)));
         }
 
         //____ Tools ____
@@ -473,10 +473,10 @@ class DesktopController extends AppController {
         }
 /*
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."LicensedDevices/index")){
-             array_push($sm_tools, 
+             array_push($sm_tools,
                             array(
-                                'text'      => __('Licensing') ,  
-                                'glyph'     => Configure::read('icnLock'), 
+                                'text'      => __('Licensing') ,
+                                'glyph'     => Configure::read('icnLock'),
                                 'itemId'    => 'cLicensing')
                 );
         }
@@ -497,20 +497,20 @@ class DesktopController extends AppController {
                             'itemId'    => 'cPermanentUsers'
                         ),
                         array(
-                            'text'      => __('BYOD Manager'), 
-                            'glyph'     => Configure::read('icnDevice'), 
+                            'text'      => __('BYOD Manager'),
+                            'glyph'     => Configure::read('icnDevice'),
                             'itemId'    => 'cDevices'
                         ),
                         array(
-                            'text'      => __('Top-ups'), 
-                            'glyph'     => Configure::read('icnTopUp'), 
+                            'text'      => __('Top-ups'),
+                            'glyph'     => Configure::read('icnTopUp'),
                             'itemId'    => 'cTopUps'
                         ),
                     );
-            
-            array_push($menu, 
-                array(  'text'  => __('Permanent Users'), 
-                        'glyph' => Configure::read('icnUser'),  
+
+            array_push($menu,
+                array(  'text'  => __('Permanent Users'),
+                        'glyph' => Configure::read('icnUser'),
                         'menu'  => array('items' =>$pu_sub_menu))
             );
         }
@@ -529,7 +529,7 @@ class DesktopController extends AppController {
 
         //Seperator
         array_push($menu,array(  'xtype' => 'menuseparator'));
-        
+
         //Cloud Controller for APs
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."ApProfiles/index")){
 		    array_push($menu,
@@ -543,7 +543,7 @@ class DesktopController extends AppController {
 				array(  'text'  => __('MESHdesk'),  'glyph' => Configure::read('icnMesh'), 'itemId' => 'cMeshes')
 			);
 		}
-		    
+
         return $menu;
     }
 
@@ -574,7 +574,7 @@ class DesktopController extends AppController {
 
         $base   = "Access Providers/Controllers/";
 
-       
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."PermanentUsers/index")){
             array_push($items, array( 'name'    => 'Permanent Users', 'iconCls' => 'users-shortcut', 'controller' => 'cPermanentUsers'));
         }
@@ -582,24 +582,24 @@ class DesktopController extends AppController {
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Vouchers/index")){
             array_push($items, array( 'name' => 'Vouchers', 'iconCls' => 'vouchers-shortcut', 'controller' => 'cVouchers'));
         }
-       
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Radaccts/index")){
             array_push($items, array( 'name'    => 'Activity monitor', 'iconCls' => 'activity-shortcut', 'controller' => 'cActivityMonitor'));
         }
-        
-        
-        
+
+
+
         //Meshdesk
 		if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Meshes/index")){
 			array_push($items, array( 'name' => 'MESHdesk', 'iconCls' => 'meshdesk-shortcut', 'controller' => 'cMeshes'));
 		}
-        
-        
+
+
         if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."ApProfiles/index")){
             array_push($items, array( 'name' => 'APdesk', 'iconCls' => 'apdesk-shortcut', 'controller' => 'cAccessPoints'));
         }
-        
-        
+
+
         return $items;
 
     }

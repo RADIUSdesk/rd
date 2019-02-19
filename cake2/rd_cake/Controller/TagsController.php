@@ -26,7 +26,7 @@ class TagsController extends AppController {
         $q_r        = $this->Tag->find('all',$c);
 
         //Create file
-        $this->ensureTmp();     
+        $this->ensureTmp();
         $tmpFilename    = TMP . $this->tmpDir . DS .  strtolower( Inflector::pluralize($this->modelClass) ) . '-' . date('Ymd-Hms') . '.csv';
         $fp             = fopen($tmpFilename, 'w');
 
@@ -54,16 +54,16 @@ class TagsController extends AppController {
                         $notes   = '';
                         foreach($i['TagNote'] as $n){
                             if(!$this->_test_for_private_parent($n['Note'],$user)){
-                                $notes = $notes.'['.$n['Note']['note'].']';    
+                                $notes = $notes.'['.$n['Note']['note'].']';
                             }
                         }
                         array_push($csv_line,$notes);
                     }elseif($column_name =='owner'){
                         $owner_id       = $i['Tag']['user_id'];
                         $owner_tree     = $this->_find_parents($owner_id);
-                        array_push($csv_line,$owner_tree); 
+                        array_push($csv_line,$owner_tree);
                     }else{
-                        array_push($csv_line,$i['Tag']["$column_name"]);  
+                        array_push($csv_line,$i['Tag']["$column_name"]);
                     }
                 }
                 fputcsv($fp, $csv_line,';','"');
@@ -92,8 +92,8 @@ class TagsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -110,7 +110,7 @@ class TagsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
 
         $items      = array();
@@ -130,16 +130,16 @@ class TagsController extends AppController {
             $action_flags   = $this->_get_action_flags($owner_id,$user);
 
             array_push($items,array(
-                'id'                    => $i['Tag']['id'], 
+                'id'                    => $i['Tag']['id'],
                 'name'                  => $i['Tag']['name'],
-                'owner'                 => $owner_tree, 
+                'owner'                 => $owner_tree,
                 'available_to_siblings' => $i['Tag']['available_to_siblings'],
                 'notes'                 => $notes_flag,
                 'update'                => $action_flags['update'],
                 'delete'                => $action_flags['delete']
             ));
         }
-       
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -169,22 +169,22 @@ class TagsController extends AppController {
             $this->Tag->contain();
             $q_r = $this->Tag->find('all');
 
-            foreach($q_r as $i){   
+            foreach($q_r as $i){
                 array_push($items,array(
-                    'id'            => $i['Tag']['name'], 
+                    'id'            => $i['Tag']['name'],
                     'text'          => $i['Tag']['name']
                 ));
             }
         }
 
         //_____ AP _____
-        if($user['group_name'] == Configure::read('group.ap')){  
+        if($user['group_name'] == Configure::read('group.ap')){
 
             //If it is an Access Provider that requested this list; we should show:
             //1.) all those NAS devices that he is allowed to use from parents with the available_to_sibling flag set (no edit or delete)
             //2.) all those he created himself (if any) (this he can manage, depending on his right)
             //3.) all his children -> check if they may have created any. (this he can manage, depending on his right)
-       
+
             $q_r = $this->Tag->find('all');
 
             //Loop through this list. Only if $user_id is a sibling of $creator_id we will add it to the list
@@ -195,7 +195,7 @@ class TagsController extends AppController {
                 $owner_id   = $i['Tag']['user_id'];
                 $a_t_s      = $i['Tag']['available_to_siblings'];
                 $add_flag   = false;
-                
+
                 //Filter for parents and children
                 //NAS devices of parent's can not be edited, where realms of childern can be edited
                 if($owner_id != $user_id){
@@ -219,10 +219,10 @@ class TagsController extends AppController {
                 }
 
                 if($add_flag == true ){
-                    $owner_tree = $this->_find_parents($owner_id);                      
+                    $owner_tree = $this->_find_parents($owner_id);
                     //Add to return items
                     array_push($items,array(
-                        'id'            => $i['Tag']['name'], 
+                        'id'            => $i['Tag']['name'],
                         'text'          => $i['Tag']['name']
                     ));
                 }
@@ -326,7 +326,7 @@ class TagsController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->{$this->modelClass}->findById($this->data['id']);
             $owner_id   = $item['Tag']['user_id'];
             if($owner_id != $user_id){
@@ -340,7 +340,7 @@ class TagsController extends AppController {
                 $this->{$this->modelClass}->id = $this->data['id'];
                 $this->{$this->modelClass}->delete();
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -357,7 +357,7 @@ class TagsController extends AppController {
                     $this->{$this->modelClass}->id = $d['id'];
                     $this->{$this->modelClass}->delete();
                 }
-   
+
             }
         }
 
@@ -388,7 +388,7 @@ class TagsController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $tag_id = $this->request->query['for_id'];
-            $q_r    = $this->Tag->TagNote->find('all', 
+            $q_r    = $this->Tag->TagNote->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('TagNote.tag_id' => $tag_id)
@@ -401,8 +401,8 @@ class TagsController extends AppController {
                     $afs        = $this->_get_action_flags($owner_id,$user);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => $afs['delete']
@@ -410,7 +410,7 @@ class TagsController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -441,7 +441,7 @@ class TagsController extends AppController {
 
         $success    = false;
         $msg        = array('message' => __('Could not create note'));
-        $this->Tag->TagNote->Note->create(); 
+        $this->Tag->TagNote->Note->create();
         //print_r($this->request->data);
         if ($this->Tag->TagNote->Note->save($this->request->data)) {
             $d                      = array();
@@ -484,7 +484,7 @@ class TagsController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->Tag->TagNote->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -498,7 +498,7 @@ class TagsController extends AppController {
                 $this->Tag->TagNote->Note->id = $this->data['id'];
                 $this->Tag->TagNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -515,7 +515,7 @@ class TagsController extends AppController {
                     $this->Tag->TagNote->Note->id = $d['id'];
                     $this->Tag->TagNote->Note->delete($d['id'],true);
                 }
-   
+
             }
         }
 
@@ -558,7 +558,7 @@ class TagsController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-note',     'glyph'     => Configure::read('icnNote'),'scale' => 'large', 'itemId' => 'note',    'tooltip'=> __('Add notes')),
                     array('xtype' => 'button', 'iconCls' => 'b-csv',     'glyph'     => Configure::read('icnCsv'),'scale' => 'large', 'itemId' => 'csv',      'tooltip'=> __('Export CSV')),
                 ))
-                
+
             );
         }
 
@@ -569,65 +569,65 @@ class TagsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
-                'iconCls'   => 'b-reload', 
-                'glyph'     => Configure::read('icnReload'), 
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'iconCls'   => 'b-reload',
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-add',
-                    'glyph'     => Configure::read('icnAdd'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),  
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),    
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
+                        'xtype'     => 'button',
                         'iconCls'   => 'b-note',
-                        'glyph'     => Configure::read('icnNote'),     
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',      
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){ 
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-csv',
-                    'glyph'     => Configure::read('icnCsv'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'glyph'     => Configure::read('icnCsv'),
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 
@@ -685,7 +685,7 @@ class TagsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -706,7 +706,7 @@ class TagsController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -721,7 +721,7 @@ class TagsController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("User.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -759,12 +759,12 @@ class TagsController extends AppController {
                 foreach($ap_children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array($this->modelClass.'.user_id' => $id));
-                }       
-            }   
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -792,7 +792,7 @@ class TagsController extends AppController {
                 if($i['User']['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 

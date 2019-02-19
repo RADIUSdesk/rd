@@ -40,7 +40,7 @@ class LanguagesController extends AppController {
                 'success' => false,
                 '_serialize' => array('errors','success')
             ));
-        }   
+        }
     }
 
     //--UPDATE--
@@ -60,7 +60,7 @@ class LanguagesController extends AppController {
         }
     }
 
-    //--DELETE-- 
+    //--DELETE--
     public function delete() {
         if ($this->{$this->modelClass}->delete($this->data['id'],true)) {
             $success = true;

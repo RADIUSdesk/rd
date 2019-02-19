@@ -7,10 +7,10 @@ class AccessProvidersController extends AppController {
     public $components = array('Aa','GridFilter');
     public $uses       = array('User'); //This has primaraly to do with users :-)
 
-    public $ap_acl     = 'Access Providers/Controllers/'; 
-    protected $base    = "Access Providers/Controllers/AccessProviders/";   //This is required for Aa component  
+    public $ap_acl     = 'Access Providers/Controllers/';
+    protected $base    = "Access Providers/Controllers/AccessProviders/";   //This is required for Aa component
 
-    protected $ap_children  = array(); 
+    protected $ap_children  = array();
 
 
     //-- NOTES on users:
@@ -46,7 +46,7 @@ class AccessProvidersController extends AppController {
         $q_r        = $this->{$this->modelClass}->find('all', $c);
 
         //Create file
-        $this->ensureTmp();     
+        $this->ensureTmp();
         $tmpFilename    = TMP . $this->tmpDir . DS .  strtolower( Inflector::pluralize($this->modelClass) ) . '-' . date('Ymd-Hms') . '.csv';
         $fp             = fopen($tmpFilename, 'w');
 
@@ -72,16 +72,16 @@ class AccessProvidersController extends AppController {
                         $notes   = '';
                         foreach($i['UserNote'] as $n){
                             if(!$this->_test_for_private_parent($n['Note'],$user)){
-                                $notes = $notes.'['.$n['Note']['note'].']';    
+                                $notes = $notes.'['.$n['Note']['note'].']';
                             }
                         }
                         array_push($csv_line,$notes);
                     }elseif($column_name =='owner'){
                         $owner_id       = $i['User']['parent_id'];
                         $owner_tree     = $this->_find_parents($owner_id);
-                        array_push($csv_line,$owner_tree); 
+                        array_push($csv_line,$owner_tree);
                     }else{
-                        array_push($csv_line,$i['User']["$column_name"]);  
+                        array_push($csv_line,$i['User']["$column_name"]);
                     }
                 }
                 fputcsv($fp, $csv_line,';','"');
@@ -110,7 +110,7 @@ class AccessProvidersController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-        $c = $this->_build_common_query($user); 
+        $c = $this->_build_common_query($user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -127,11 +127,11 @@ class AccessProvidersController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count'  , $c);       
+        $total  = $this->{$this->modelClass}->find('count'  , $c);
         $q_r    = $this->{$this->modelClass}->find('all'    , $c_page);
 
         $items  = array();
-        foreach($q_r as $i){ 
+        foreach($q_r as $i){
 
             $owner_id       = $i['Owner']['id'];
             $owner_tree     = $this->_find_parents($owner_id);
@@ -147,20 +147,20 @@ class AccessProvidersController extends AppController {
 
             array_push($items,
                 array(
-                    'id'        => $i['User']['id'], 
+                    'id'        => $i['User']['id'],
                     'owner'     => $owner_tree,
                     'username'  => $i['User']['username'],
                     'name'      => $i['User']['name'],
-                    'surname'   => $i['User']['surname'], 
-                    'phone'     => $i['User']['phone'], 
+                    'surname'   => $i['User']['surname'],
+                    'phone'     => $i['User']['phone'],
                     'email'     => $i['User']['email'],
                     'address'   => $i['User']['address'],
-                    'active'    => $i['User']['active'], 
+                    'active'    => $i['User']['active'],
                     'monitor'   => $i['User']['monitor'],
                     'notes'     => $notes_flag
                 )
             );
-        }                
+        }
         $this->set(array(
             'items'         => $items,
             'success'       => true,
@@ -194,7 +194,7 @@ class AccessProvidersController extends AppController {
         }
 
         $items = array();
-    
+
         //If id is not set return an empty list:
         if($user_id != null){
             if(isset($this->request->query['node'])){
@@ -203,7 +203,7 @@ class AccessProvidersController extends AppController {
                 }else{
                     $id = $this->request->query['node'];
                 }
-            }         
+            }
             //We only will list the first level of nodes
             $ap_name = Configure::read('group.ap');
             $q_r    = $this->User->find('all',array('conditions' => array('User.parent_id' => $id,'Group.name' => $ap_name  )));
@@ -211,7 +211,7 @@ class AccessProvidersController extends AppController {
                 $id         = $i['User']['id'];
                 $parent_id  = $i['User']['parent_id'];
                 $username   = $i['User']['username'];
-               
+
                 $leaf       = false;
                 $icon       = 'users';
 
@@ -223,10 +223,10 @@ class AccessProvidersController extends AppController {
                 }
                 array_push($items,
                     array('id' => $id, 'username' => $username,'leaf' => $leaf,'iconCls' => $icon)
-                ); 
+                );
             }
-        }     
-            
+        }
+
         $this->set(array(
             'items' => $items,
             'success' => true,
@@ -244,7 +244,7 @@ class AccessProvidersController extends AppController {
         }
 
         $this->request['active']       = 0;
-        $this->request['monitor']      = 0;     
+        $this->request['monitor']      = 0;
 
 
         //Two fields should be tested for first:
@@ -361,7 +361,7 @@ class AccessProvidersController extends AppController {
                 $items['language']  = $language;
             }
         }
-        
+
         $this->set(array(
             'data'     => $items,
             'success'   => true,
@@ -443,7 +443,7 @@ class AccessProvidersController extends AppController {
             $d['User']['token']     = '';
             $this->{$this->modelClass}->id  = $this->request->data['user_id'];
             $this->{$this->modelClass}->save($d);
-            $success               = true;  
+            $success               = true;
         }
 
         $this->set(array(
@@ -453,7 +453,7 @@ class AccessProvidersController extends AppController {
     }
 
     public function enable_disable(){
-        
+
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
         if(!$user){
@@ -473,7 +473,7 @@ class AccessProvidersController extends AppController {
             if(preg_match('/^\d+/',$key)){
                 $d['User']['id']                = $key;
                 $this->{$this->modelClass}->id  = $key;
-                $this->{$this->modelClass}->save($d);   
+                $this->{$this->modelClass}->save($d);
             }
         }
         $this->set(array(
@@ -495,7 +495,7 @@ class AccessProvidersController extends AppController {
         $items = array();
         if(isset($this->request->query['for_id'])){
             $u_id   = $this->request->query['for_id'];
-            $q_r    = $this->User->UserNote->find('all', 
+            $q_r    = $this->User->UserNote->find('all',
                 array(
                     'contain'       => array('Note'),
                     'conditions'    => array('UserNote.user_id' => $u_id)
@@ -507,8 +507,8 @@ class AccessProvidersController extends AppController {
                     $owner      = $this->_find_parents($owner_id);
                     array_push($items,
                         array(
-                            'id'        => $i['Note']['id'], 
-                            'note'      => $i['Note']['note'], 
+                            'id'        => $i['Note']['id'],
+                            'note'      => $i['Note']['note'],
                             'available_to_siblings' => $i['Note']['available_to_siblings'],
                             'owner'     => $owner,
                             'delete'    => true
@@ -516,7 +516,7 @@ class AccessProvidersController extends AppController {
                     );
                 }
             }
-        } 
+        }
         $this->set(array(
             'items'     => $items,
             'success'   => true,
@@ -547,7 +547,7 @@ class AccessProvidersController extends AppController {
 
         $success    = false;
         $msg        = array('message' => __('Could not create note'));
-        $this->User->UserNote->Note->create(); 
+        $this->User->UserNote->Note->create();
         //print_r($this->request->data);
         if ($this->User->UserNote->Note->save($this->request->data)) {
             $d                          = array();
@@ -591,7 +591,7 @@ class AccessProvidersController extends AppController {
 	    if(isset($this->data['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
 
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:   
+            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:
             $item       = $this->User->UserNote->Note->findById($this->data['id']);
             $owner_id   = $item['Note']['user_id'];
             if($owner_id != $user_id){
@@ -605,7 +605,7 @@ class AccessProvidersController extends AppController {
                 $this->User->UserNote->Note->id = $this->data['id'];
                 $this->User->UserNote->Note->delete($this->data['id'],true);
             }
-   
+
         }else{                          //Assume multiple item delete
             foreach($this->data as $d){
 
@@ -622,7 +622,7 @@ class AccessProvidersController extends AppController {
                     $this->User->UserNote->Note->id = $d['id'];
                     $this->User->UserNote->Note->delete($d['id'],true);
                 }
- 
+
             }
         }
 
@@ -664,9 +664,9 @@ class AccessProvidersController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-reload', 'glyph' => Configure::read('icnReload'), 'scale' => 'large', 'itemId' => 'reload',   'tooltip'=> __('Reload')),
                     array('xtype' => 'button', 'iconCls' => 'b-add',    'glyph' => Configure::read('icnAdd'),    'scale' => 'large', 'itemId' => 'add',      'tooltip'=> __('Add')),
                     array('xtype' => 'button', 'iconCls' => 'b-delete', 'glyph' => Configure::read('icnDelete'), 'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
-                    
+
                     array('xtype' => 'button', 'iconCls' => 'b-edit',   'glyph' => Configure::read('icnEdit'),   'scale' => 'large', 'itemId' => 'edit',     'tooltip'=> __('Edit')),
-                    
+
                 )),
                 array('xtype' => 'buttongroup','title' => __('Document'), 'items' => array(
                     array('xtype' => 'button', 'iconCls' => 'b-note',    'glyph' => Configure::read('icnNote'), 'scale' => 'large', 'itemId' => 'note',    'tooltip'=> __('Add notes')),
@@ -675,7 +675,7 @@ class AccessProvidersController extends AppController {
                 array('xtype' => 'buttongroup','title' => __('Extra actions'), 'items' => array(
                     array('xtype' => 'button', 'iconCls' => 'b-password', 'glyph' => Configure::read('icnLock'), 'scale' => 'large', 'itemId' => 'password', 'tooltip'=> __('Change Password')),
                     array('xtype' => 'button', 'iconCls' => 'b-disable',  'glyph' => Configure::read('icnLight'),'scale' => 'large', 'itemId' => 'enable_disable','tooltip'=> __('Enable / Disable'))
-               
+
                 ))
             );
         }
@@ -688,31 +688,31 @@ class AccessProvidersController extends AppController {
             $specific_group = array();
 
             $base   = "Access Providers/Controllers/AccessProviders/";
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),  
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-add',  
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-add',
                     'glyph'     => Configure::read('icnAdd'),
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base.'delete')){
                  array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'), 
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
                     'tooltip'   => __('Delete')));
             }
@@ -720,50 +720,50 @@ class AccessProvidersController extends AppController {
             //Edit
             if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),    
-                    'scale'     => 'large', 
-                    'itemId'    => 'edit',    
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
+                    'itemId'    => 'edit',
                     'tooltip'   => __('Edit')));
             }
 
-            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'note_index')){ 
+            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'note_index')){
                 array_push($document_group,array(
-                        'xtype'     => 'button', 
+                        'xtype'     => 'button',
                         'iconCls'   => 'b-note',
-                        'glyph'     => Configure::read('icnNote'),    
-                        'scale'     => 'large', 
-                        'itemId'    => 'note',      
+                        'glyph'     => Configure::read('icnNote'),
+                        'scale'     => 'large',
+                        'itemId'    => 'note',
                         'tooltip'   => __('Add Notes')));
             }
 
-            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){ 
+            if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $this->base.'export_csv')){
                 array_push($document_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-csv',
-                    'glyph'     => Configure::read('icnCsv'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
+                    'glyph'     => Configure::read('icnCsv'),
+                    'scale'     => 'large',
+                    'itemId'    => 'csv',
                     'tooltip'   => __('Export CSV')));
             }
 
-           if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base.'change_password')){      
+           if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base.'change_password')){
                 array_push($specific_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-password',
                     'glyph'     => Configure::read('icnLock'),
-                    'scale'     => 'large', 
-                    'itemId'    => 'password', 
+                    'scale'     => 'large',
+                    'itemId'    => 'password',
                     'tooltip'   => __('Change Password')));
             }
-            
-           if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base.'enable_disable')){      
+
+           if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base.'enable_disable')){
                 array_push($specific_group, array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-disable',
                     'glyph'     => Configure::read('icnLight'),
-                    'scale'     => 'large', 
+                    'scale'     => 'large',
                     'itemId'    => 'enable_disable',
                     'tooltip'   => __('Enable / Disable')));
             }
@@ -807,10 +807,10 @@ class AccessProvidersController extends AppController {
                 }else{
                     $items = array('checked' => 'true', 'disabled' => false);   //The parent records, the child also
                 }
-         
+
             }else{
                 //Inherit from creator
-                
+
                 if($user['monitor'] == 0){
                     $items = array('checked' => 'false', 'disabled' => true);   //The parent does not record, the child either
                 }else{
@@ -864,14 +864,14 @@ class AccessProvidersController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
         $c['contain']   = array(
                             'UserNote'  => array('Note.note','Note.id','Note.available_to_siblings','Note.user_id'),
                             'Owner'     => array('Owner.username'),
-                            'Group'        
+                            'Group'
                         );
 
         //===== SORT =====
@@ -886,7 +886,7 @@ class AccessProvidersController extends AppController {
                 $sort = $this->modelClass.'.'.$this->request->query['sort'];
             }
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -901,7 +901,7 @@ class AccessProvidersController extends AppController {
                 //Strings
                 if($f->type == 'string'){
                     if($f->field == 'owner'){
-                        array_push($c['conditions'],array("Owner.username LIKE" => '%'.$f->value.'%'));   
+                        array_push($c['conditions'],array("Owner.username LIKE" => '%'.$f->value.'%'));
                     }else{
                         $col = $this->modelClass.'.'.$f->field;
                         array_push($c['conditions'],array("$col LIKE" => '%'.$f->value.'%'));
@@ -914,7 +914,7 @@ class AccessProvidersController extends AppController {
                 }
             }
         }
-    
+
         //== ONLY Access Providers ==
         $ap_name = Configure::read('group.ap');
         array_push($c['conditions'],array('Group.name' => $ap_name ));
@@ -923,18 +923,18 @@ class AccessProvidersController extends AppController {
 
         //====== AP FILTER =====
         //If the user is an AP; we need to add an extra clause to only show all the AP's downward from its position in the tree
-        if($user['group_name'] == Configure::read('group.ap')){  //AP 
+        if($user['group_name'] == Configure::read('group.ap')){  //AP
             $ap_children    = $this->User->find_access_provider_children($user['id']);
             if($ap_children){   //Only if the AP has any children...
                 $ap_clause      = array();
                 foreach($ap_children as $i){
                     $id = $i['id'];
                     array_push($ap_clause,array($this->modelClass.'.parent_id' => $id));
-                }      
+                }
                 //Add it as an OR clause
-                array_push($c['conditions'],array('OR' => $ap_clause));  
+                array_push($c['conditions'],array('OR' => $ap_clause));
             }
-        }      
+        }
         //====== END AP FILTER =====
         return $c;
     }

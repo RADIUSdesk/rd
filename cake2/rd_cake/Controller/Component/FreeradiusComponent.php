@@ -43,10 +43,10 @@ class FreeradiusComponent extends Component {
         //After we have a list of the includes from $this->main_dictionary_file
         //We will build an array by looking for files included inside its includelist
         //If it does not start with "/" we asume it sits under $path_to_dictionary_files
-        
+
         foreach($this->initial as $include_file){
             array_push($this->includes,$include_file);
-            $this->_look_for_includes($include_file);   
+            $this->_look_for_includes($include_file);
         }
         //loop through this includes array and check all the vendors out:
         //The '_look_for_vendors()' function will extract the vendors.
@@ -54,15 +54,15 @@ class FreeradiusComponent extends Component {
         foreach($this->includes as $include_file){
             $pattern ='/^\/+/';
             if(preg_match($pattern,$include_file)){
-                $this->_look_for_vendors($include_file);    
+                $this->_look_for_vendors($include_file);
             }else{
                 $this->_look_for_vendors($path_to_dictionary_files.$include_file);
             }
         }
-        //print_r($this->vendors);        
+        //print_r($this->vendors);
     }
 
-    
+
     //---------------------------------------------------------------
     //----- Private function looking for includes in specified file--
     //---------------------------------------------------------------
@@ -83,10 +83,10 @@ class FreeradiusComponent extends Component {
                     array_push($this->includes, $filename[1]);
                 }
                 #echo $filename[1]."<br>\n";
-                
+
             }
         }
-        
+
     }
 
 
@@ -110,7 +110,7 @@ class FreeradiusComponent extends Component {
 
             }
         }
-        //If there was not a VENDOR 
+        //If there was not a VENDOR
         //If no vendor was specified, add the attributes under misc
 
         //If the $file_to_look_for_includes = dictionary.freeradius.internal => FreeRADIUS internal

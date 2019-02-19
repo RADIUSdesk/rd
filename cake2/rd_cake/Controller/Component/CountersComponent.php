@@ -2,7 +2,7 @@
 //----------------------------------------------------------
 //---- Author: Dirk van der Walt
 //---- License: GPL v3
-//---- Description: 
+//---- Description:
 //---- Date: 3-4-2015
 //------------------------------------------------------------
 
@@ -16,7 +16,7 @@ class CountersComponent extends Component {
 			$this->_init_models();
             $counters = $this->_find_counters($profile_name);
         }
-        return $counters;    
+        return $counters;
     }
 
 	private function _init_models(){

@@ -103,7 +103,7 @@ class EmailConfig {
         'transport'     => 'Smtp',
         //Site specifics
         'sender'        => 'dirkvanderwalt@gmail.com',
-        'from'          => 'dirkvanderwalt@gmail.com' 
+        'from'          => 'dirkvanderwalt@gmail.com'
     );
 
 }

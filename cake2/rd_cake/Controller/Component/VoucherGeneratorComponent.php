@@ -2,7 +2,7 @@
 class VoucherGeneratorComponent extends Component {
 
 	//private	$nameType  		= 'word_number_word_number';
-	private $nameType		= 'adjective_noun'; 
+	private $nameType		= 'adjective_noun';
 	//private $nameType		= 'random_number'; //For Freddy :-) Just comment out the line above and uncommet this line
     //private $nameType		= 'random_alpha_numeric'; //For Denis :-) Just comment out the line above and uncommet this line
 
@@ -15,7 +15,7 @@ class VoucherGeneratorComponent extends Component {
 		'nap', 'odd', 'pal', 'ram',	'saw', 'tan', 'urn', 'vet', 'wed', 'yap', 'zoo',
 		'win', 'wax', 'tee', 'tin', 'til', 'tel', 'sit', 'sin', 'rim', 'red', 'rye',
 		'pin', 'pix', 'pad', 'pen', 'off', 'map', 'mas', 'lay', 'lin', 'lox', 'low',
-		'kin', 'hod', 'ego', 'dog', 'die', 'dam', 'dig', 'dim', 'cat', 'cot', 'com',  
+		'kin', 'hod', 'ego', 'dog', 'die', 'dam', 'dig', 'dim', 'cat', 'cot', 'com',
 	);
 
 	private $adjectives		= array(
@@ -117,7 +117,7 @@ class VoucherGeneratorComponent extends Component {
 		'bell',		'birth',	'vegetable','pollution','wall',		'tree',		'trade',
 		'blood',	'wash',		'humor',	'pear',		'hot',		'show',		'cup',
 		'beds',		'day',		'rose',		'foot',		'table',	'doll',		'wave',
-		'change',	'bath',		'kiss',		'rings',	'sense',	'snail',	'talk',	
+		'change',	'bath',		'kiss',		'rings',	'sense',	'snail',	'talk',
 		'note',		'route',	'sisters',	'knee',		'celery',	'sign',		'fish',
 		'finger',	'toe',		'sofa',		'store',	'clover',	'spade',	'texture',
 		'month',	'grade',	'pigs'
@@ -130,7 +130,7 @@ class VoucherGeneratorComponent extends Component {
 		if($this->nameType == 'word_number_word_number'){
 			return $this->_word_number_word_number();
 		}
-  
+
 		if($this->nameType == 'adjective_noun'){
 			return $this->_adjective_noun();
 		}
@@ -141,13 +141,13 @@ class VoucherGeneratorComponent extends Component {
 
         if($this->nameType == 'random_alpha_numeric'){
             return $this->_random_alpha_numeric();
-        }  
+        }
     }
 
     private function _word_number_word_number(){
 
         $duplicate_flag = true;
-		while($duplicate_flag){		
+		while($duplicate_flag){
 			//Generate a value
 			$pool_count = (count($this->wordPool)-1);
 			$d1 		= rand (1,9);
@@ -167,7 +167,7 @@ class VoucherGeneratorComponent extends Component {
 	private function _adjective_noun(){
 
         $duplicate_flag = true;
-		while($duplicate_flag){		
+		while($duplicate_flag){
 			//Generate a value
 			$adjective_count= (count($this->adjectives)-1);
 			$noun_count     = (count($this->nouns)-1);
@@ -188,7 +188,7 @@ class VoucherGeneratorComponent extends Component {
 
 	private function _random_number(){
 		$duplicate_flag = true;
-		while($duplicate_flag){		
+		while($duplicate_flag){
 			$v_value = rand ( 1000,999999);
 			if(!in_array("v_value", $this->voucherNames)){
 				$duplicate_flag = false; //Break the loop - we ar unique;
@@ -205,13 +205,13 @@ class VoucherGeneratorComponent extends Component {
        // $possible = "!#$%^&*()+=?0123456789bBcCdDfFgGhHjJkmnNpPqQrRstTvwxyz";
         $possible = "0123456789bBcCdDfFgGhHjJkmnNpPqQrRstTvwxyz";
         // set up a counter
-        $i = 0; 
+        $i = 0;
         // add random characters to $password until $length is reached
-        while ($i < $length) { 
+        while ($i < $length) {
             // pick a random character from the possible ones
             $char = substr($possible, mt_rand(0, strlen($possible)-1), 1);
             // we don't want this character if it's already in the password
-            if (!strstr($v_value, $char)) { 
+            if (!strstr($v_value, $char)) {
                 $v_value .= $char;
                 $i++;
             }

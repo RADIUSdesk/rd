@@ -30,7 +30,7 @@ class UsersController extends AppController {
 /*
     public function index(){
         $this->User->contain();
-        $token_check = $this->TokenAuth->check_if_valid($this); 
+        $token_check = $this->TokenAuth->check_if_valid($this);
 
         if(!$token_check){
             return;

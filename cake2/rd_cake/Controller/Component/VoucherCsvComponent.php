@@ -3,7 +3,7 @@ class VoucherCsvComponent extends Component {
 
     private $default_email  = "dirk@gmail.com";
     private $pwd_length     = 3;
-	
+
    	public function generateVoucherList($temp_file,$batch,$message_id){
         $voucher_list   = array();
         $file           = fopen("$temp_file","r");
@@ -20,7 +20,7 @@ class VoucherCsvComponent extends Component {
                         $email = filter_var($email, FILTER_SANITIZE_EMAIL);
                         if (!filter_var($email, FILTER_VALIDATE_EMAIL) === true) {
                             $email = $this->default_email;
-                        } 
+                        }
                     }else{
                         $email = $this->default_email;
                     }
@@ -29,7 +29,7 @@ class VoucherCsvComponent extends Component {
                     if($message_id){
                         $extra_name = 'mail_not_sent'.'_'.$message_id;
                     }
-                    
+
                     $batch  = $batch;
                     $name   = "$batch"."-".$unit_name;
                     $pwd    = $this->_random_alpha_numeric($this->pwd_length);
@@ -37,7 +37,7 @@ class VoucherCsvComponent extends Component {
                 }
             }
         }
-        fclose($file);     
+        fclose($file);
         return $voucher_list;
     }
 
@@ -48,13 +48,13 @@ class VoucherCsvComponent extends Component {
        // $possible = "!#$%^&*()+=?0123456789bBcCdDfFgGhHjJkmnNpPqQrRstTvwxyz";
         $possible = "0123456789bBcCdDfFgGhHjJkmnNpPqQrRstTvwxyz";
         // set up a counter
-        $i = 0; 
+        $i = 0;
         // add random characters to $password until $length is reached
-        while ($i < $length) { 
+        while ($i < $length) {
             // pick a random character from the possible ones
             $char = substr($possible, mt_rand(0, strlen($possible)-1), 1);
             // we don't want this character if it's already in the password
-            if (!strstr($v_value, $char)) { 
+            if (!strstr($v_value, $char)) {
                 $v_value .= $char;
                 $i++;
             }

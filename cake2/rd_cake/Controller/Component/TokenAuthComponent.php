@@ -19,10 +19,10 @@ class TokenAuthComponent extends Component {
 
         if(isset($request->data['token'])){
             $token = $request->data['token'];
-        }elseif(isset($request->query['token'])){ 
+        }elseif(isset($request->query['token'])){
             $token = $request->query['token'];
         }
-        
+
         if($token != false){
             if(strlen($token) != 36){
                 $result = array('success' => false, 'message' => array('message'    => __('Token in wrong format')));
@@ -44,7 +44,7 @@ class TokenAuthComponent extends Component {
             return false;
         }else{
             return $result['user']; //Return the user detail
-        }   
+        }
     }
 
     protected function find_token_owner($token){
@@ -68,7 +68,7 @@ class TokenAuthComponent extends Component {
                     'group_name'    => $q_r['Group']['name'],
                     'group_id'      => $q_r['Group']['id'],
                     'monitor'       => $q_r['User']['monitor'],
-                );  
+                );
                 return array('success' => true, 'user' => $user);
             }
         }

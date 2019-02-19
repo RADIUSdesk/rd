@@ -2,7 +2,7 @@
 //----------------------------------------------------------
 //---- Author: Dirk van der Walt
 //---- License: GPL v3
-//---- Description: 
+//---- Description:
 //---- Date: 29-05-2013
 //------------------------------------------------------------
 
@@ -29,7 +29,7 @@ class KickerComponent extends Component {
 
 
         //_____ CoovaChilli-Heartbeat ______________
-        $hb_q_r = ClassRegistry::init('Na')->find('first',array('conditions' => 
+        $hb_q_r = ClassRegistry::init('Na')->find('first',array('conditions' =>
             array('Na.nasidentifier' => $nas_identifier,'Na.type' => 'CoovaChilli-Heartbeat')
         ));
 
@@ -43,7 +43,7 @@ class KickerComponent extends Component {
         }
 
         //_____ Mikrotik-Heartbeat ___________
-        $hb_q_r = ClassRegistry::init('Na')->find('first',array('conditions' => 
+        $hb_q_r = ClassRegistry::init('Na')->find('first',array('conditions' =>
             array('Na.nasidentifier' => $nas_identifier,'Na.type' => 'Mikrotik-Heartbeat')
         ));
 
@@ -55,7 +55,7 @@ class KickerComponent extends Component {
             ClassRegistry::init('Action')->save($d);
             return;
         }
-        
+
 
 
         //_____ Direct Connected Clients _____
@@ -94,7 +94,7 @@ class KickerComponent extends Component {
                 //----------------------------------------------
             }
 
-             //____ Mikrotik _____ 
+             //____ Mikrotik _____
     		if($type == 'Mikrotik'){
         		$port   = $q_r['Na']['ports'];
         		$secret = $q_r['Na']['secret'];
@@ -104,19 +104,19 @@ class KickerComponent extends Component {
 				//If it is a MAC authenticated device - also send a disconnect command using the device MAC as username
 				if($device_flag >= 1){
 					exec("echo \"Framed-IP-Address=$framedipaddress,User-Name=$device_mac\" | $rc -r 2 -t 2 $nas_ip:$port disconnect $secret",$output);
-				} 
+				}
         		exec("echo \"Framed-IP-Address=$framedipaddress,User-Name=$username\" | $rc -r 2 -t 2 $nas_ip:$port disconnect $secret",$output);
     		}
 
             //==========================================================================================
         }
-        
-        
+
+
         //Telkom
         //==========================================================================================
         if(preg_match("/^196/",$nas_ip)){
             // Uncommnet this for Telkom (South Africa) implementations /
-            //Assume this is a telkom entry where the $nas_ip is not defined inside the NAS table since the 
+            //Assume this is a telkom entry where the $nas_ip is not defined inside the NAS table since the
             //RADIUS request is proxied for the NAS
             //Some variables to define
             $pod_server = "196.43.3.86";
@@ -125,9 +125,9 @@ class KickerComponent extends Component {
             $secret     = "greatsecret"; //Change me
             $rc = $this->radclient;
             exec("echo \"User-Name = $username,X-Ascend-Session-Svr-Key=$xascend,NAS-IP-Address=$nas_ip,Framed-IP-Address=$framedipaddress\" | $rc -r 2 -t 2 $pod_server:$pod_port 40 $secret",$output);
-            
+
         }
-            
+
     }
 
 }

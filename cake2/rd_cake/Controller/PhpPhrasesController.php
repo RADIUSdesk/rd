@@ -5,7 +5,7 @@ class PhpPhrasesController extends AppController {
 
     public $name       = 'PhpPhrases';
     public $components = array('Aa');
-    
+
     //-------- BASIC CRUD -------------------------------
     public function index(){
 
@@ -35,7 +35,7 @@ class PhpPhrasesController extends AppController {
                     'total'         => count($items),
                     'success'       => true,
                     '_serialize'    => array('items','success','total')
-                ));       
+                ));
             }
         }
     }
@@ -66,7 +66,7 @@ class PhpPhrasesController extends AppController {
 
         $remove_existing = false;
         if(isset($this->request->data['remove_existing'])){
-            $remove_existing = true;  
+            $remove_existing = true;
         }
         $msgid  = $this->request->data['msgid'];
         $comment= $this->request->data['comment'];
@@ -88,12 +88,12 @@ class PhpPhrasesController extends AppController {
         $msgid      = $this->request->data['msgid'];
         $old_msgid  = $this->request->data['old_msgid'];
         $lines      = $this->_get_po_file_contents();
-   
+
         $look_for = "msgid \"$old_msgid\"";
         //Find the msgid with the following value:
         foreach($lines as $line_num => $line){
             $line = rtrim($line);
-            if($line == $look_for){ 
+            if($line == $look_for){
                 break;
             }
         }
@@ -120,7 +120,7 @@ class PhpPhrasesController extends AppController {
         $msgid  = $this->request->data['msgid'];
         $msgstr = $this->request->data['msgstr'];
         $lines  = $this->_get_po_file_contents(true);
-   
+
         $look_for = 'msgid "'.$msgid.'"';
 
         //Find the msgid with the following value:
@@ -146,7 +146,7 @@ class PhpPhrasesController extends AppController {
                 }else{
                     $try_now= $try_now+1;
                 }
-            }           
+            }
         }
 
         file_put_contents($this->_get_file_name(),$lines);
@@ -162,12 +162,12 @@ class PhpPhrasesController extends AppController {
 
     }
 
-    
+
     public function delete(){
 
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
-        } 
+        }
 
         foreach(array_keys($this->data) as $i){
             if(preg_match("/item_/",$i)){   //Only items to delete will start with 'item_'
@@ -186,7 +186,7 @@ class PhpPhrasesController extends AppController {
 
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
-        } 
+        }
 
         $source         = $this->data['source'];
         $destination    = $this->data['destination'];
@@ -196,7 +196,7 @@ class PhpPhrasesController extends AppController {
 
         $maintain_existing = false;
         if(isset($this->request->data['maintain_existing'])){
-            $maintain_existing = true; 
+            $maintain_existing = true;
         }
 
         if($maintain_existing){
@@ -220,7 +220,7 @@ class PhpPhrasesController extends AppController {
 
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
-        } 
+        }
         $this->request->query['language'] = $this->request->query['id'];
 
         $lines      = $this->_get_po_file_contents();
@@ -238,14 +238,14 @@ class PhpPhrasesController extends AppController {
 
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
-        } 
+        }
 
         foreach(array_keys($this->data) as $key){
             $lines      = $this->_get_po_file_contents();
             //print_r("$key ".$this->data[$key]."");
             $this->_set_meta_data($lines,$key,$this->data[$key]);
         }
-   
+
         $this->set(array(
             'items' =>array(),
             'success' => true,
@@ -258,7 +258,7 @@ class PhpPhrasesController extends AppController {
 
 
     private function _get_items($lines){
-     
+
         $items = array();
         $count = 0;
         //The fist part of the file is the meta data our interest only starts after the first #: characters
@@ -274,7 +274,7 @@ class PhpPhrasesController extends AppController {
 
             if($record_flag == true){
                 //Try to determine what the item is
-                
+
                 if(preg_match("/^#: /", $line)) { //Comment
                     $line = preg_replace('/^#: /', "", $line);
                     $line = chop($line);
@@ -407,7 +407,7 @@ class PhpPhrasesController extends AppController {
         //Find the msgid with the following value:
         foreach($lines as $line_num => $line){
             $line = rtrim($line);
-            if($line == $look_for){ 
+            if($line == $look_for){
                 break;
             }
         }
@@ -432,9 +432,9 @@ class PhpPhrasesController extends AppController {
                 $line = $lines[$line_num];
                // print($line);
                 unset($lines[$line_num]);
-                $line_num = $line_num +1; 
-                if(preg_match("/^msgstr \"/",$line)){//msgstr (assume one liner)   
-                    break;   
+                $line_num = $line_num +1;
+                if(preg_match("/^msgstr \"/",$line)){//msgstr (assume one liner)
+                    break;
                 }
             }
             $lines = array_values($lines);
@@ -462,7 +462,7 @@ class PhpPhrasesController extends AppController {
         //Find the msgid with the following value:
         foreach($lines as $line_num => $line){
             $line = rtrim($line);
-            if($line == $look_for){ 
+            if($line == $look_for){
                 break;
             }
         }
@@ -482,7 +482,7 @@ class PhpPhrasesController extends AppController {
             }
             $lines = array_values($lines);
             $comment = "\n#: $comment\n";
-            
+
         }else{
             $comment = "#: $comment\n";
         }
@@ -496,7 +496,7 @@ class PhpPhrasesController extends AppController {
     }
 
     private function _get_meta_data($lines){
-        $meta_data = array();      
+        $meta_data = array();
         $record_flag = false;
 
         foreach ($lines as $line) {
@@ -504,7 +504,7 @@ class PhpPhrasesController extends AppController {
             if(preg_match("/^#:/", $line)) {
                 $record_flag = false;
                 break;
-            }  
+            }
 
             //while the recording flag is set
             if($record_flag == true){
@@ -519,32 +519,32 @@ class PhpPhrasesController extends AppController {
             //After the first msgstr follows the meta data
             if(preg_match("/msgstr/", $line)) {
                 $record_flag = true;
-            }   
+            }
         }
-        return $meta_data; 
+        return $meta_data;
     }
 
     private function _set_meta_data($lines,$item,$value){
-        $record_flag = false;     
+        $record_flag = false;
         foreach ($lines as $line_num => $line) {
             //Stop at the first file comment
             if(preg_match("/^#:/", $line)) {
                 $record_flag = false;
                 break;
-            }  
+            }
 
             //while the recording flag is set
             if($record_flag == true){
                 if(preg_match("/$item/", $line)) {
                    $lines[$line_num] = '"'.$item.": ".$value.'\n"'."\n";
                     break;
-                } 
+                }
             }
 
             //After the first msgstr follows the meta data
             if(preg_match("/msgstr/", $line)) {
                 $record_flag = true;
-            }   
+            }
         }
 
         $filename = $this->_get_file_name();
@@ -573,6 +573,6 @@ class PhpPhrasesController extends AppController {
         $lines = array_values($lines);
         $filename = $this->_get_file_name();
         file_put_contents($filename,$lines);    //Commit the change
-    } 
+    }
 
 }

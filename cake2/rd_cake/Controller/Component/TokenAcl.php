@@ -2,7 +2,7 @@
 //----------------------------------------------------------
 //---- Author: Dirk van der Walt
 //---- License: GPL v3
-//---- Description: 
+//---- Description:
 //---- Date: 20-11-2012
 //------------------------------------------------------------
 
@@ -15,6 +15,6 @@ class TokenAclComponent extends Component {
 
         $u = ClassRegistry::init("User");
         $q_r = $u->find('first',array('conditions' => array('User.id' => $user_id)));
-        print_r($q_r);     
+        print_r($q_r);
     }
 }

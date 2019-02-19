@@ -30,7 +30,7 @@ class AaComponent extends Component {
             return false;
         }else{
 
-            if($token_check['group_name'] == Configure::read('group.admin')){ 
+            if($token_check['group_name'] == Configure::read('group.admin')){
                 return true;
             }else{
                 if($hard_fail){
@@ -48,7 +48,7 @@ class AaComponent extends Component {
             return false;
         }else{
 
-            if($token_check['group_name'] == Configure::read('group.ap')){ 
+            if($token_check['group_name'] == Configure::read('group.ap')){
                 return true;
             }else{
                 if($hard_fail){

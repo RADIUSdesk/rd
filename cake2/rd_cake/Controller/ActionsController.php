@@ -20,8 +20,8 @@ class ActionsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
- 
-        $c = $this->_build_common_query($user); 
+
+        $c = $this->_build_common_query($user);
 
         if(isset($this->request->query['nas_id'])){
             array_push($c['conditions'],array("Action.na_id" => $this->request->query['nas_id']));
@@ -42,12 +42,12 @@ class ActionsController extends AppController {
         $c_page['limit']    = $limit;
         $c_page['offset']   = $offset;
 
-        $total  = $this->{$this->modelClass}->find('count',$c);       
+        $total  = $this->{$this->modelClass}->find('count',$c);
         $q_r    = $this->{$this->modelClass}->find('all',$c_page);
-        $items  = array();     
+        $items  = array();
         //If there are more than one
         if($q_r){
-            foreach($q_r as $item){          
+            foreach($q_r as $item){
                 array_push($items,array(
                     'id'        =>  $item['Action']['id'],
                     'action'    =>  $item['Action']['action'],
@@ -55,7 +55,7 @@ class ActionsController extends AppController {
                     'status'    =>  $item['Action']['status'],
                     'created'   =>  $item['Action']['created'],
                     'modified'  =>  $item['Action']['modified'],
-                )); 
+                ));
             }
         }
         //___ FINAL PART ___
@@ -75,7 +75,7 @@ class ActionsController extends AppController {
         if(!$user){
             return;
         }
-  
+
         $this->{$this->modelClass}->create();
         if ($this->{$this->modelClass}->save($this->request->data)) {
             $this->set(array(
@@ -93,7 +93,7 @@ class ActionsController extends AppController {
         }
 	}
 
-   
+
     //FIXME check rights
     public function delete($id = null) {
 		if (!$this->request->is('post')) {
@@ -154,7 +154,7 @@ class ActionsController extends AppController {
                     array('xtype' => 'button', 'iconCls' => 'b-reload', 'glyph' => Configure::read('icnReload'), 'scale' => 'large', 'itemId' => 'reload',   'tooltip'=> __('Reload')),
                     array('xtype' => 'button', 'iconCls' => 'b-add',    'glyph' => Configure::read('icnAdd'),  'scale' => 'large', 'itemId' => 'add',   'tooltip'=> __('Add')),
                     array('xtype' => 'button', 'iconCls' => 'b-delete', 'glyph' => Configure::read('icnDelete'), 'scale' => 'large', 'itemId' => 'delete',   'tooltip'=> __('Delete')),
-                ))  
+                ))
             );
         }
 
@@ -165,23 +165,23 @@ class ActionsController extends AppController {
             $document_group = array();
             $specific_group = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
-                'iconCls'   => 'b-reload', 
-                'glyph'     => Configure::read('icnReload'), 
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'iconCls'   => 'b-reload',
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'add')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-add', 
-                    'glyph'     => Configure::read('icnAdd'), 
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-add',
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
                     'itemId'    => 'add',
-                    'disabled'  => false,   
+                    'disabled'  => false,
                     'tooltip'   => __('Add')));
             }
 
@@ -189,12 +189,12 @@ class ActionsController extends AppController {
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-delete', 
-                    'glyph'     => Configure::read('icnDelete'), 
-                    'scale'     => 'large', 
+                    'xtype'     => 'button',
+                    'iconCls'   => 'b-delete',
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => false,   
+                    'disabled'  => false,
                     'tooltip'   => __('Delete')));
             }
 
@@ -209,7 +209,7 @@ class ActionsController extends AppController {
         ));
     }
 
-  
+
 
     private function _is_sibling_of($parent_id,$user_id){
         $this->User->contain();//No dependencies
@@ -228,7 +228,7 @@ class ActionsController extends AppController {
 
         //Empty to start with
         $c                  = array();
-        $c['joins']         = array(); 
+        $c['joins']         = array();
         $c['conditions']    = array();
 
         //What should we include....
@@ -241,10 +241,10 @@ class ActionsController extends AppController {
         $sort   = 'Action.created';
         $dir    = 'ASC';
 
-        if(isset($this->request->query['sort'])){  
+        if(isset($this->request->query['sort'])){
             $sort = $this->modelClass.'.'.$this->request->query['sort'];
             $dir  = $this->request->query['dir'];
-        } 
+        }
         $c['order'] = array("$sort $dir");
         //==== END SORT ===
 
@@ -293,12 +293,12 @@ class ActionsController extends AppController {
                 foreach($this->children as $i){
                     $id = $i['id'];
                     array_push($tree_array,array('Na.user_id' => $id));
-                }       
-            }   
+                }
+            }
             //Add it as an OR clause
-            array_push($c['conditions'],array('OR' => $tree_array));  
-        }       
-        //====== END AP FILTER =====      
+            array_push($c['conditions'],array('OR' => $tree_array));
+        }
+        //====== END AP FILTER =====
         return $c;
     }
 
@@ -326,7 +326,7 @@ class ActionsController extends AppController {
                 if($i['id'] == $owner_id){
                     return array('update' => true, 'delete' => true);
                 }
-            }  
+            }
         }
     }
 

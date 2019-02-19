@@ -11,9 +11,9 @@ class LimitsController extends AppController {
 //------------------------------------------------------------------------
 
     //____ BASIC CRUD Manager ________
-    
+
     public function limit_check(){
-    
+
         //Check if the limits is actually turned on
         Configure::load('Limits');
         $is_active = Configure::read('Limits.Global.Active');
@@ -23,10 +23,10 @@ class LimitsController extends AppController {
             '_serialize' => array('data','success')
         ));
     }
-    
-    
-    
-    
+
+
+
+
     public function index(){
 
         //__ Authentication + Authorization __
@@ -35,24 +35,24 @@ class LimitsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-        
+
         $items      = array();
         //Check if the limits is actually turned on
         Configure::load('Limits');
         $is_active = Configure::read('Limits.Global.Active');
         if($is_active){
-        
+
             $ap_id = false;
             if(array_key_exists('ap_id', $this->request->query)){
                 $ap_id = $this->request->query['ap_id'];
             }
-            
+
             if($ap_id){
                 $items = $this->_find_limits_for($ap_id);
             }
         }
-         
-        
+
+
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
@@ -70,10 +70,10 @@ class LimitsController extends AppController {
 
         if ($this->request->is('post')) {
             if(array_key_exists('ap_id', $this->request->query)){
-                $ap_id      = $this->request->query['ap_id'];    
+                $ap_id      = $this->request->query['ap_id'];
                 $alias      = $this->request->data['alias'];
                 $this->request->data['user_id'] = $ap_id;
-             
+
                 //See if there is already and entry for this one
                 $q_r = $this->Limit->find('first',array('conditions' =>array('Limit.user_id' => $ap_id,'Limit.alias' => $alias)));
                 if($q_r){
@@ -87,7 +87,7 @@ class LimitsController extends AppController {
                         '_serialize' => array('success')
                     ));
                 }
-            }       
+            }
         }
     }
 
@@ -120,45 +120,45 @@ class LimitsController extends AppController {
             $id             = $user['id'];
             $action_group   = array();
 
-            array_push($action_group,array(  
+            array_push($action_group,array(
                 'xtype'     => 'button',
                 'iconCls'   => 'b-reload',
-                'glyph'     => Configure::read('icnReload'),   
-                'scale'     => 'large', 
-                'itemId'    => 'reload',   
+                'glyph'     => Configure::read('icnReload'),
+                'scale'     => 'large',
+                'itemId'    => 'reload',
                 'tooltip'   => __('Reload')));
 
             //Add
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base."add")){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-add',
-                    'glyph'     => Configure::read('icnAdd'),      
-                    'scale'     => 'large', 
-                    'itemId'    => 'add',      
+                    'glyph'     => Configure::read('icnAdd'),
+                    'scale'     => 'large',
+                    'itemId'    => 'add',
                     'tooltip'   => __('Add')));
             }
             //Delete
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'delete')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-delete',
-                    'glyph'     => Configure::read('icnDelete'),   
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnDelete'),
+                    'scale'     => 'large',
                     'itemId'    => 'delete',
-                    'disabled'  => true,   
+                    'disabled'  => true,
                     'tooltip'   => __('Delete')));
             }
 
             //Edit
             if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->base.'edit')){
                 array_push($action_group,array(
-                    'xtype'     => 'button', 
+                    'xtype'     => 'button',
                     'iconCls'   => 'b-edit',
-                    'glyph'     => Configure::read('icnEdit'),     
-                    'scale'     => 'large', 
+                    'glyph'     => Configure::read('icnEdit'),
+                    'scale'     => 'large',
                     'itemId'    => 'edit',
-                    'disabled'  => true,     
+                    'disabled'  => true,
                     'tooltip'   => __('Edit')));
             }
 
@@ -172,17 +172,17 @@ class LimitsController extends AppController {
             '_serialize'    => array('items','success')
         ));
     }
-    
+
     private function _find_limits_for($ap_id){
-    
+
         $limits_return =array();
-    
+
         //Get the default list; run through it and see if there are overrides
         Configure::load('Limits');
         $is_active      = Configure::read('Limits.Global.Active');
         $limits_data    = Configure::read('Limits');
         $id             = 1;
-        
+
         foreach(array_keys($limits_data) as $key){
             if($key != 'Global'){
                 $alias  = $key;
@@ -201,7 +201,7 @@ class LimitsController extends AppController {
         }
         return $limits_return;
     }
-    
+
     private function _find_overrides_for($ap_id, $alias){
         $overrides = array();
         $q_r = $this->Limit->find('first',array('conditions' => array('Limit.user_id' => $ap_id,'Limit.alias' => $alias)));

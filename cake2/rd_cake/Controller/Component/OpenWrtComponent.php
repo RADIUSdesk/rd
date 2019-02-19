@@ -3,7 +3,7 @@ class OpenWrtComponent extends Component {
 
 
     private $includes       = array();
-    
+
     public function getEntries($mesh_name){
 
         $commands = array();
@@ -27,7 +27,7 @@ class OpenWrtComponent extends Component {
             array_push($commands,array("action" => "execute", "data" => "uci set wireless.wmesh.ssid='$m_ssid'"));
             array_push($commands,array("action" => "execute", "data" => "uci set wireless.wmesh.bssid='$m_bssid'"));
             array_push($commands,array("action" => "execute", "data" => "uci set wireless.wmesh.hidden='1'"));
-            
+
             //Remove the wconf entry; add it again
             array_push($commands,array("action" => "execute", "data" => "uci delete wireless.wconf"));
             array_push($commands,array("action" => "execute", "data" => "uci set wireless.wconf=wifi-iface"));
@@ -68,6 +68,6 @@ class OpenWrtComponent extends Component {
     }
 
 
-   
+
 }
 ?>

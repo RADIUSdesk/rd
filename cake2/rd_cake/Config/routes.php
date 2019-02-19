@@ -49,12 +49,12 @@ Router::parseExtensions();
 //Normally when a module completed the 3rd Party Authentication it will redirect to /opauth-complete/*
 //We then catch it here and redirect it to the ThirdPartyAuths controller with the opauth_complete method
 Router::connect(
-   '/opauth-complete/*', 
+   '/opauth-complete/*',
    array('controller' => 'third_party_auths', 'action' => 'opauth_complete')
 );
 
 /**
- * Load all plugin routes.  See the CakePlugin documentation on 
+ * Load all plugin routes.  See the CakePlugin documentation on
  * how to customize the loading of plugin routes.
  */
 	CakePlugin::routes();
