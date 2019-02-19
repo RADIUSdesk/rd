@@ -1,21 +1,24 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Console;
 
+use Cake\Console\Exception\StopException;
 use Cake\Log\Engine\ConsoleLog;
 use Cake\Log\Log;
+use RuntimeException;
+use SplFileObject;
 
 /**
  * A wrapper around the various IO operations shell tasks need to do.
@@ -92,6 +95,13 @@ class ConsoleIo
     protected $_lastWritten = 0;
 
     /**
+     * Whether or not files should be overwritten
+     *
+     * @var bool
+     */
+    protected $forceOverwrite = false;
+
+    /**
      * Constructor
      *
      * @param \Cake\Console\ConsoleOutput|null $out A ConsoleOutput object for stdout.
@@ -166,12 +176,98 @@ class ConsoleIo
     public function out($message = '', $newlines = 1, $level = ConsoleIo::NORMAL)
     {
         if ($level <= $this->_level) {
-            $this->_lastWritten = $this->_out->write($message, $newlines);
+            $this->_lastWritten = (int)$this->_out->write($message, $newlines);
 
             return $this->_lastWritten;
         }
 
         return true;
+    }
+
+    /**
+     * Convenience method for out() that wraps message between <info /> tag
+     *
+     * @param string|array|null $message A string or an array of strings to output
+     * @param int $newlines Number of newlines to append
+     * @param int $level The message's output level, see above.
+     * @return int|bool The number of bytes returned from writing to stdout.
+     * @see https://book.cakephp.org/3.0/en/console-and-shells.html#Shell::out
+     */
+    public function info($message = null, $newlines = 1, $level = Shell::NORMAL)
+    {
+        $messageType = 'info';
+        $message = $this->wrapMessageWithType($messageType, $message);
+
+        return $this->out($message, $newlines, $level);
+    }
+
+    /**
+     * Convenience method for err() that wraps message between <warning /> tag
+     *
+     * @param string|array|null $message A string or an array of strings to output
+     * @param int $newlines Number of newlines to append
+     * @return int|bool The number of bytes returned from writing to stderr.
+     * @see https://book.cakephp.org/3.0/en/console-and-shells.html#Shell::err
+     */
+    public function warning($message = null, $newlines = 1)
+    {
+        $messageType = 'warning';
+        $message = $this->wrapMessageWithType($messageType, $message);
+
+        return $this->err($message, $newlines);
+    }
+
+    /**
+     * Convenience method for err() that wraps message between <error /> tag
+     *
+     * @param string|array|null $message A string or an array of strings to output
+     * @param int $newlines Number of newlines to append
+     * @return int|bool The number of bytes returned from writing to stderr.
+     * @see https://book.cakephp.org/3.0/en/console-and-shells.html#Shell::err
+     */
+    public function error($message = null, $newlines = 1)
+    {
+        $messageType = 'error';
+        $message = $this->wrapMessageWithType($messageType, $message);
+
+        return $this->err($message, $newlines);
+    }
+
+    /**
+     * Convenience method for out() that wraps message between <success /> tag
+     *
+     * @param string|array|null $message A string or an array of strings to output
+     * @param int $newlines Number of newlines to append
+     * @param int $level The message's output level, see above.
+     * @return int|bool The number of bytes returned from writing to stdout.
+     * @see https://book.cakephp.org/3.0/en/console-and-shells.html#Shell::out
+     */
+    public function success($message = null, $newlines = 1, $level = Shell::NORMAL)
+    {
+        $messageType = 'success';
+        $message = $this->wrapMessageWithType($messageType, $message);
+
+        return $this->out($message, $newlines, $level);
+    }
+
+    /**
+     * Wraps a message with a given message type, e.g. <warning>
+     *
+     * @param string $messageType The message type, e.g. "warning".
+     * @param string|array $message The message to wrap.
+     * @return array|string The message wrapped with the given message type.
+     */
+    protected function wrapMessageWithType($messageType, $message)
+    {
+        if (is_array($message)) {
+            foreach ($message as $k => $v) {
+                $message[$k] = "<{$messageType}>{$v}</{$messageType}>";
+            }
+        } else {
+            $message = "<{$messageType}>{$message}</{$messageType}>";
+        }
+
+        return $message;
     }
 
     /**
@@ -204,6 +300,13 @@ class ConsoleIo
         }
         if ($newlines) {
             $this->out($this->nl($newlines), 0);
+        }
+
+        // Store length of content + fill so if the new content
+        // is shorter than the old content the next overwrite
+        // will work.
+        if ($fill > 0) {
+            $this->_lastWritten = $newBytes + $fill;
         }
     }
 
@@ -262,11 +365,25 @@ class ConsoleIo
      *
      * @param int $mode The output mode.
      * @return void
+     * @see \Cake\Console\ConsoleOutput::setOutputAs()
+     */
+    public function setOutputAs($mode)
+    {
+        $this->_out->setOutputAs($mode);
+    }
+
+    /**
+     * Change the output mode of the stdout stream
+     *
+     * @deprecated 3.5.0 Use setOutputAs() instead.
+     * @param int $mode The output mode.
+     * @return void
      * @see \Cake\Console\ConsoleOutput::outputAs()
      */
     public function outputAs($mode)
     {
-        $this->_out->outputAs($mode);
+        deprecationWarning('ConsoleIo::outputAs() is deprecated. Use ConsoleIo::setOutputAs() instead.');
+        $this->_out->setOutputAs($mode);
     }
 
     /**
@@ -401,5 +518,75 @@ class ConsoleIo
         $name = ucfirst($name);
 
         return $this->_helpers->load($name, $settings);
+    }
+
+    /**
+     * Create a file at the given path.
+     *
+     * This method will prompt the user if a file will be overwritten.
+     * Setting `forceOverwrite` to true will suppress this behavior
+     * and always overwrite the file.
+     *
+     * If the user replies `a` subsequent `forceOverwrite` parameters will
+     * be coerced to true and all files will be overwritten.
+     *
+     * @param string $path The path to create the file at.
+     * @param string $contents The contents to put into the file.
+     * @param bool $forceOverwrite Whether or not the file should be overwritten.
+     *   If true, no question will be asked about whether or not to overwrite existing files.
+     * @return bool Success.
+     * @throws \Cake\Console\Exception\StopException When `q` is given as an answer
+     *   to whether or not a file should be overwritten.
+     */
+    public function createFile($path, $contents, $forceOverwrite = false)
+    {
+        $path = str_replace(
+            DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR,
+            DIRECTORY_SEPARATOR,
+            $path
+        );
+
+        $this->out();
+        $forceOverwrite = $forceOverwrite || $this->forceOverwrite;
+
+        if (file_exists($path) && $forceOverwrite === false) {
+            $this->warning("File `{$path}` exists");
+            $key = $this->askChoice('Do you want to overwrite?', ['y', 'n', 'a', 'q'], 'n');
+            $key = strtolower($key);
+
+            if ($key === 'q') {
+                $this->error('Quitting.', 2);
+                throw new StopException('Not creating file. Quitting.');
+            }
+            if ($key === 'a') {
+                $this->forceOverwrite = true;
+                $key = 'y';
+            }
+            if ($key !== 'y') {
+                $this->out("Skip `{$path}`", 2);
+
+                return false;
+            }
+        } else {
+            $this->out("Creating file {$path}");
+        }
+
+        try {
+            $file = new SplFileObject($path, 'w');
+        } catch (RuntimeException $e) {
+            $this->error("Could not write to `{$path}`. Permission denied.", 2);
+
+            return false;
+        }
+
+        $file->rewind();
+        if ($file->fwrite($contents) > 0) {
+            $this->out("<success>Wrote</success> `{$path}`");
+
+            return true;
+        }
+        $this->error("Could not write to `{$path}`.", 2);
+
+        return false;
     }
 }

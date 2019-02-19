@@ -1,33 +1,41 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Http\Client;
+
+use Cake\Http\Cookie\CookieCollection as BaseCollection;
+use Cake\Http\Cookie\CookieInterface;
 
 /**
  * Container class for cookies used in Http\Client.
  *
  * Provides cookie jar like features for storing cookies between
  * requests, as well as appending cookies to new requests.
+ *
+ * @deprecated 3.5.0 Use Cake\Http\Cookie\CookieCollection instead.
  */
-class CookieCollection
+class CookieCollection extends BaseCollection
 {
 
     /**
-     * The cookies stored in this jar.
-     *
-     * @var array
+     * {@inheritDoc}
      */
-    protected $_cookies = [];
+    public function __construct(array $cookies = [])
+    {
+        parent::__construct($cookies);
+
+        deprecationWarning('Use Cake\Http\Cookie\CookieCollection instead.');
+    }
 
     /**
      * Store the cookies from a response.
@@ -35,7 +43,7 @@ class CookieCollection
      * Store the cookies that haven't expired. If a cookie has been expired
      * and is currently stored, it will be removed.
      *
-     * @param \Cake\Http\Client\Response $response The response to read cookies from
+     * @param Response $response The response to read cookies from
      * @param string $url The request URL used for default host/path values.
      * @return void
      */
@@ -45,27 +53,13 @@ class CookieCollection
         $path = parse_url($url, PHP_URL_PATH);
         $path = $path ?: '/';
 
-        $cookies = $response->cookies();
-        foreach ($cookies as $name => $cookie) {
-            if (empty($cookie['domain'])) {
-                $cookie['domain'] = $host;
-            }
-            if (empty($cookie['path'])) {
-                $cookie['path'] = $path;
-            }
-            $key = implode(';', [$cookie['name'], $cookie['domain'], $cookie['path']]);
-
-            $expires = isset($cookie['expires']) ? $cookie['expires'] : false;
-            $expiresTime = false;
-            if ($expires) {
-                $expiresTime = strtotime($expires);
-            }
-            if ($expiresTime && $expiresTime <= time()) {
-                unset($this->_cookies[$key]);
-                continue;
-            }
-            $this->_cookies[$key] = $cookie;
+        $header = $response->getHeader('Set-Cookie');
+        $cookies = $this->parseSetCookieHeader($header);
+        $cookies = $this->setRequestDefaults($cookies, $host, $path);
+        foreach ($cookies as $cookie) {
+            $this->cookies[$cookie->getId()] = $cookie;
         }
+        $this->removeExpiredCookies($host, $path);
     }
 
     /**
@@ -83,38 +77,43 @@ class CookieCollection
         $host = parse_url($url, PHP_URL_HOST);
         $scheme = parse_url($url, PHP_URL_SCHEME);
 
+        return $this->findMatchingCookies($scheme, $host, $path);
+    }
+
+    /**
+     * Get all the stored cookies as arrays.
+     *
+     * @return array
+     */
+    public function getAll()
+    {
         $out = [];
-        foreach ($this->_cookies as $cookie) {
-            if ($scheme === 'http' && !empty($cookie['secure'])) {
-                continue;
-            }
-            if (strpos($path, $cookie['path']) !== 0) {
-                continue;
-            }
-            $leadingDot = $cookie['domain'][0] === '.';
-            if ($leadingDot) {
-                $cookie['domain'] = ltrim($cookie['domain'], '.');
-            }
-
-            $pattern = '/' . preg_quote(substr($cookie['domain'], 1), '/') . '$/';
-            if (!preg_match($pattern, $host)) {
-                continue;
-            }
-
-            $out[$cookie['name']] = $cookie['value'];
+        foreach ($this->cookies as $cookie) {
+            $out[] = $this->convertCookieToArray($cookie);
         }
 
         return $out;
     }
 
     /**
-     * Get all the stored cookies.
+     * Convert the cookie into an array of its properties.
      *
+     * Primarily useful where backwards compatibility is needed.
+     *
+     * @param \Cake\Http\Cookie\CookieInterface $cookie Cookie object.
      * @return array
      */
-    public function getAll()
+    protected function convertCookieToArray(CookieInterface $cookie)
     {
-        return array_values($this->_cookies);
+        return [
+            'name' => $cookie->getName(),
+            'value' => $cookie->getValue(),
+            'path' => $cookie->getPath(),
+            'domain' => $cookie->getDomain(),
+            'secure' => $cookie->isSecure(),
+            'httponly' => $cookie->isHttpOnly(),
+            'expires' => $cookie->getExpiresTimestamp()
+        ];
     }
 }
 

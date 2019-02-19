@@ -1,15 +1,15 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  * @since         3.1.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Shell\Helper;
 
@@ -43,8 +43,8 @@ class TableHelper extends Helper
     {
         $widths = [];
         foreach ($rows as $line) {
-            foreach ($line as $k => $v) {
-                $columnLength = mb_strwidth($line[$k]);
+            foreach (array_values($line) as $k => $v) {
+                $columnLength = mb_strwidth($v);
                 if ($columnLength >= (isset($widths[$k]) ? $widths[$k] : 0)) {
                     $widths[$k] = $columnLength;
                 }
@@ -85,7 +85,7 @@ class TableHelper extends Helper
         }
 
         $out = '';
-        foreach ($row as $i => $column) {
+        foreach (array_values($row) as $i => $column) {
             $pad = $widths[$i] - mb_strwidth($column);
             if (!empty($options['style'])) {
                 $column = $this->_addStyle($column, $options['style']);
@@ -98,6 +98,9 @@ class TableHelper extends Helper
 
     /**
      * Output a table.
+     *
+     * Data will be output based on the order of the values
+     * in the array. The keys will not be used to align data.
      *
      * @param array $rows The data to render out.
      * @return void

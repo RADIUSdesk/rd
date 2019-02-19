@@ -13,7 +13,7 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake2/rd_cake/dynamic_clients/menu_for_grid.json',
+    urlMenu: '/cake3/rd_cake/dynamic-clients/menu-for-grid.json',
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me      = this;
@@ -167,6 +167,65 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
                                 "<tpl if='notes == true'><span class=\"fa fa-thumb-tack fa-lg txtGreen\"></tpl>"
                 ),
                 dataIndex: 'notes',stateId: 'StateGridDc11'
+            },
+            {   text: 'Data Limits',       dataIndex: 'data_used',    tdCls: 'gridTree', stateId: 'StateGridDc12',
+                width: 150,
+                renderer: function (value, m, r) {           
+                    v=r.get('data_limit_active');
+                    if(v){
+                        var bar = r.get('perc_data_used');
+                        var cls = 'wifigreen';
+                        if(bar > 0.9){
+                            cls = 'wifired';   
+                        }
+                        if((bar <= 0.9)&(bar >= 0.7)){
+                            cls = 'wifiyellow';
+                        } 
+                        var id = Ext.id();
+                        var p_text = bar*100;
+                        p_text = +p_text.toFixed(2);
+                        
+                        Ext.defer(function () {
+                            var p = Ext.widget('progressbarwidget', {
+                                renderTo    : id,
+                                value       : bar,
+                                width       : 140,
+                                text        : p_text+"% USED",
+                                cls         : cls
+                            });
+                        
+                            //Fetch some variables:
+                            var cap     = Ext.ux.bytesToHuman(r.get('data_cap'));
+                            var used     = Ext.ux.bytesToHuman(r.get('data_used'));
+                            
+
+                            var t  = Ext.create('Ext.tip.ToolTip', {
+                                target  : id,
+                                border  : true,
+                                anchor  : 'left',
+                                html    : [
+                                    "<div>",
+                                        "<h2>Data Limit Detail</h2>",
+                                        "<label class='lblTipItem'>Limit</label><label class='lblTipValue'>"+cap+"</label>",
+                                        "<div style='clear:both;'></div>",
+                                        "<label class='lblTipItem'>Used</label><label class='lblTipValue'>"+used+"</label>",
+                                        "<div style='clear:both;'></div>",
+                                        "<label class='lblTipItem'>Reset on</label><label class='lblTipValue'>"+r.get('data_limit_reset_on')+"</label>",
+                                        "<div style='clear:both;'></div>",
+                                        "<label class='lblTipItem'>Reset Hour</label><label class='lblTipValue'>"+r.get('data_limit_reset_hour')+"</label>",
+                                        "<div style='clear:both;'></div>",
+                                        "<label class='lblTipItem'>Reset Minute</label><label class='lblTipValue'>"+r.get('data_limit_reset_minute')+"</label>",
+                                        "<div style='clear:both;'></div>",
+                                    "</div>" 
+                                ]
+                            });
+
+                        }, 50);
+                        return Ext.String.format('<div id="{0}"></div>', id);
+                    }else{
+                        return "N/A";
+                    }
+                }
             }     
         ];     
         me.callParent(arguments);

@@ -166,7 +166,12 @@ class EventDispatcher
 
         $return = 0;
         foreach ($listeners as $callable) {
-            if (!is_string($callable) && is_callable($callable)) {
+            if (!is_string($callable)) {
+                if (!is_callable($callable)) {
+                    $className = is_object($callable[0]) ? get_class($callable[0]) : $callable[0];
+
+                    throw new \RuntimeException('Subscriber '.$className.'::'.$callable[1].' for event '.$event->getName().' is not callable, make sure the function is defined and public');
+                }
                 $event = $this->checkListenerExpectedEvent($callable, $event);
                 $return = false === call_user_func($callable, $event) ? 1 : 0;
             } elseif ($this->isComposerScript($callable)) {
@@ -186,7 +191,12 @@ class EventDispatcher
                         $this->io->writeError(sprintf('<warning>You made a reference to a non-existent script %s</warning>', $callable), true, IOInterface::QUIET);
                     }
 
-                    $return = $this->dispatch($scriptName, new Script\Event($scriptName, $event->getComposer(), $event->getIO(), $event->isDevMode(), $args, $flags));
+                    try {
+                        $return = $this->dispatch($scriptName, new Script\Event($scriptName, $event->getComposer(), $event->getIO(), $event->isDevMode(), $args, $flags));
+                    } catch (ScriptExecutionException $e) {
+                        $this->io->writeError(sprintf('<error>Script %s was called via %s</error>', $callable, $event->getName()), true, IOInterface::QUIET);
+                        throw $e;
+                    }
                 }
             } elseif ($this->isPhpScript($callable)) {
                 $className = substr($callable, 0, strpos($callable, '::'));

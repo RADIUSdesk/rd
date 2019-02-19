@@ -69,6 +69,30 @@ Ext.define('Rd.view.dynamicClients.winDynamicClientAddWizard', {
                     margin: '0 20 40 0'
                 }
             ];
+            
+        var dataUnit = Ext.create('Ext.data.Store', {
+            fields: ['id', 'name'],
+            data : [
+                {"id":"mb",  "name":"MB"},
+                {"id":"gb",  "name":"GB"}
+            ]
+        });
+
+        // Create the combo box, attached to the states data store
+        var cmbDataUnit = Ext.create('Ext.form.ComboBox', {
+            fieldLabel      : 'Unit',
+            store           : dataUnit,
+            queryMode       : 'local',
+            displayField    : 'name',
+            valueField      : 'id',
+            name            : 'data_limit_unit',
+            itemId          : 'cmbDataLimitUnit',
+            labelClsExtra   : 'lblRdReq',
+            allowBlank      : false,
+            forceSelection  : true,
+            hidden          : true
+        });
+        cmbDataUnit.select(cmbDataUnit.getStore().getAt(0));
 
         if(me.no_tree == true){
             var buttons = [
@@ -299,6 +323,77 @@ Ext.define('Rd.view.dynamicClients.winDynamicClientAddWizard', {
                                     value       : 24,
                                     allowBlank  : true
                                 } 
+                            ]
+                        },
+                        { 
+                            title   : 'Data Limit',
+                            itemId  : 'tabDataLimit',
+                            autoScroll: true,
+                            layout    : 'anchor',
+                            defaults    : {
+                                anchor  : '100%'
+                            },
+                            items: [
+                                {
+                                    xtype       : 'checkbox',      
+                                    boxLabel    : i18n('sActive'),
+                                    name        : 'data_limit_active',
+                                    inputValue  : 'data_limit_active',
+                                    itemId      : 'chkDataLimitActive',
+                                    checked     : false,
+                                    cls         : 'lblRd'
+                                    
+                                },
+                                {
+                                    xtype       : 'numberfield',
+                                    itemId      : 'nrDataLimitAmount',
+                                    anchor      : '100%',
+                                    name        : 'data_limit_amount',
+                                    fieldLabel  : 'Amount',
+                                    value       : 1,
+                                    maxValue    : 1023,
+                                    minValue    : 1,
+                                    hidden      : true,
+                                    labelClsExtra   : 'lblRdReq'
+                                },
+                                cmbDataUnit,
+                                {
+                                    xtype       : 'numberfield',
+                                    itemId      : 'nrDataLimitResetOn',
+                                    anchor      : '100%',
+                                    name        : 'data_limit_reset_on',
+                                    fieldLabel  : 'Day To Reset',
+                                    value       : 1,
+                                    maxValue    : 31,
+                                    minValue    : 1,
+                                    hidden      : true,
+                                    labelClsExtra   : 'lblRdReq'
+                                },
+                                {
+                                    xtype       : 'numberfield',
+                                    itemId      : 'nrDataLimitResetHour',
+                                    anchor      : '100%',
+                                    name        : 'data_limit_reset_hour',
+                                    fieldLabel  : 'Hour To Reset',
+                                    value       : 0,
+                                    maxValue    : 23,
+                                    minValue    : 0,
+                                    hidden      : true,
+                                    labelClsExtra   : 'lblRdReq'
+                                },
+                                {
+                                    xtype       : 'numberfield',
+                                    itemId      : 'nrDataLimitResetMinute',
+                                    anchor      : '100%',
+                                    name        : 'data_limit_reset_minute',
+                                    fieldLabel  : 'Minute To Reset',
+                                    value       : 0,
+                                    maxValue    : 59,
+                                    minValue    : 0,
+                                    hidden      : true,
+                                    labelClsExtra   : 'lblRdReq'
+                                }
+                                
                             ]
                         },
                         { 

@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Core;
 
@@ -163,6 +163,11 @@ trait StaticConfigTrait
      */
     public static function config($key, $config = null)
     {
+        deprecationWarning(
+            get_called_class() . '::config() is deprecated. ' .
+            'Use setConfig()/getConfig() instead.'
+        );
+
         if ($config !== null || is_array($key)) {
             static::setConfig($key, $config);
 
@@ -237,7 +242,7 @@ trait StaticConfigTrait
      *
      * @param string $dsn The DSN string to convert to a configuration array
      * @return array The configuration array to be stored after parsing the DSN
-     * @throws \InvalidArgumentException If not passed a string
+     * @throws \InvalidArgumentException If not passed a string, or passed an invalid string
      */
     public static function parseDsn($dsn)
     {
@@ -249,18 +254,56 @@ trait StaticConfigTrait
             throw new InvalidArgumentException('Only strings can be passed to parseDsn');
         }
 
-        $scheme = '';
-        if (preg_match("/^([\w\\\]+)/", $dsn, $matches)) {
-            $scheme = $matches[1];
-            $dsn = preg_replace("/^([\w\\\]+)/", 'file', $dsn);
+        $pattern = <<<'REGEXP'
+{
+    ^
+    (?P<_scheme>
+        (?P<scheme>[\w\\\\]+)://
+    )
+    (?P<_username>
+        (?P<username>.*?)
+        (?P<_password>
+            :(?P<password>.*?)
+        )?
+        @
+    )?
+    (?P<_host>
+        (?P<host>[^?#/:@]+)
+        (?P<_port>
+            :(?P<port>\d+)
+        )?
+    )?
+    (?P<_path>
+        (?P<path>/[^?#]*)
+    )?
+    (?P<_query>
+        \?(?P<query>[^#]*)
+    )?
+    (?P<_fragment>
+        \#(?P<fragment>.*)
+    )?
+    $
+}x
+REGEXP;
+
+        preg_match($pattern, $dsn, $parsed);
+
+        if (!$parsed) {
+            throw new InvalidArgumentException("The DSN string '{$dsn}' could not be parsed.");
         }
 
-        $parsed = parse_url($dsn);
-        if ($parsed === false) {
-            return $dsn;
+        $exists = [];
+        foreach ($parsed as $k => $v) {
+            if (is_int($k)) {
+                unset($parsed[$k]);
+            } elseif (strpos($k, '_') === 0) {
+                $exists[substr($k, 1)] = ($v !== '');
+                unset($parsed[$k]);
+            } elseif ($v === '' && !$exists[$k]) {
+                unset($parsed[$k]);
+            }
         }
 
-        $parsed['scheme'] = $scheme;
         $query = '';
 
         if (isset($parsed['query'])) {
@@ -280,15 +323,6 @@ trait StaticConfigTrait
             }
         }
 
-        if (isset($parsed['user'])) {
-            $parsed['username'] = $parsed['user'];
-        }
-
-        if (isset($parsed['pass'])) {
-            $parsed['password'] = $parsed['pass'];
-        }
-
-        unset($parsed['pass'], $parsed['user']);
         $parsed = $queryArgs + $parsed;
 
         if (empty($parsed['className'])) {
@@ -333,6 +367,11 @@ trait StaticConfigTrait
      */
     public static function dsnClassMap(array $map = null)
     {
+        deprecationWarning(
+            get_called_class() . '::setDsnClassMap() is deprecated. ' .
+            'Use setDsnClassMap()/getDsnClassMap() instead.'
+        );
+
         if ($map !== null) {
             static::setDsnClassMap($map);
         }

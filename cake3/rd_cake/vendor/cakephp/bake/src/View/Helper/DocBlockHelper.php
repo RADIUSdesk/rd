@@ -2,8 +2,10 @@
 namespace Bake\View\Helper;
 
 use Cake\Collection\Collection;
+use Cake\Core\App;
 use Cake\Database\Type;
 use Cake\ORM\Association;
+use Cake\Utility\Inflector;
 use Cake\View\Helper;
 
 /**
@@ -32,11 +34,11 @@ class DocBlockHelper extends Helper
 
         $previous = false;
         foreach ($annotations as $ann) {
-            if (strlen($ann) > 1 && $ann[0] == '@' && strpos($ann, ' ') > 0) {
+            if (strlen($ann) > 1 && $ann[0] === '@' && strpos($ann, ' ') > 0) {
                 $type = substr($ann, 0, strpos($ann, ' '));
                 if ($this->_annotationSpacing &&
                     $previous !== false &&
-                    $previous != $type
+                    $previous !== $type
                 ) {
                     $lines[] = '';
                 }
@@ -95,7 +97,7 @@ class DocBlockHelper extends Helper
     {
         $properties = [];
         foreach ($propertySchema as $property => $info) {
-            if ($info['kind'] == 'column') {
+            if ($info['kind'] === 'column') {
                 $properties[$property] = $this->columnTypeToHintType($info['type']);
             }
         }
@@ -128,12 +130,12 @@ class DocBlockHelper extends Helper
     {
         $properties = [];
         foreach ($propertySchema as $property => $info) {
-            if ($info['kind'] == 'association') {
+            if ($info['kind'] === 'association') {
                 $type = $this->associatedEntityTypeToHintType($info['type'], $info['association']);
                 if ($info['association']->type() === Association::MANY_TO_ONE) {
                     $properties = $this->_insertAfter(
                         $properties,
-                        $info['association']->foreignKey(),
+                        $info['association']->getForeignKey(),
                         [$property => $type]
                     );
                 } else {
@@ -166,6 +168,8 @@ class DocBlockHelper extends Helper
 
             case 'integer':
             case 'biginteger':
+            case 'smallinteger':
+            case 'tinyinteger':
                 return 'int';
 
             case 'float':
@@ -174,6 +178,10 @@ class DocBlockHelper extends Helper
 
             case 'boolean':
                 return 'bool';
+
+            case 'array':
+            case 'json':
+                return 'array';
 
             case 'binary':
                 return 'string|resource';
@@ -209,6 +217,45 @@ class DocBlockHelper extends Helper
         }
 
         return $lines;
+    }
+
+    /**
+     * Build property, method, mixing annotations for table class.
+     *
+     * @param array $associations Associations list.
+     * @param array $associationInfo Association info.
+     * @param array $behaviors Behaviors list.
+     * @param string $entity Entity name.
+     * @param string $namespace Namespace.
+     * @return array
+     */
+    public function buildTableAnnotations($associations, $associationInfo, $behaviors, $entity, $namespace)
+    {
+        $annotations = [];
+        foreach ($associations as $type => $assocs) {
+            foreach ($assocs as $assoc) {
+                $typeStr = Inflector::camelize($type);
+                $tableFqn = $associationInfo[$assoc['alias']]['targetFqn'];
+                $annotations[] = "@property {$tableFqn}|\Cake\ORM\Association\\{$typeStr} \${$assoc['alias']}";
+            }
+        }
+        $annotations[] = "@method \\{$namespace}\\Model\\Entity\\{$entity} get(\$primaryKey, \$options = [])";
+        $annotations[] = "@method \\{$namespace}\\Model\\Entity\\{$entity} newEntity(\$data = null, array \$options = [])";
+        $annotations[] = "@method \\{$namespace}\\Model\\Entity\\{$entity}[] newEntities(array \$data, array \$options = [])";
+        $annotations[] = "@method \\{$namespace}\\Model\\Entity\\{$entity}|bool save(\\Cake\\Datasource\\EntityInterface \$entity, \$options = [])";
+        $annotations[] = "@method \\{$namespace}\\Model\\Entity\\{$entity} patchEntity(\\Cake\\Datasource\\EntityInterface \$entity, array \$data, array \$options = [])";
+        $annotations[] = "@method \\{$namespace}\\Model\\Entity\\{$entity}[] patchEntities(\$entities, array \$data, array \$options = [])";
+        $annotations[] = "@method \\{$namespace}\\Model\\Entity\\{$entity} findOrCreate(\$search, callable \$callback = null, \$options = [])";
+        foreach ($behaviors as $behavior => $behaviorData) {
+            $className = App::className($behavior, 'Model/Behavior', 'Behavior');
+            if ($className === false) {
+                $className = "Cake\ORM\Behavior\\{$behavior}Behavior";
+            }
+
+            $annotations[] = '@mixin \\' . $className;
+        }
+
+        return $annotations;
     }
 
     /**

@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\ORM;
 
@@ -19,6 +19,7 @@ use Cake\Core\App;
 use Cake\Core\ConventionsTrait;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\QueryInterface;
 use Cake\Datasource\ResultSetDecorator;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\Utility\Inflector;
@@ -119,7 +120,7 @@ abstract class Association
      * A list of conditions to be always included when fetching records from
      * the target association
      *
-     * @var array
+     * @var array|callable
      */
     protected $_conditions = [];
 
@@ -158,7 +159,7 @@ abstract class Association
      *
      * @var string
      */
-    protected $_joinType = 'LEFT';
+    protected $_joinType = QueryInterface::JOIN_TYPE_LEFT;
 
     /**
      * The property name that should be filled with data from the target table
@@ -238,7 +239,8 @@ abstract class Association
     }
 
     /**
-     * Sets the name for this association.
+     * Sets the name for this association, usually the alias
+     * assigned to the target associated table
      *
      * @param string $name Name to be assigned
      * @return $this
@@ -258,7 +260,8 @@ abstract class Association
     }
 
     /**
-     * Gets the name for this association.
+     * Gets the name for this association, usually the alias
+     * assigned to the target associated table
      *
      * @return string
      */
@@ -276,6 +279,10 @@ abstract class Association
      */
     public function name($name = null)
     {
+        deprecationWarning(
+            get_called_class() . '::name() is deprecated. ' .
+            'Use setName()/getName() instead.'
+        );
         if ($name !== null) {
             $this->setName($name);
         }
@@ -316,6 +323,10 @@ abstract class Association
      */
     public function cascadeCallbacks($cascadeCallbacks = null)
     {
+        deprecationWarning(
+            get_called_class() . '::cascadeCallbacks() is deprecated. ' .
+            'Use setCascadeCallbacks()/getCascadeCallbacks() instead.'
+        );
         if ($cascadeCallbacks !== null) {
             $this->setCascadeCallbacks($cascadeCallbacks);
         }
@@ -366,6 +377,10 @@ abstract class Association
      */
     public function source(Table $table = null)
     {
+        deprecationWarning(
+            get_called_class() . '::source() is deprecated. ' .
+            'Use setSource()/getSource() instead.'
+        );
         if ($table === null) {
             return $this->_sourceTable;
         }
@@ -401,7 +416,7 @@ abstract class Association
                 $registryAlias = $this->_name;
             }
 
-            $tableLocator = $this->tableLocator();
+            $tableLocator = $this->getTableLocator();
 
             $config = [];
             $exists = $tableLocator->exists($registryAlias);
@@ -419,10 +434,10 @@ abstract class Association
 
                     throw new RuntimeException(sprintf(
                         $errorMessage,
-                        get_class($this->_sourceTable),
+                        $this->_sourceTable ? get_class($this->_sourceTable) : 'null',
                         $this->getName(),
                         $this->type(),
-                        get_class($this->_targetTable),
+                        $this->_targetTable ? get_class($this->_targetTable) : 'null',
                         $className
                     ));
                 }
@@ -442,6 +457,10 @@ abstract class Association
      */
     public function target(Table $table = null)
     {
+        deprecationWarning(
+            get_called_class() . '::target() is deprecated. ' .
+            'Use setTarget()/getTarget() instead.'
+        );
         if ($table !== null) {
             $this->setTarget($table);
         }
@@ -453,7 +472,7 @@ abstract class Association
      * Sets a list of conditions to be always included when fetching records from
      * the target association.
      *
-     * @param array $conditions list of conditions to be used
+     * @param array|callable $conditions list of conditions to be used
      * @see \Cake\Database\Query::where() for examples on the format of the array
      * @return $this
      */
@@ -469,7 +488,7 @@ abstract class Association
      * the target association.
      *
      * @see \Cake\Database\Query::where() for examples on the format of the array
-     * @return array
+     * @return array|callable
      */
     public function getConditions()
     {
@@ -483,10 +502,14 @@ abstract class Association
      * @deprecated 3.4.0 Use setConditions()/getConditions() instead.
      * @param array|null $conditions list of conditions to be used
      * @see \Cake\Database\Query::where() for examples on the format of the array
-     * @return array
+     * @return array|callable
      */
     public function conditions($conditions = null)
     {
+        deprecationWarning(
+            get_called_class() . '::conditions() is deprecated. ' .
+            'Use setConditions()/getConditions() instead.'
+        );
         if ($conditions !== null) {
             $this->setConditions($conditions);
         }
@@ -498,7 +521,7 @@ abstract class Association
      * Sets the name of the field representing the binding field with the target table.
      * When not manually specified the primary key of the owning side table is used.
      *
-     * @param string $key the table field to be used to link both tables together
+     * @param string|array $key the table field or fields to be used to link both tables together
      * @return $this
      */
     public function setBindingKey($key)
@@ -537,6 +560,10 @@ abstract class Association
      */
     public function bindingKey($key = null)
     {
+        deprecationWarning(
+            get_called_class() . '::bindingKey() is deprecated. ' .
+            'Use setBindingKey()/getBindingKey() instead.'
+        );
         if ($key !== null) {
             $this->setBindingKey($key);
         }
@@ -557,7 +584,7 @@ abstract class Association
     /**
      * Sets the name of the field representing the foreign key to the target table.
      *
-     * @param string $key the key to be used to link both tables together
+     * @param string|array $key the key or keys to be used to link both tables together
      * @return $this
      */
     public function setForeignKey($key)
@@ -577,6 +604,10 @@ abstract class Association
      */
     public function foreignKey($key = null)
     {
+        deprecationWarning(
+            get_called_class() . '::foreignKey() is deprecated. ' .
+            'Use setForeignKey()/getForeignKey() instead.'
+        );
         if ($key !== null) {
             $this->setForeignKey($key);
         }
@@ -629,6 +660,10 @@ abstract class Association
      */
     public function dependent($dependent = null)
     {
+        deprecationWarning(
+            get_called_class() . '::dependent() is deprecated. ' .
+            'Use setDependent()/getDependent() instead.'
+        );
         if ($dependent !== null) {
             $this->setDependent($dependent);
         }
@@ -682,6 +717,10 @@ abstract class Association
      */
     public function joinType($type = null)
     {
+        deprecationWarning(
+            get_called_class() . '::joinType() is deprecated. ' .
+            'Use setJoinType()/getJoinType() instead.'
+        );
         if ($type !== null) {
             $this->setJoinType($type);
         }
@@ -737,6 +776,10 @@ abstract class Association
      */
     public function property($name = null)
     {
+        deprecationWarning(
+            get_called_class() . '::property() is deprecated. ' .
+            'Use setProperty()/getProperty() instead.'
+        );
         if ($name !== null) {
             $this->setProperty($name);
         }
@@ -802,6 +845,10 @@ abstract class Association
      */
     public function strategy($name = null)
     {
+        deprecationWarning(
+            get_called_class() . '::strategy() is deprecated. ' .
+            'Use setStrategy()/getStrategy() instead.'
+        );
         if ($name !== null) {
             $this->setStrategy($name);
         }
@@ -843,6 +890,10 @@ abstract class Association
      */
     public function finder($finder = null)
     {
+        deprecationWarning(
+            get_called_class() . '::finder() is deprecated. ' .
+            'Use setFinder()/getFinder() instead.'
+        );
         if ($finder !== null) {
             $this->setFinder($finder);
         }
@@ -1056,7 +1107,7 @@ abstract class Association
      * @param mixed $conditions Conditions to be used, accepts anything Query::where()
      * can take.
      * @see \Cake\ORM\Table::updateAll()
-     * @return bool Success Returns true if one or more rows are affected.
+     * @return int Count Returns the affected rows.
      */
     public function updateAll($fields, $conditions)
     {
@@ -1140,7 +1191,8 @@ abstract class Association
         }
 
         if ($autoFields === true) {
-            $fields = array_merge((array)$fields, $target->getSchema()->columns());
+            $fields = array_filter((array)$fields);
+            $fields = array_merge($fields, $target->getSchema()->columns());
         }
 
         if ($fields) {
@@ -1164,7 +1216,7 @@ abstract class Association
      */
     protected function _formatAssociationResults($query, $surrogate, $options)
     {
-        $formatters = $surrogate->formatResults();
+        $formatters = $surrogate->getResultFormatters();
 
         if (!$formatters || empty($options['propertyPath'])) {
             return;
@@ -1189,6 +1241,7 @@ abstract class Association
                 $extracted = new ResultSetDecorator($callable($extracted));
             }
 
+            /* @var \Cake\Collection\CollectionInterface $results */
             return $results->insert($property, $extracted);
         }, Query::PREPEND);
     }
@@ -1209,7 +1262,7 @@ abstract class Association
     protected function _bindNewAssociations($query, $surrogate, $options)
     {
         $loader = $surrogate->getEagerLoader();
-        $contain = $loader->contain();
+        $contain = $loader->getContain();
         $matching = $loader->getMatching();
 
         if (!$contain && !$matching) {
@@ -1222,7 +1275,9 @@ abstract class Association
         }
 
         $eagerLoader = $query->getEagerLoader();
-        $eagerLoader->contain($newContain);
+        if ($newContain) {
+            $eagerLoader->contain($newContain);
+        }
 
         foreach ($matching as $alias => $value) {
             $eagerLoader->setMatching(
@@ -1427,7 +1482,7 @@ abstract class Association
      * the saving operation to the target table.
      *
      * @param \Cake\Datasource\EntityInterface $entity the data to be saved
-     * @param array|\ArrayObject $options The options for saving associated data.
+     * @param array $options The options for saving associated data.
      * @return bool|\Cake\Datasource\EntityInterface false if $entity could not be saved, otherwise it returns
      * the saved entity
      * @see \Cake\ORM\Table::save()

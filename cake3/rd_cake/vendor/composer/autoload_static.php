@@ -7,14 +7,16 @@ namespace Composer\Autoload;
 class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
 {
     public static $files = array (
+        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '34122c0574b76bf21c9a8db62b5b9cf3' => __DIR__ . '/..' . '/cakephp/chronos/src/carbon_compat.php',
         'c720f792236cd163ece8049879166850' => __DIR__ . '/..' . '/cakephp/cakephp/src/Core/functions.php',
         'ede59e3a405fb689cd1cebb7bb1db3fb' => __DIR__ . '/..' . '/cakephp/cakephp/src/Collection/functions.php',
         '90236b492da7ca2983a2ad6e33e4152e' => __DIR__ . '/..' . '/cakephp/cakephp/src/I18n/functions.php',
         'b1fc73705e1bec51cd2b20a32cf1c60a' => __DIR__ . '/..' . '/cakephp/cakephp/src/Utility/bootstrap.php',
+        '25072dd6e2470089de65ae7bf11d3109' => __DIR__ . '/..' . '/symfony/polyfill-php72/bootstrap.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
-        'e7223560d890eab89cda23685e711e2c' => __DIR__ . '/..' . '/psy/psysh/src/Psy/functions.php',
+        '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -26,15 +28,30 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         array (
             'XdgBaseDir\\' => 11,
         ),
+        'W' => 
+        array (
+            'WyriHaximus\\TwigView\\' => 21,
+        ),
+        'T' => 
+        array (
+            'Twig\\' => 5,
+        ),
         'S' => 
         array (
+            'Symfony\\Polyfill\\Php72\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
+            'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Component\\Yaml\\' => 23,
             'Symfony\\Component\\VarDumper\\' => 28,
+            'Symfony\\Component\\Process\\' => 26,
+            'Symfony\\Component\\Finder\\' => 25,
             'Symfony\\Component\\Filesystem\\' => 29,
             'Symfony\\Component\\Debug\\' => 24,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\Config\\' => 25,
+            'Seld\\PharUtils\\' => 15,
+            'Seld\\JsonLint\\' => 14,
+            'Seld\\CliPrompt\\' => 15,
         ),
         'P' => 
         array (
@@ -48,6 +65,15 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         array (
             'Migrations\\' => 11,
         ),
+        'J' => 
+        array (
+            'JsonSchema\\' => 11,
+            'Jasny\\Twig\\' => 11,
+        ),
+        'H' => 
+        array (
+            'Hybridauth\\' => 11,
+        ),
         'D' => 
         array (
             'DebugKit\\Test\\Fixture\\' => 22,
@@ -55,6 +81,10 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         ),
         'C' => 
         array (
+            'Composer\\Spdx\\' => 14,
+            'Composer\\Semver\\' => 16,
+            'Composer\\CaBundle\\' => 18,
+            'Composer\\' => 9,
             'Cake\\Test\\' => 10,
             'Cake\\Composer\\' => 14,
             'Cake\\Chronos\\' => 13,
@@ -66,9 +96,10 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         ),
         'A' => 
         array (
-            'Aura\\Intl\\_Config\\' => 18,
+            'Aura\\Intl\\' => 10,
             'App\\Test\\' => 9,
             'App\\' => 4,
+            'Ajgl\\Twig\\Extension\\' => 20,
             'Acl\\' => 4,
         ),
     );
@@ -82,9 +113,25 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         array (
             0 => __DIR__ . '/..' . '/dnoegel/php-xdg-base-dir/src',
         ),
+        'WyriHaximus\\TwigView\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/wyrihaximus/twig-view/src',
+        ),
+        'Twig\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/twig/twig/src',
+        ),
+        'Symfony\\Polyfill\\Php72\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-php72',
+        ),
         'Symfony\\Polyfill\\Mbstring\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
+        ),
+        'Symfony\\Polyfill\\Ctype\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
         ),
         'Symfony\\Component\\Yaml\\' => 
         array (
@@ -93,6 +140,14 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         'Symfony\\Component\\VarDumper\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/var-dumper',
+        ),
+        'Symfony\\Component\\Process\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/process',
+        ),
+        'Symfony\\Component\\Finder\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/finder',
         ),
         'Symfony\\Component\\Filesystem\\' => 
         array (
@@ -110,9 +165,21 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         array (
             0 => __DIR__ . '/..' . '/symfony/config',
         ),
+        'Seld\\PharUtils\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/seld/phar-utils/src',
+        ),
+        'Seld\\JsonLint\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/seld/jsonlint/src/Seld/JsonLint',
+        ),
+        'Seld\\CliPrompt\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/seld/cli-prompt/src',
+        ),
         'Psy\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psy/psysh/src/Psy',
+            0 => __DIR__ . '/..' . '/psy/psysh/src',
         ),
         'Psr\\Log\\' => 
         array (
@@ -134,6 +201,18 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         array (
             0 => __DIR__ . '/..' . '/cakephp/migrations/src',
         ),
+        'JsonSchema\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/justinrainbow/json-schema/src/JsonSchema',
+        ),
+        'Jasny\\Twig\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jasny/twig-extensions/src',
+        ),
+        'Hybridauth\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/hybridauth/hybridauth/src',
+        ),
         'DebugKit\\Test\\Fixture\\' => 
         array (
             0 => __DIR__ . '/..' . '/cakephp/debug_kit/tests/Fixture',
@@ -141,6 +220,22 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         'DebugKit\\' => 
         array (
             0 => __DIR__ . '/..' . '/cakephp/debug_kit/src',
+        ),
+        'Composer\\Spdx\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/spdx-licenses/src',
+        ),
+        'Composer\\Semver\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/semver/src',
+        ),
+        'Composer\\CaBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/ca-bundle/src',
+        ),
+        'Composer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/composer/src/Composer',
         ),
         'Cake\\Test\\' => 
         array (
@@ -162,9 +257,9 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         array (
             0 => __DIR__ . '/..' . '/cakephp/bake/src',
         ),
-        'Aura\\Intl\\_Config\\' => 
+        'Aura\\Intl\\' => 
         array (
-            0 => __DIR__ . '/..' . '/aura/intl/config',
+            0 => __DIR__ . '/..' . '/aura/intl/src',
         ),
         'App\\Test\\' => 
         array (
@@ -174,13 +269,35 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
+        'Ajgl\\Twig\\Extension\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ajgl/breakpoint-twig-extension/src',
+        ),
         'Acl\\' => 
         array (
             0 => __DIR__ . '/..' . '/cakephp/acl/src',
         ),
     );
 
+    public static $fallbackDirsPsr4 = array (
+        0 => __DIR__ . '/..' . '/asm89/twig-cache-extension/lib',
+    );
+
     public static $prefixesPsr0 = array (
+        'U' => 
+        array (
+            'Umpirsky\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/umpirsky/twig-php-function/src',
+            ),
+        ),
+        'T' => 
+        array (
+            'Twig_' => 
+            array (
+                0 => __DIR__ . '/..' . '/twig/twig/lib',
+            ),
+        ),
         'J' => 
         array (
             'JakubOnderka\\PhpConsoleHighlighter' => 
@@ -201,20 +318,30 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         ),
         'A' => 
         array (
-            'Aura\\Intl' => 
+            'Aptoma' => 
             array (
-                0 => __DIR__ . '/..' . '/aura/intl/src',
-            ),
-            'Aura\\Composer\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/aura/installer-default/src',
+                0 => __DIR__ . '/..' . '/aptoma/twig-markdown/src',
             ),
         ),
     );
 
     public static $classMap = array (
+        'Datamatrix' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/barcodes/datamatrix.php',
         'Mobile_Detect' => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/Mobile_Detect.php',
+        'PDF417' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/barcodes/pdf417.php',
+        'QRcode' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/barcodes/qrcode.php',
         'SqlFormatter' => __DIR__ . '/..' . '/jdorn/sql-formatter/lib/SqlFormatter.php',
+        'TCPDF' => __DIR__ . '/..' . '/tecnickcom/tcpdf/tcpdf.php',
+        'TCPDF2DBarcode' => __DIR__ . '/..' . '/tecnickcom/tcpdf/tcpdf_barcodes_2d.php',
+        'TCPDFBarcode' => __DIR__ . '/..' . '/tecnickcom/tcpdf/tcpdf_barcodes_1d.php',
+        'TCPDF_COLORS' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/tcpdf_colors.php',
+        'TCPDF_FILTERS' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/tcpdf_filters.php',
+        'TCPDF_FONTS' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/tcpdf_fonts.php',
+        'TCPDF_FONT_DATA' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/tcpdf_font_data.php',
+        'TCPDF_IMAGES' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/tcpdf_images.php',
+        'TCPDF_IMPORT' => __DIR__ . '/..' . '/tecnickcom/tcpdf/tcpdf_import.php',
+        'TCPDF_PARSER' => __DIR__ . '/..' . '/tecnickcom/tcpdf/tcpdf_parser.php',
+        'TCPDF_STATIC' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/tcpdf_static.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
@@ -222,6 +349,7 @@ class ComposerStaticInit6acb9c8b998d748554a866603d5f5d18
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit6acb9c8b998d748554a866603d5f5d18::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit6acb9c8b998d748554a866603d5f5d18::$prefixDirsPsr4;
+            $loader->fallbackDirsPsr4 = ComposerStaticInit6acb9c8b998d748554a866603d5f5d18::$fallbackDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInit6acb9c8b998d748554a866603d5f5d18::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit6acb9c8b998d748554a866603d5f5d18::$classMap;
 

@@ -7,8 +7,8 @@ class NodesController extends AppController {
     public $uses        = array('Mesh','UnknownNode');
     public $components  = array('OpenWrt');
     protected $NodeId   = '';
-	  protected $Hardware = 'dragino'; //Some default value
-	  protected $Power	= '10'; //Some default
+	protected $Hardware = 'dragino'; //Some default value
+	protected $Power	= '10'; //Some default
     protected $RadioSettings = array();
 
 
@@ -19,7 +19,7 @@ class NodesController extends AppController {
             $mac    = $this->request->query['mac'];
            // $mac    = 'AC-86-74-10-03-10'; //manual override
             $mac    = strtoupper($mac);
-
+           
             $node   = ClassRegistry::init('Node');
             $mesh   = ClassRegistry::init('Mesh');
             $node->contain();
@@ -54,16 +54,16 @@ class NodesController extends AppController {
 
                 $m['NodeDetail'] = $q_r['Node'];
                 //print_r($m);
-
+                
 
 				//Update the last_contact field
 				$data = array();
 				$data['id'] 			= $this->NodeId;
 				$data['last_contact']	= date("Y-m-d H:i:s", time());
 				$this->Mesh->Node->save($data);
-
+				
 				$this->Mac = $mac;
-
+                
                 $json = $this->_build_json($m,$gw);
                 $this->set(array(
                     'config_settings'   => $json['config_settings'],
@@ -90,7 +90,7 @@ class NodesController extends AppController {
 
                     $new_server = $q_r['UnknownNode']['new_server'];
                     if($new_server != ''){
-
+                        
                         $data['new_server_status'] = 'fetched';
                         $include_new_server = true;
                     }
@@ -166,12 +166,12 @@ class NodesController extends AppController {
         $entry_data         = $net_return[1];
         $json_wireless      = $this->_build_wireless($mesh,$entry_data);
         $json['config_settings']['wireless'] = $json_wireless;
-
+        
         //========== Gateway or NOT? ======
-        if($gateway){
+        if($gateway){   
             $json['config_settings']['gateways']        = $net_return[2]; //Gateways
             $json['config_settings']['captive_portals'] = $net_return[3]; //Captive portals
-
+                        
             $openvpn_bridges                            = $this->_build_openvpn_bridges($net_return[4]);
             $json['config_settings']['openvpn_bridges'] = $openvpn_bridges; //Openvpn Bridges
         }
@@ -202,20 +202,20 @@ class NodesController extends AppController {
 			$json['config_settings']['mesh_potato'] = $mp_data;
 		}
 
-        return $json;
+        return $json; 
     }
-
+    
     private function _build_openvpn_bridges($openvpn_list){
-        $openvpn_bridges = array();
+        $openvpn_bridges = array();    
         foreach($openvpn_list as $o){
-
-            $br                 = array();
+        
+            $br                 = array(); 
             $br['interface']    = $o['interface'];
             $br['up']           = "mesh_".$this->Mac."\n".md5("mesh_".$this->Mac)."\n";
             $br['ca']           = $o['ca_crt'];
             $br['vpn_gateway_address'] = $o['vpn_gateway_address'];
             $br['vpn_client_id'] = $o['vpn_client_id'];
-
+            
             Configure::load('OpenvpnClientPresets');
             $config_file    = Configure::read('OpenvpnClientPresets.'.$o['config_preset']); //Read the defaults
 
@@ -223,13 +223,13 @@ class NodesController extends AppController {
             $config_file['up']      = '"/etc/openvpn/up.sh br-'.$o['interface'].'"';
             $config_file['proto']   = $o['protocol'];
             $config_file['ca']      = '/etc/openvpn/'.$o['interface'].'_ca.crt';
-            $config_file['auth_user_pass'] = '/etc/openvpn/'.$o['interface'].'_up';
+            $config_file['auth_user_pass'] = '/etc/openvpn/'.$o['interface'].'_up';  
             $br['config_file']      = $config_file;
             array_push($openvpn_bridges,$br);
         }
         return $openvpn_bridges;
     }
-
+    
 
 	private function _build_system($mesh){
 		//Get the root password
@@ -246,7 +246,7 @@ class NodesController extends AppController {
 			$ss['heartbeat_dead_after']	= $data['heartbeat_dead_after'];
 		}
 
-
+       
         //Timezone
         if($mesh['NodeSetting']['tz_value'] != ''){
             $ss['timezone']             = $mesh['NodeSetting']['tz_value'];
@@ -261,7 +261,7 @@ class NodesController extends AppController {
             $ss['gw_dhcp_timeout']          = $mesh['NodeSetting']['gw_dhcp_timeout'];
             $ss['gw_use_previous']          = $mesh['NodeSetting']['gw_use_previous'];
             $ss['gw_auto_reboot']           = $mesh['NodeSetting']['gw_auto_reboot'];
-            $ss['gw_auto_reboot_time']      = $mesh['NodeSetting']['gw_auto_reboot_time'];
+            $ss['gw_auto_reboot_time']      = $mesh['NodeSetting']['gw_auto_reboot_time']; 
         }else{
             Configure::load('MESHdesk');
 			$data = Configure::read('common_node_settings'); //Read the defaults
@@ -295,7 +295,6 @@ class NodesController extends AppController {
         //loopback if
         array_push( $network,
             array(
-                "comment"  =>    "loopback",
                 "interface"    => "loopback",
                 "options"   => array(
                     "ifname"        => "lo",
@@ -359,10 +358,9 @@ class NodesController extends AppController {
 
 		    array_push( $network,
 		        array(
-              "comment"  =>    "lan",
 		            "interface"    => "lan",
 		            "options"   => array(
-		                "ifname"        => "$br_int",
+		                "ifname"        => "$br_int", 
 		                "type"          => "bridge",
 		                "proto"         => "$proto"
 		           )
@@ -372,17 +370,15 @@ class NodesController extends AppController {
 		//Add an interface called b to list the batman interface
 		array_push( $network,
             array(
-              "comment"  =>    "batman",
                 "interface"    => "b",
                 "options"   => array(
                     "ifname"    => "bat0"
                )
             ));
-
+		
         //Mesh
         array_push( $network,
             array(
-                "comment"  =>    "mesh",
                 "interface"    => "mesh",
                 "options"   => array(
                     //"ifname"    => "mesh0", //This thing caused major problems on Barrier Breaker
@@ -397,7 +393,6 @@ class NodesController extends AppController {
         //Admin interface
         array_push($network,
             array(
-                "comment"  =>    "admin",
                 "interface"    => "one",
                 "options"   => array(
                     "ifname"    => "bat0.1",
@@ -411,7 +406,6 @@ class NodesController extends AppController {
 		//***With its VLAN***
 		 array_push($network,
             array(
-                "comment"  =>    "admin_vlan",
                 "interface"    => "bat_vlan_one",
                 "options"   => array(
                     "ifname"    	=> "bat0.1",
@@ -422,7 +416,7 @@ class NodesController extends AppController {
 
 //================================
 
-        //Now we will loop all the defined exits **that has entries assigned** to them and add them as bridges as we loop.
+        //Now we will loop all the defined exits **that has entries assigned** to them and add them as bridges as we loop. 
         //The members of these bridges will be determined by which entries are assigned to them and specified
         //in the wireless configuration file
 
@@ -432,20 +426,19 @@ class NodesController extends AppController {
         //The correct network defined here
         $entry_point_data = array();
 
-
+        
 
      //   print_r($mesh['MeshExit']);
 
         //Add the auto-attach entry points
         foreach($mesh['MeshExit'] as $me){
-
+        
             $has_entries_attached   = false;
             $if_name                = 'ex_'.$this->_number_to_word($start_number);
             $exit_id                = $me['id'];
             $type                   = $me['type'];
             $vlan                   = $me['vlan'];
             $openvpn_server_id      = $me['openvpn_server_id'];
-            $comment                = $me['name'] . $me['vlan'];
 
             //This is used to fetch info eventually about the entry points
             if(count($me['MeshExitMeshEntry']) > 0){
@@ -458,10 +451,10 @@ class NodesController extends AppController {
                     }
                 }
             }
-
+            
             if($has_entries_attached == true){
 
-
+				
                 //=======================================
                 //========= GATEWAY NODES ===============
                 //=======================================
@@ -477,7 +470,6 @@ class NodesController extends AppController {
 					}
                     array_push($network,
                         array(
-                            "comment" => "$comment",
                             "interface"    => "$if_name",
                             "options"   => array(
                                 "ifname"    => $interfaces,
@@ -489,7 +481,6 @@ class NodesController extends AppController {
 					$nr = $this->_number_to_word($start_number);
 					array_push($network,
 						array(
-              "comment" => "$comment",
 							"interface"    => "bat_vlan_".$nr,
 							"options"   => array(
 							    "ifname"    	=> "bat0.".$start_number,
@@ -508,7 +499,6 @@ class NodesController extends AppController {
                     $interfaces =  "bat0.".$start_number;
                     array_push($network,
                         array(
-                            "comment" => "$comment",
                             "interface"    => "$if_name",
                             "options"   => array(
                                 "ifname"    => $interfaces,
@@ -523,7 +513,6 @@ class NodesController extends AppController {
 					$nr = $this->_number_to_word($start_number);
 					array_push($network,
 						array(
-              "comment" => "$comment",
 							"interface"    => "bat_vlan_".$nr,
 							"options"   => array(
 							    "ifname"    	=> $interfaces,
@@ -548,7 +537,7 @@ class NodesController extends AppController {
                 }
 
                 if(($type == 'captive_portal')&&($gateway)){
-
+                
                     //---WIP Start---
                     if($me['MeshExitCaptivePortal']['dnsdesk'] == true){
                         $if_ip      = "10.$captive_portal_count.0.2";
@@ -561,7 +550,7 @@ class NodesController extends AppController {
                         $a = $me['MeshExitCaptivePortal'];
                         $a['hslan_if'] = 'br-'.$if_name;
                         $a['network']  = $if_name;
-
+                        
                         //---WIP Start---
                         if($me['MeshExitCaptivePortal']['dnsdesk'] == true){
                             $a['dns1']      = $if_ip;
@@ -570,19 +559,18 @@ class NodesController extends AppController {
                             $a['upstream_dns2'] = Configure::read('dnsfilter.dns2'); //Read the defaults
                         }
                         //---WIP END---
-
-                        array_push($captive_portal_data,$a);
+                        
+                        array_push($captive_portal_data,$a);             
                     }
 
                     $interfaces =  "bat0.".$start_number;
-
+                                      
                     array_push($network,
                         array(
-                            "comment" => "$comment",
                             "interface"    => "$if_name",
                             "options"   => array(
                                 "ifname"    => $interfaces,
-                                "type"      => "bridge",
+                                "type"      => "bridge",       
                         ))
                     );
 
@@ -590,7 +578,6 @@ class NodesController extends AppController {
 					$nr = $this->_number_to_word($start_number);
 					array_push($network,
 						array(
-              "comment" => "$comment",
 							"interface"    => "bat_vlan_".$nr,
 							"options"   => array(
 							    "ifname"    	=> $interfaces,
@@ -601,36 +588,35 @@ class NodesController extends AppController {
                     $start_number++;
                     continue; //We dont care about the other if's
                 }
-
+                
                 //___ OpenVPN Bridge ________
                 if(($type == 'openvpn_bridge')&&($gateway)){
 
                     //Add the OpenvpnServer detail
                     if($type =='openvpn_bridge'){
-
+                    
                         $a              = $me['OpenvpnServerClient'];
                         $a['bridge']    = 'br-'.$if_name;
                         $a['interface'] = $if_name;
-
+                        
                         //Get the info for the OpenvpnServer
                         $openvpn_server = ClassRegistry::init('OpenvpnServer');
                         $q_s            = $openvpn_server->findById($me['OpenvpnServerClient']['openvpn_server_id']);
-
+                        
                         $a['protocol']  = $q_s['OpenvpnServer']['protocol'];
                         $a['ip_address']= $q_s['OpenvpnServer']['ip_address'];
                         $a['port']      = $q_s['OpenvpnServer']['port'];
                         $a['vpn_mask']  = $q_s['OpenvpnServer']['vpn_mask'];
-                        $a['ca_crt']    = $q_s['OpenvpnServer']['ca_crt'];
-
-                        $a['config_preset']        = $q_s['OpenvpnServer']['config_preset'];
+                        $a['ca_crt']    = $q_s['OpenvpnServer']['ca_crt'];   
+                        
+                        $a['config_preset']        = $q_s['OpenvpnServer']['config_preset'];  
                         $a['vpn_gateway_address']  = $q_s['OpenvpnServer']['vpn_gateway_address'];
-                        $a['vpn_client_id']        = $me['OpenvpnServerClient']['id'];
-                        array_push($openvpn_bridge_data,$a);
+                        $a['vpn_client_id']        = $me['OpenvpnServerClient']['id'];                      
+                        array_push($openvpn_bridge_data,$a);             
                     }
                     $interfaces =  "bat0.".$start_number;
                     array_push($network,
                         array(
-                            "comment" => "$comment",
                             "interface"    => "$if_name",
                             "options"   => array(
                                 "ifname"    => $interfaces,
@@ -638,7 +624,7 @@ class NodesController extends AppController {
                                 'ipaddr'    => $me['OpenvpnServerClient']['ip_address'],
                                 'netmask'   => $a['vpn_mask'],
                                 'proto'     => 'static'
-
+                                
                         ))
                     );
 
@@ -646,7 +632,6 @@ class NodesController extends AppController {
 					$nr = $this->_number_to_word($start_number);
 					array_push($network,
 						array(
-              "comment" => "$comment",
 							"interface"    => "bat_vlan_".$nr,
 							"options"   => array(
 							    "ifname"    	=> $interfaces,
@@ -676,11 +661,10 @@ class NodesController extends AppController {
 
                     array_push($network,
                         array(
-                           "comment" => "$comment",
                             "interface"    => "$if_name",
                             "options"   => array(
                                 "ifname"    => $interfaces,
-                                "type"      => "bridge"
+                                "type"      => "bridge" 
                         ))
                     );
 
@@ -688,7 +672,6 @@ class NodesController extends AppController {
 					$nr = $this->_number_to_word($start_number);
 					array_push($network,
 						array(
-              "comment" => "$comment",
 							"interface"    => "bat_vlan_".$nr,
 							"options"   => array(
 							    "ifname"    	=> $interfaces,
@@ -744,18 +727,18 @@ class NodesController extends AppController {
                 foreach($q_r['NodeWifiSetting'] as $i){
                     $name  = $i['name'];
                     $value = $i['value'];
-
+                    
                     if($name == 'device_type'){
                         continue;
                     }
-
+                    
                     if(preg_match('/^radio0_/',$name)){
                         $radio_number = 0;
                     }
                     if(preg_match('/^radio1_/',$name)){
                         $radio_number = 1;
                     }
-
+                     
                     if(preg_match('/^radio\d+_ht_capab/',$name)){
                         if($radio_number == 0){
                             array_push($ht_capab_zero,$value);
@@ -764,8 +747,8 @@ class NodesController extends AppController {
                             array_push($ht_capab_one,$value);
                         }
                     }else{
-                        $this->RadioSettings[$radio_number][$name] = $value;
-                    }
+                        $this->RadioSettings[$radio_number][$name] = $value; 
+                    }  
                 }
                 $this->RadioSettings[0]['radio0_ht_capab'] = $ht_capab_zero;
                 $this->RadioSettings[1]['radio1_ht_capab'] = $ht_capab_one;
@@ -784,7 +767,7 @@ class NodesController extends AppController {
                                 if(preg_match('/^radio1_/',$key)){
                                     $radio_number = 1;
                                 }
-                                $this->RadioSettings[$radio_number][$key] = $h["$key"];
+                                $this->RadioSettings[$radio_number][$key] = $h["$key"]; 
                             }
                         }
                         break;
@@ -796,10 +779,10 @@ class NodesController extends AppController {
     }
 
     private function _build_single_radio_wireless($mesh,$entry_point_data){
-
+    
         $wireless = array();
-
-        if($mesh['NodeSetting']['client_key']!='') {
+        
+        if($mesh['NodeSetting']['client_key']!='') {        
             $client_key = $mesh['NodeSetting']['client_key'];
         }else{
             Configure::load('MESHdesk');
@@ -807,14 +790,14 @@ class NodesController extends AppController {
         }
 
         //Get the channel
-        if($mesh['NodeSetting']['two_chan']!='') {
+        if($mesh['NodeSetting']['two_chan']!='') {        
             $channel    = $mesh['NodeSetting']['two_chan'];
         }else{
             Configure::load('MESHdesk');
 		    $channel = Configure::read('common_node_settings.two_chan');
         }
 
-
+	
 		//Hardware mode for 5G
 		$hwmode		= '11g';	//Sane default
 		$hw_temp    = $this->_get_hardware_setting($this->Hardware,'hwmode');
@@ -823,13 +806,13 @@ class NodesController extends AppController {
 		}
 
 		//Channel (if 5)
-		if($this->_get_hardware_setting($this->Hardware,'five')){
-		    if($mesh['NodeSetting']['five_chan']!='') {
+		if($this->_get_hardware_setting($this->Hardware,'five')){		
+		    if($mesh['NodeSetting']['five_chan']!='') {        
                 $channel    = $mesh['NodeSetting']['five_chan'];
             }else{
                 Configure::load('MESHdesk');
 		        $channel = Configure::read('common_node_settings.five_chan');
-            }
+            }	
 		}
 
         //Country
@@ -873,10 +856,10 @@ class NodesController extends AppController {
                 array_push($radio_zero_capab,array('name'    => 'ht_capab', 'value'  => $c));
             }
         }
-
+        
         if(array_key_exists('radio0_disable_b', $this->RadioSettings[0])) {
-            array_push($radio_zero_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000'));
-        }
+            array_push($radio_zero_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000')); 
+        } 
 
         array_push( $wireless,
                 array(
@@ -886,10 +869,10 @@ class NodesController extends AppController {
                         'disabled'      => 0,
                         'hwmode'        => $hwmode,
                         'htmode'        => $this->RadioSettings[0]['radio0_htmode'],
-
-
+                        
+                        
                         'country'       => $country,
-                        'distance'      => intval($this->RadioSettings[0]['radio0_distance']),
+                        'distance'      => intval($this->RadioSettings[0]['radio0_distance']), 
                         'txpower'       => intval($this->RadioSettings[0]['radio0_txpower']),
                         'beacon_int'    => intval($this->RadioSettings[0]['radio0_beacon_int']),
                         'noscan'        => $noscan,
@@ -905,9 +888,9 @@ class NodesController extends AppController {
         //Get the mesh's BSSID and SSID
         $bssid      = $mesh['Mesh']['bssid'];
         $ssid       = $mesh['Mesh']['ssid'];
-
+        
         //Get the connection type (IBSS or mesh_point);
-        if($mesh['MeshSetting']['id']!=null){
+        if($mesh['MeshSetting']['id']!=null){  
             $connectivity   = $mesh['MeshSetting']['connectivity'];
             $encryption     = $mesh['MeshSetting']['encryption'];
             $encryption_key = $mesh['MeshSetting']['encryption_key'];
@@ -920,7 +903,7 @@ class NodesController extends AppController {
 
         //Add the ad-hoc if for mesh
         $zero = $this->_number_to_word(0);
-
+        
         if($connectivity == 'IBSS'){
             array_push( $wireless,
                     array(
@@ -935,7 +918,7 @@ class NodesController extends AppController {
                         )
                     ));
         }
-
+         
         if(($connectivity == 'mesh_point')&&(!$encryption)){
             array_push( $wireless,
                     array(
@@ -954,7 +937,7 @@ class NodesController extends AppController {
                         )
                     ));
         }
-
+        
         if(($connectivity == 'mesh_point')&&($encryption)){
             array_push( $wireless,
                     array(
@@ -974,7 +957,7 @@ class NodesController extends AppController {
                         )
                     ));
         }
-
+        
         //Add the hidden config VAP
         $one = $this->_number_to_word(1);
         array_push( $wireless,
@@ -996,7 +979,7 @@ class NodesController extends AppController {
 
         //Check if we need to add this wireless VAP
         foreach($mesh['MeshEntry'] as $me){
-
+        
             $to_all     = false;
             $if_name    = $this->_number_to_word($start_number);
             $entry_id   = $me['id'];
@@ -1007,7 +990,7 @@ class NodesController extends AppController {
                 foreach($entry_point_data as $epd){
                   //  print_r($epd);
                     if($epd['entry_id'] == $entry_id){ //We found our man :-)
-
+                    
                         $base_array = array(
                             "device"        => "radio0",
                             "ifname"        => "$if_name"."0",
@@ -1021,11 +1004,11 @@ class NodesController extends AppController {
                             "auth_server"   => $me['auth_server'],
                             "auth_secret"   => $me['auth_secret']
                         );
-
+                        
                         if($me['chk_maxassoc']){
                             $base_array['maxassoc'] = $me['maxassoc'];
                         }
-
+                        
                         if($me['macfilter'] != 'disable'){
                             $base_array['macfilter']    = $me['macfilter'];
                             //Replace later
@@ -1043,12 +1026,12 @@ class NodesController extends AppController {
                                 $base_array['maclist'] = implode(" ",$mac_list);
                             }
                         }
-
+                    
                         array_push( $wireless,
                             array(
                                 "wifi-iface"=> "$if_name",
                                 "options"   => $base_array
-                        ));
+                        ));    
                         break;
                     }
                 }
@@ -1063,7 +1046,7 @@ class NodesController extends AppController {
                                 foreach($entry_point_data as $epd){
                                     //We have a hit; we have to  add this entry
                                     if($epd['entry_id'] == $entry_id){ //We found our man :-)
-
+                                    
                                         $base_array = array(
                                             "device"        => "radio0",
                                             "ifname"        => "$if_name"."0",
@@ -1077,11 +1060,11 @@ class NodesController extends AppController {
                                             "auth_server"   => $me['auth_server'],
                                             "auth_secret"   => $me['auth_secret']
                                         );
-
+                                        
                                         if($me['chk_maxassoc']){
                                             $base_array['maxassoc'] = $me['maxassoc'];
                                         }
-
+                                        
                                         if($me['macfilter'] != 'disable'){
                                             $base_array['macfilter']    = $me['macfilter'];
                                             //Replace later
@@ -1099,13 +1082,13 @@ class NodesController extends AppController {
                                                 $base_array['maclist'] = implode(" ",$mac_list);
                                             }
                                         }
-
+                                    
                                         array_push( $wireless,
                                             array(
                                                 "wifi-iface"=> "$if_name",
                                                 "options"   => $base_array
-                                        ));
-
+                                        ));    
+                                               
                                         break;
                                     }
                                 }
@@ -1124,7 +1107,7 @@ class NodesController extends AppController {
 
         $wireless = array();
 
-		if($mesh['NodeSetting']['client_key']!='') {
+		if($mesh['NodeSetting']['client_key']!='') {        
             $client_key = $mesh['NodeSetting']['client_key'];
         }else{
             Configure::load('MESHdesk');
@@ -1132,22 +1115,22 @@ class NodesController extends AppController {
         }
 
         //Get the channel that the mesh needs to be on
-
+        
         //Get the channel
-        if($mesh['NodeSetting']['two_chan']!='') {
+        if($mesh['NodeSetting']['two_chan']!='') {        
             $mesh_channel_two   = $mesh['NodeSetting']['two_chan'];
         }else{
             Configure::load('MESHdesk');
 		    $mesh_channel_two   = Configure::read('common_node_settings.two_chan');
         }
-
-        if($mesh['NodeSetting']['five_chan']!='') {
+        
+        if($mesh['NodeSetting']['five_chan']!='') {        
             $mesh_channel_five   = $mesh['NodeSetting']['five_chan'];
         }else{
             Configure::load('MESHdesk');
 		    $mesh_channel_five   = Configure::read('common_node_settings.five_chan');
         }
-
+        
 
         //Get the country setting
         if($mesh['NodeSetting']['country'] != ''){
@@ -1178,10 +1161,10 @@ class NodesController extends AppController {
 				$r0_channel =  $mesh_channel_two;
 			}else{
 				$r0_channel =  $mesh_channel_five;
-			}
+			} 
 		}
 
-		//-Determine the hwmode
+		//-Determine the hwmode 
 		$r0_hwmode 		= $this->_get_hardware_setting($this->Hardware,'hwmode');
 
          //Boolean flags
@@ -1216,14 +1199,14 @@ class NodesController extends AppController {
                 array_push($radio_zero_capab,array('name'    => 'ht_capab', 'value'  => $c));
             }
         }
-
-
+        
+        
         if(array_key_exists('radio0_disable_b', $this->RadioSettings[0])) {
-            array_push($radio_zero_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000'));
-        }
+            array_push($radio_zero_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000')); 
+        } 
 
-        //FIXME
-/*
+        //FIXME 
+/* 
         //802.11AC experiment
         array_push( $wireless,
             array(
@@ -1246,10 +1229,10 @@ class NodesController extends AppController {
                     'disabled'      => $r0_disabled,
                     'hwmode'        => $r0_hwmode,
                     'htmode'        => $this->RadioSettings[0]['radio0_htmode'],
-
-
+                    
+                    
                     'country'       => $country,
-                    'distance'      => intval($this->RadioSettings[0]['radio0_distance']),
+                    'distance'      => intval($this->RadioSettings[0]['radio0_distance']), 
                     'txpower'       => intval($this->RadioSettings[0]['radio0_txpower']),
                     'beacon_int'    => intval($this->RadioSettings[0]['radio0_beacon_int']),
                     'noscan'        => $noscan,
@@ -1279,7 +1262,7 @@ class NodesController extends AppController {
 				$r1_channel =  $mesh_channel_two;
 			}else{
 				$r1_channel =  $mesh_channel_five;
-			}
+			} 
 		}
 
 		//-Determine the hwmode
@@ -1317,10 +1300,10 @@ class NodesController extends AppController {
                 array_push($radio_one_capab,array('name'    => 'ht_capab', 'value'  => $c));
             }
         }
-
+        
         if(array_key_exists('radio1_disable_b', $this->RadioSettings[1])) {
-            array_push($radio_one_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000'));
-        }
+            array_push($radio_one_capab,array('name'    => 'basic_rate', 'value'  => '6000 9000 12000 18000 24000 36000 48000 54000')); 
+        } 
 
 		array_push( $wireless,
             array(
@@ -1330,7 +1313,7 @@ class NodesController extends AppController {
                     'disabled'      => $r1_disabled,
                     'hwmode'        => $r1_hwmode,
                     'htmode'        => $this->RadioSettings[1]['radio1_htmode'],
-
+                    
                     'country'       => $country,
                     'distance'      => intval($this->RadioSettings[1]['radio1_distance']),
                     'txpower'       => intval($this->RadioSettings[1]['radio1_txpower']),
@@ -1346,9 +1329,9 @@ class NodesController extends AppController {
         //Get the mesh's BSSID and SSID
         $bssid      = $mesh['Mesh']['bssid'];
         $ssid       = $mesh['Mesh']['ssid'];
-
+        
         //Get the connection type (IBSS or mesh_point);
-        if($mesh['MeshSetting']['id']!=null){
+        if($mesh['MeshSetting']['id']!=null){  
             $connectivity   = $mesh['MeshSetting']['connectivity'];
             $encryption     = $mesh['MeshSetting']['encryption'];
             $encryption_key = $mesh['MeshSetting']['encryption_key'];
@@ -1360,7 +1343,7 @@ class NodesController extends AppController {
         }
 
 		if(($mesh['NodeDetail']['radio0_enable'] == 1)&&($mesh['NodeDetail']['radio0_mesh'] == 1)){
-		    $zero = $this->_number_to_word(0);
+		    $zero = $this->_number_to_word(0);	    
 		    if($connectivity == 'IBSS'){
                 array_push( $wireless,
                         array(
@@ -1375,7 +1358,7 @@ class NodesController extends AppController {
                             )
                         ));
             }
-
+         
             if(($connectivity == 'mesh_point')&&(!$encryption)){
                 array_push( $wireless,
                         array(
@@ -1394,7 +1377,7 @@ class NodesController extends AppController {
                             )
                         ));
             }
-
+            
             if(($connectivity == 'mesh_point')&&($encryption)){
                 array_push( $wireless,
                         array(
@@ -1433,7 +1416,7 @@ class NodesController extends AppController {
                             )
                         ));
             }
-
+         
             if(($connectivity == 'mesh_point')&&(!$encryption)){
                 array_push( $wireless,
                         array(
@@ -1452,7 +1435,7 @@ class NodesController extends AppController {
                             )
                         ));
             }
-
+            
             if(($connectivity == 'mesh_point')&&($encryption)){
                 array_push( $wireless,
                         array(
@@ -1478,14 +1461,14 @@ class NodesController extends AppController {
 
       	if(($mesh['NodeDetail']['radio0_enable'] == 1)&&($mesh['NodeDetail']['radio0_mesh'] == 1)){
 		    $one = $this->_number_to_word(1);
-
+		    
 		    //The ATH10K does not like this VAP so we try to avoid it on 5G
 		    //Only if the other radio is enabled but without mesh
 		    if(
 		        ($mesh['NodeDetail']['radio0_band'] == 5)&&
 		        ($mesh['NodeDetail']['radio1_enable'] == 1)&&
 		        ($mesh['NodeDetail']['radio1_mesh'] !== 1)
-		    ){
+		    ){ 
                 array_push( $wireless,
                     array(
                         "wifi-iface"    => "$one",
@@ -1500,8 +1483,8 @@ class NodesController extends AppController {
                             "hidden"        => "1"
                        )
                 ));
-
-		    }else{
+		    
+		    }else{		        
 	            array_push( $wireless,
 	                array(
 	                    "wifi-iface"    => "$one",
@@ -1516,12 +1499,12 @@ class NodesController extends AppController {
 	                        "hidden"        => "1"
 	                   )
 	                ));
-		    }
+		    }    
 		}
 
 		if(($mesh['NodeDetail']['radio1_enable'] == 1)&&($mesh['NodeDetail']['radio1_mesh'] == 1)){
 		    $one = $this->_number_to_word(1);
-
+		    
 		    //The ATH10K does not like this VAP so we try to avoid it on 5G
 		    //Only if the other radio is enabled but without mesh
 		    if(
@@ -1529,7 +1512,7 @@ class NodesController extends AppController {
 		        ($mesh['NodeDetail']['radio0_enable'] == 1)&&
 		        ($mesh['NodeDetail']['radio0_mesh'] !== 1)
 		    ){
-
+		    
 		        array_push( $wireless,
 	                array(
 	                    "wifi-iface"    => "$one"."_1",
@@ -1544,7 +1527,7 @@ class NodesController extends AppController {
 	                        "hidden"        => "1"
 	                   )
 	            ));
-
+		       
 		    }else{
 		        array_push( $wireless,
 	                array(
@@ -1580,7 +1563,7 @@ class NodesController extends AppController {
                     if($epd['entry_id'] == $entry_id){ //We found our man :-)
 
 						if(($mesh['NodeDetail']['radio0_enable'] == 1)&&($mesh['NodeDetail']['radio0_entry'] == 1)){
-
+												    
 						    $base_array = array(
                                 "device"        => "radio0",
                                 "ifname"        => "$if_name"."0",
@@ -1594,11 +1577,11 @@ class NodesController extends AppController {
                                 "auth_server"   => $me['auth_server'],
                                 "auth_secret"   => $me['auth_secret']
                             );
-
+                            
                             if($me['chk_maxassoc']){
                                 $base_array['maxassoc'] = $me['maxassoc'];
                             }
-
+                            
                             if($me['macfilter'] != 'disable'){
                                 $base_array['macfilter']    = $me['macfilter'];
                                 //Replace later
@@ -1616,13 +1599,13 @@ class NodesController extends AppController {
                                     $base_array['maclist'] = implode(" ",$mac_list);
                                 }
                             }
-
+                        
                             array_push( $wireless,
                                 array(
                                     "wifi-iface"=> "$if_name",
                                     "options"   => $base_array
-                            ));
-
+                            ));    
+						  
 						}
 
 						if(($mesh['NodeDetail']['radio1_enable'] == 1)&&($mesh['NodeDetail']['radio1_entry'] == 1)){
@@ -1640,11 +1623,11 @@ class NodesController extends AppController {
                                 "auth_server"   => $me['auth_server'],
                                 "auth_secret"   => $me['auth_secret']
                             );
-
+                            
                             if($me['chk_maxassoc']){
                                 $base_array['maxassoc'] = $me['maxassoc'];
                             }
-
+                            
                             if($me['macfilter'] != 'disable'){
                                 $base_array['macfilter']    = $me['macfilter'];
                                 //Replace later
@@ -1662,13 +1645,13 @@ class NodesController extends AppController {
                                     $base_array['maclist'] = implode(" ",$mac_list);
                                 }
                             }
-
+                        
                             array_push( $wireless,
                                 array(
                                     "wifi-iface"=> "$if_name"."_1",
                                     "options"   => $base_array
-                            ));
-
+                            ));   
+		                        
 						}
                         break;
                     }
@@ -1686,7 +1669,7 @@ class NodesController extends AppController {
                                     if($epd['entry_id'] == $entry_id){ //We found our man :-)
 
 										if(($mesh['NodeDetail']['radio0_enable'] == 1)&&($mesh['NodeDetail']['radio0_entry'] == 1)){
-
+										
 										    $base_array = array(
                                                 "device"        => "radio0",
                                                 "ifname"        => "$if_name"."0",
@@ -1700,11 +1683,11 @@ class NodesController extends AppController {
                                                 "auth_server"   => $me['auth_server'],
                                                 "auth_secret"   => $me['auth_secret']
                                             );
-
+                                            
                                             if($me['chk_maxassoc']){
                                                 $base_array['maxassoc'] = $me['maxassoc'];
                                             }
-
+                                            
                                             if($me['macfilter'] != 'disable'){
                                                 $base_array['macfilter']    = $me['macfilter'];
                                                 //Replace later
@@ -1722,17 +1705,17 @@ class NodesController extends AppController {
                                                     $base_array['maclist'] = implode(" ",$mac_list);
                                                 }
                                             }
-
+                                        
                                             array_push( $wireless,
                                                 array(
                                                     "wifi-iface"=> "$if_name",
                                                     "options"   => $base_array
-                                            ));
-
+                                            ));   
+								   
 										}
 
 										if(($mesh['NodeDetail']['radio1_enable'] == 1)&&($mesh['NodeDetail']['radio1_entry'] == 1)){
-
+										
 										    $base_array = array(
                                                 "device"        => "radio1",
                                                 "ifname"        => "$if_name"."1",
@@ -1746,11 +1729,11 @@ class NodesController extends AppController {
                                                 "auth_server"   => $me['auth_server'],
                                                 "auth_secret"   => $me['auth_secret']
                                             );
-
+                                            
                                             if($me['chk_maxassoc']){
                                                 $base_array['maxassoc'] = $me['maxassoc'];
                                             }
-
+                                            
                                             if($me['macfilter'] != 'disable'){
                                                 $base_array['macfilter']    = $me['macfilter'];
                                                 //Replace later
@@ -1768,13 +1751,13 @@ class NodesController extends AppController {
                                                     $base_array['maclist'] = implode(" ",$mac_list);
                                                 }
                                             }
-
+										   										    
 		                                    array_push( $wireless,
 		                                        array(
 		                                            "wifi-iface"    => "$if_name"."_1",
 		                                            "options"       => $base_array
-		                                    ));
-
+		                                    ));     
+		                                        
 										}
                                         break;
                                     }
@@ -1805,8 +1788,8 @@ class NodesController extends AppController {
 	}
 
     private function _number_to_word($number) {
-
-
+   
+   
         $dictionary  = array(
             0                   => 'zero',
             1                   => 'one',
@@ -1862,7 +1845,7 @@ class NodesController extends AppController {
 	}
 
 	private function _lookup_vendor($mac){
-        //Convert the MAC to be in the same format as the file
+        //Convert the MAC to be in the same format as the file 
         $mac    = strtoupper($mac);
         $pieces = explode("-", $mac);
 
@@ -1881,10 +1864,10 @@ class NodesController extends AppController {
                 $vendor = preg_replace("/$big_match\s?/","",$i);
                 $vendor = preg_replace( "{[ \t]+}", ' ', $vendor );
                 $vendor = rtrim($vendor);
-                return $vendor;
+                return $vendor;   
             }
         }
-
+       
         if(!$big_match_found){
             foreach($lines as $i){
                 if(preg_match("/^$small_match/",$i)){

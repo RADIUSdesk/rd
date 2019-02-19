@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.4.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\ORM\Association\Loader;
 
@@ -48,7 +48,7 @@ class SelectWithPivotLoader extends SelectLoader
     /**
      * Custom conditions for the junction association
      *
-     * @var mixed
+     * @var string|array|\Cake\Database\ExpressionInterface|callable|null
      */
     protected $junctionConditions;
 
@@ -111,7 +111,7 @@ class SelectWithPivotLoader extends SelectLoader
         }
 
         $query
-           ->where($this->junctionConditions)
+            ->where($this->junctionConditions)
             ->select($joinFields);
 
         $query
@@ -133,7 +133,7 @@ class SelectWithPivotLoader extends SelectLoader
      * which the filter should be applied
      *
      * @param array $options the options to use for getting the link field.
-     * @return string
+     * @return array|string
      */
     protected function _linkField($options)
     {

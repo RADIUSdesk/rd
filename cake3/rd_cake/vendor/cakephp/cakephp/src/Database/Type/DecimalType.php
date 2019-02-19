@@ -1,22 +1,23 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.3.4
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Database\Type;
 
 use Cake\Database\Driver;
 use Cake\Database\Type;
 use Cake\Database\TypeInterface;
+use Cake\Database\Type\BatchCastingInterface;
 use InvalidArgumentException;
 use PDO;
 use RuntimeException;
@@ -26,7 +27,7 @@ use RuntimeException;
  *
  * Use to convert decimal data between PHP and the database types.
  */
-class DecimalType extends Type implements TypeInterface
+class DecimalType extends Type implements TypeInterface, BatchCastingInterface
 {
     /**
      * Identifier name for this type.
@@ -80,7 +81,10 @@ class DecimalType extends Type implements TypeInterface
             return null;
         }
         if (!is_scalar($value)) {
-            throw new InvalidArgumentException('Cannot convert value to a decimal.');
+            throw new InvalidArgumentException(sprintf(
+                'Cannot convert value of type `%s` to a decimal',
+                getTypeName($value)
+            ));
         }
         if (is_string($value) && is_numeric($value)) {
             return $value;
@@ -90,7 +94,7 @@ class DecimalType extends Type implements TypeInterface
     }
 
     /**
-     * Convert float values to PHP integers
+     * Convert float values to PHP floats
      *
      * @param null|string|resource $value The value to convert.
      * @param \Cake\Database\Driver $driver The driver instance to convert with.
@@ -100,10 +104,28 @@ class DecimalType extends Type implements TypeInterface
     public function toPHP($value, Driver $driver)
     {
         if ($value === null) {
-            return null;
+            return $value;
         }
 
         return (float)$value;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return array
+     */
+    public function manyToPHP(array $values, array $fields, Driver $driver)
+    {
+        foreach ($fields as $field) {
+            if (!isset($values[$field])) {
+                continue;
+            }
+
+            $values[$field] = (float)$values[$field];
+        }
+
+        return $values;
     }
 
     /**
@@ -129,11 +151,11 @@ class DecimalType extends Type implements TypeInterface
         if ($value === null || $value === '') {
             return null;
         }
-        if (is_numeric($value)) {
-            return (float)$value;
-        }
         if (is_string($value) && $this->_useLocaleParser) {
             return $this->_parseValue($value);
+        }
+        if (is_numeric($value)) {
+            return (float)$value;
         }
         if (is_array($value)) {
             return 1;

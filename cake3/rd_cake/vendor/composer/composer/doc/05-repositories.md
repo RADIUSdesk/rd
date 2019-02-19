@@ -93,7 +93,7 @@ Here is a minimal package definition:
     "name": "smarty/smarty",
     "version": "3.1.7",
     "dist": {
-        "url": "http://www.smarty.net/files/Smarty-3.1.7.zip",
+        "url": "https://www.smarty.net/files/Smarty-3.1.7.zip",
         "type": "zip"
     }
 }
@@ -205,8 +205,8 @@ project to use the patched version. If the library is on GitHub (this is the
 case most of the time), you can simply fork it there and push your changes to
 your fork. After that you update the project's `composer.json`. All you have
 to do is add your fork as a repository and update the version constraint to
-point to your custom branch. Your custom branch name must be prefixed with
-`"dev-"`. For version constraint naming conventions see
+point to your custom branch. In `composer.json`, you should prefix your custom
+branch name with `"dev-"`. For version constraint naming conventions see
 [Libraries](02-libraries.md) for more information.
 
 Example assuming you patched monolog to fix a bug in the `bugfix` branch:
@@ -284,13 +284,40 @@ VCS repository provides `dist`s for them that fetch the packages as zips.
 * **BitBucket:** [bitbucket.org](https://bitbucket.org) (Git and Mercurial)
 
 The VCS driver to be used is detected automatically based on the URL. However,
-should you need to specify one for whatever reason, you can use `fossil`, `git`,
-`svn` or `hg` as the repository type instead of `vcs`.
+should you need to specify one for whatever reason, you can use `git-bitbucket`,
+`hg-bitbucket`, `github`, `gitlab`, `perforce`, `fossil`, `git`, `svn` or `hg`
+as the repository type instead of `vcs`.
 
 If you set the `no-api` key to `true` on a github repository it will clone the
 repository as it would with any other git repository instead of using the
 GitHub API. But unlike using the `git` driver directly, Composer will still
 attempt to use github's zip files.
+
+Please note:
+* **To let Composer choose which driver to use** the repository type needs to be defined as "vcs"
+* **If you already used a private repository**, this means Composer should have cloned it in cache. If you want to install the same package with drivers, remember to launch the command `composer clearcache` followed by the command `composer update` to update composer cache and install the package from dist.
+
+#### BitBucket Driver Configuration
+
+The BitBucket driver uses OAuth to access your private repositories via the BitBucket REST APIs and you will need to create an OAuth consumer to use the driver, please refer to [Atlassian's Documentation](https://confluence.atlassian.com/bitbucket/oauth-on-bitbucket-cloud-238027431.html). You will need to fill the callback url with something to satisfy BitBucket, but the address does not need to go anywhere and is not used by Composer.
+
+After creating an OAuth consumer in the BitBucket control panel, you need to setup your auth.json file with
+the credentials like this (more info [here](https://getcomposer.org/doc/06-config.md#bitbucket-oauth)):
+```json
+{
+    "config": {
+        "bitbucket-oauth": {
+            "bitbucket.org": {
+                "consumer-key": "myKey",
+                "consumer-secret": "mySecret"
+            }
+        }
+    }
+}
+```
+**Note that the repository endpoint needs to be https rather than git.**
+
+Alternatively if you prefer not to have your OAuth credentials on your filesystem you may export the ```bitbucket-oauth``` block above to the [COMPOSER_AUTH](https://getcomposer.org/doc/03-cli.md#composer-auth) environment variable instead.
 
 #### Subversion Options
 
@@ -461,7 +488,7 @@ Here is an example for the smarty template engine:
                 "name": "smarty/smarty",
                 "version": "3.1.7",
                 "dist": {
-                    "url": "http://www.smarty.net/files/Smarty-3.1.7.zip",
+                    "url": "https://www.smarty.net/files/Smarty-3.1.7.zip",
                     "type": "zip"
                 },
                 "source": {
@@ -490,6 +517,30 @@ Typically you would leave the source part off, as you don't really need it.
 > - Composer will not update the commit references, so if you use `master` as
 >   reference you will have to delete the package to force an update, and will
 >   have to deal with an unstable lock file.
+
+The `"package"` key in a `package` repository may be set to an array to define multiple versions of a package:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "package",
+            "package": [
+                {
+                    "name": "foo/bar",
+                    "version": "1.0.0",
+                    ...
+                },
+                {
+                    "name": "foo/bar",
+                    "version": "2.0.0",
+                    ...
+                }
+            ]
+        }
+    ]
+}
+```
 
 ## Hosting your own
 
@@ -653,6 +704,12 @@ You can disable the default Packagist.org repository by adding this to your
         }
     ]
 }
+```
+
+You can disable Packagist.org globally by using the global config flag:
+
+```bash
+composer config -g repo.packagist false
 ```
 
 &larr; [Schema](04-schema.md)  |  [Config](06-config.md) &rarr;

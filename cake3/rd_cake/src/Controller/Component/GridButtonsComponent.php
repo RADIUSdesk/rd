@@ -6,6 +6,7 @@
 //---- Date: 01-01-2016
 //------------------------------------------------------------
 
+
 namespace App\Controller\Component;
 use Cake\Controller\Component;
 
@@ -44,7 +45,15 @@ class GridButtonsComponent extends Component {
             'itemId'    => 'add',
             'tooltip'   => __('Add')
         ];
-
+		
+        $this->btnEdit =  [
+            'xtype'     => 'button',
+            'glyph'     => Configure::read('icnEdit'),
+            'scale'     => $this->scale,
+            'itemId'    => 'edit',
+            'tooltip'   => __('Edit')
+        ];
+		
         $this->btnDelete =  [
             'xtype'     => 'button',
             'glyph'     => Configure::read('icnDelete'),
@@ -116,7 +125,61 @@ class GridButtonsComponent extends Component {
             'itemId'    => 'pdf',      
             'tooltip'   => __('Export to PDF')
         ];
-
+        
+        $this->btnAttach = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnAttach'), 
+            'scale'     => 'large',
+            'itemId'    => 'attach',      
+            'tooltip'=> __('Attach')
+        ];
+        
+        $this->btnRedirect = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnRedirect'), 
+            'scale'     => 'large', 
+            'itemId'    => 'redirect',   
+            'tooltip'   => __('Redirect')
+        ];
+		
+        $this->btnMap = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnMap'), 
+            'scale'     => 'large', 
+            'itemId'    => 'map',   
+            'tooltip'   => __('Map')
+        ];
+		
+        $this->btnTags = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnTag'), 
+            'scale'     => 'large', 
+            'itemId'    => 'tag',   
+            'tooltip'   => __('Manage tags')
+        ];
+        
+        $this->btnPolicies = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnScale'), 
+            'scale'     => 'large', 
+            'itemId'    => 'btnPolicies',   
+            'tooltip'   => __('Policies') 
+        ];
+        
+        $this->btnUsers = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnUser'), 
+            'scale'     => 'large', 
+            'itemId'    => 'btnUsers',   
+            'tooltip'   => __('Users') 
+        ];
+        $this->btnConfigure = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnConfigure'), 
+            'scale'     => 'large', 
+            'itemId'    => 'preferences',   
+            'tooltip'   => __('Preferences')
+        ];
     }
 
     public function returnButtons($user,$title = true,$type='basic'){
@@ -171,6 +234,13 @@ class GridButtonsComponent extends Component {
             $b  = $this->_fetchBasic();
             $d  = $this->_fetchDocument();
             $a  = $this->_fetchDynamicDetailExtras();
+            $dc = $this->_fetchDynamicDetailDataCollection();
+            $menu = array($b,$d,$a);
+        }
+        if($type == 'nas'){
+            $b  = $this->_fetchBasic('disabled',true);
+            $d  = $this->_fetchDocument();
+            $a  = $this->_fetchNas();
             $menu = array($b,$d,$a);
         }
         
@@ -213,9 +283,54 @@ class GridButtonsComponent extends Component {
             $menu = array($b,$d);
         }
         
+        if($type == 'unknown_ap_or_nodes'){
+            $b  = $this->_fetchUnknown();
+            $menu = [$b]; 
+        }
+
+        if($type == 'unknown_dynamic'){
+            $b  = $this->_fetchUnknownDynamic();
+            $menu = [$b]; 
+        }
+        
+        if($type == 'dns_desk_operators'){
+            $b = $this->_fetchBasic('no_disabled');
+            $a  = $this->_fetchDnsDeskExtras();
+            $menu = [$b,$a];
+        }
+        
+        if($type == 'nas_map'){
+            $b  = $this->_fetchNasMap();
+            $menu = [$b]; 
+        }
+
+        return $menu;
+    }
+    
+    private function _fetchUnknown(){
+        $menu = [
+                ['xtype' => 'buttongroup','title' => __('Action'), 'items' => [
+                   $this->btnReloadTimer,
+                   $this->btnAttach,
+                   $this->btnDelete, 
+                   $this->btnRedirect
+            ]]
+        ];
         return $menu;
     }
 
+    private function _fetchUnknownDynamic(){
+        $menu = [
+                ['xtype' => 'buttongroup','title' => __('Action'), 'items' => [
+                   $this->btnReloadTimer,
+                   $this->btnAttach,
+                   $this->btnDelete, 
+            ]]
+        ];
+        return $menu;
+    }
+
+	
     private function _fetchFrAcctAuthBasic(){
 
         $user = $this->user;
@@ -244,7 +359,7 @@ class GridButtonsComponent extends Component {
     
     private function _fetchAddAndDelete(){
     
-        $menu = ['xtype' => 'buttongroup', 'items' => [
+        $menu = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
                     [
                         'xtype'     => 'button',  
                         'glyph'     => Configure::read('icnReload'), 
@@ -302,21 +417,9 @@ class GridButtonsComponent extends Component {
         if($user['group_name'] == Configure::read('group.admin')){  //Admin
             $menu = array('xtype' => 'buttongroup','title' => $this->t, 'items' => array(
                     $reload,
-                    array(
-                        'xtype'     => 'button',
-                        'glyph'     => Configure::read('icnAdd'),
-                        'scale'     => $this->scale,
-                        'itemId'    => 'add',
-                        'tooltip'   => __('Add')
-                    ),
+                    $this->btnAdd,
                     $this->btnDelete,
-                    array(
-                        'xtype'     => 'button',
-                        'glyph'     => Configure::read('icnEdit'),
-                        'scale'     => $this->scale,
-                        'itemId'    => 'edit',
-                        'tooltip'   => __('Edit')
-                    )
+					$this->btnEdit
                 )
             );
         }
@@ -330,32 +433,15 @@ class GridButtonsComponent extends Component {
 
             //Add
             if($this->controller->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->controller->base."add")){
-                array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnAdd'),      
-                    'scale'     => $this->scale, 
-                    'itemId'    => 'add',
-                    'tooltip'   => __('Add')));
+                array_push($action_group,$this->btnAdd);
             }
             //Delete
             if($this->controller->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->controller->base.'delete')){
-                array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnDelete'),   
-                    'scale'     => $this->scale, 
-                    'itemId'    => 'delete',
-                    'disabled'  => $disabled,   
-                    'tooltip'   => __('Delete')));
+                array_push($action_group,$this->btnDelete);
             }
             //Edit
             if($this->controller->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->controller->base.'edit')){
-                array_push($action_group,array(
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnEdit'),     
-                    'scale'     => $this->scale, 
-                    'itemId'    => 'edit',
-                    'disabled'  => $disabled,     
-                    'tooltip'   => __('Edit')));
+                array_push($action_group,$this->btnEdit);
             }
             $menu = array('xtype' => 'buttongroup','title' => $this->t,  'items' => $action_group);
         }   
@@ -487,6 +573,41 @@ class GridButtonsComponent extends Component {
         return $menu;
     }
 
+    private function _fetchNas(){
+
+        $user = $this->user;
+        $menu = array();
+        //Admin => all power
+        if($user['group_name'] == Configure::read('group.admin')){  //Admin
+            $menu = array(
+                'xtype' => 'buttongroup',
+                'title' => __('Nas'), 
+                'items' => array(
+					$this->btnGraph,
+					$this->btnTags,
+					$this->btnMap
+                )
+            );
+        }
+        
+        //AP depend on rights
+        if($user['group_name'] == Configure::read('group.ap')){ //AP (with overrides)
+            $id             = $user['id'];
+            $nas_group = array();
+
+            array_push($nas_group,$this->btnGraph);
+            //Tags
+            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->controller->base.'manage_tags')){
+                array_push($nas_group,$this->btnTags);
+            }
+            array_push($nas_group,$this->btnMap);
+
+            $menu = array('xtype' => 'buttongroup', 'title' => __('Nas'),        'items' => $nas_group );
+        }
+            
+        return $menu;
+    }
+
     private function _fetchDocumentVoucher(){
 
         $user = $this->user;
@@ -590,7 +711,7 @@ class GridButtonsComponent extends Component {
         if($user['group_name'] == Configure::read('group.admin')){  //Admin   
              $menu = array(
                 'xtype' => 'buttongroup',
-                'title' => __('Extra actions'), 
+                'title' => __('Extra Actions'), 
                 'items' => array(
                     $this->btnPassword,
                     $this->btnEnable
@@ -611,7 +732,7 @@ class GridButtonsComponent extends Component {
                 array_push($specific_group, $this->btnEnable);
             }
            
-            $menu = array('xtype' => 'buttongroup', 'title' =>  __('Extra actions'), 'items' => $specific_group );
+            $menu = array('xtype' => 'buttongroup', 'title' =>  __('Extra Actions'), 'items' => $specific_group );
         }
             
         return $menu;
@@ -636,6 +757,25 @@ class GridButtonsComponent extends Component {
     }
     
     private function _fetchDynamicDetailExtras(){
+    
+        $menu = array(
+            'xtype' => 'buttongroup',
+            'title' => __('Data Collection'),
+            'width' => 150, 
+            'items' => array(
+                array(
+                    'xtype'     => 'button',  
+                    'glyph'     => Configure::read('icnEmail'),  
+                    'scale'     => $this->scale, 
+                    'itemId'    => 'dcEmail',    
+                    'tooltip'   => __('Email Addresses')
+                )
+            )
+        );             
+        return $menu;
+    }
+    
+      private function _fetchDynamicDetailDataCollection(){
     
         $menu = array(
             'xtype' => 'buttongroup',
@@ -668,7 +808,7 @@ class GridButtonsComponent extends Component {
         if($user['group_name'] == Configure::read('group.admin')){  //Admin   
              $menu = array(
                 'xtype' => 'buttongroup',
-                'title' => __('Extra actions'), 
+                'title' => __('Extra Actions'), 
                 'items' => array(
                    $this->btnPassword,
                    $this->btnEnable,
@@ -697,13 +837,13 @@ class GridButtonsComponent extends Component {
             
             array_push($specific_group,$this->btnGraph);
            
-            $menu = array('xtype' => 'buttongroup', 'title' =>  __('Extra actions'), 'items' => $specific_group );
+            $menu = array('xtype' => 'buttongroup', 'title' =>  __('Extra Actions'), 'items' => $specific_group );
         }
                 
         return $menu;
     }
 
-     private function _fetchDeviceExtras(){
+    private function _fetchDeviceExtras(){
     
         $user = $this->user;
         $menu = array();
@@ -711,7 +851,7 @@ class GridButtonsComponent extends Component {
         if($user['group_name'] == Configure::read('group.admin')){  //Admin   
              $menu = array(
                 'xtype' => 'buttongroup',
-                'title' => __('Extra actions'), 
+                'title' => __('Extra Actions'), 
                 'items' => array(
                     $this->btnEnable,
                     $this->btnRadius,
@@ -735,8 +875,26 @@ class GridButtonsComponent extends Component {
             
             array_push($specific_group, $this->btnGraph);
            
-            $menu = array('xtype' => 'buttongroup', 'title' =>  __('Extra actions'), 'items' => $specific_group );
+            $menu = array('xtype' => 'buttongroup', 'title' =>  __('Extra Actions'), 'items' => $specific_group );
         }              
+        return $menu;
+    }
+    
+    private function _fetchDnsDeskExtras(){
+        $user = $this->user;
+        $menu = [];
+        //Admin => all power
+        if($user['group_name'] == Configure::read('group.admin')){  //Admin   
+             $menu = [
+                'xtype' => 'buttongroup',
+                'title' => __('Extra Actions'),
+                'width' => 150,
+                'items' => [
+                    $this->btnPolicies,
+                    $this->btnUsers
+                ]
+            ];    
+        }
         return $menu;
     }
 
@@ -748,7 +906,7 @@ class GridButtonsComponent extends Component {
         if($user['group_name'] == Configure::read('group.admin')){  //Admin   
              $menu = array(
                 'xtype' => 'buttongroup',
-                'title' => __('Extra actions'), 
+                'title' => __('Extra Actions'), 
                 'items' => array(
                    $this->btnPassword,
                    $this->btnRadius,
@@ -772,12 +930,51 @@ class GridButtonsComponent extends Component {
             
             array_push($specific_group,$this->btnGraph);
            
-            $menu = array('xtype' => 'buttongroup', 'title' =>  __('Extra actions'), 'items' => $specific_group );
+            $menu = array('xtype' => 'buttongroup', 'title' =>  __('Extra Actions'), 'items' => $specific_group );
         }
                 
         return $menu;
     }
 
+    private function _fetchNasMap(){
+    
+        $user = $this->user;
+          
+        $menu = [];
+        
+        //Admin => all power
+        if($user['group_name'] == Configure::read('group.admin')){  //Admin
+            $menu = array('xtype' => 'buttongroup','title' => $this->t, 'items' => array(
+                    $this->btnConfigure,
+                    $this->btnAdd,
+                    $this->btnDelete,
+					$this->btnEdit
+                )
+            );
+        }
+        
+        //AP depend on rights
+        if($user['group_name'] == Configure::read('group.ap')){ //AP (with overrides)
+            $id             = $user['id'];
+            $action_group   = array();
 
+            array_push($action_group,$this->btnConfigure);
+
+            //Add
+            if($this->controller->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->controller->base."add")){
+                array_push($action_group,$this->btnAdd);
+            }
+            //Delete
+            if($this->controller->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->controller->base.'delete')){
+                array_push($action_group,$this->btnDelete);
+            }
+            //Edit
+            if($this->controller->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->controller->base.'edit')){
+                array_push($action_group,$this->btnEdit);
+            }
+            $menu = array('xtype' => 'buttongroup','title' => $this->t,  'items' => $action_group);
+        }   
+        return $menu;
+    }
 
 }

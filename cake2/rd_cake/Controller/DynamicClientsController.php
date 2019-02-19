@@ -202,7 +202,7 @@ class DynamicClientsController extends AppController {
             $this->request->data['user_id'] = $user_id;
         }
          
-        $check_items = array('active', 'available_to_siblings', 'on_public_maps', 'session_auto_close');
+        $check_items = array('active', 'available_to_siblings', 'on_public_maps', 'session_auto_close','data_limit_active');
         foreach($check_items as $ci){
             if(isset($this->request->data[$ci])){
                 $this->request->data[$ci] = 1;
@@ -318,7 +318,7 @@ class DynamicClientsController extends AppController {
             //Unfortunately there are many check items which means they will not be in the POST if unchecked
             //so we have to check for them
             $check_items = array(
-				'active', 'available_to_siblings', 'on_public_maps', 'session_auto_close'
+				'active', 'available_to_siblings', 'on_public_maps', 'session_auto_close','data_limit_active'
 			);
 			
             foreach($check_items as $i){

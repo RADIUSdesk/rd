@@ -8,7 +8,7 @@ Ext.define('Rd.store.sDynamicClients', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake2/rd_cake/dynamic_clients/index.json',
+            url     : '/cake3/rd_cake/dynamic-clients/index.json',
             reader: {
                 type            : 'json',
                 rootProperty    : 'items',

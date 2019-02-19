@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \DebugKit\View\AjaxView $this
- * @type \DebugKit\Model\Entity\Request $toolbar
+ * @var \DebugKit\View\AjaxView $this
+ * @var \DebugKit\Model\Entity\Request $toolbar
  */
 
 use Cake\Routing\Router;
@@ -26,30 +26,32 @@ use Cake\Core\Configure;
             &#x3009;
         </span>
     </li>
-    <div class="toolbar-inner">
-    <?php foreach ($toolbar->panels as $panel): ?>
-    <li class="panel hidden" data-id="<?= $panel->id ?>">
-        <span class="panel-button">
-            <?= h($panel->title) ?>
-        </span>
-        <?php if (strlen($panel->summary)): ?>
-        <span class="panel-summary">
-            <?= h($panel->summary) ?>
-        </span>
-        <?php endif ?>
+    <li class="toolbar-inner">
+        <ul class="toolbar-inner">
+        <?php foreach ($toolbar->panels as $panel): ?>
+        <li class="panel hidden" data-id="<?= $panel->id ?>">
+            <span class="panel-button">
+                <?= h($panel->title) ?>
+            </span>
+            <?php if (strlen($panel->summary)): ?>
+            <span class="panel-summary">
+                <?= h($panel->summary) ?>
+            </span>
+            <?php endif ?>
+        </li>
+        <?php endforeach; ?>
+        </ul>
     </li>
-    <?php endforeach; ?>
-    </div>
     <li id="panel-button">
-        <?= $this->Html->image('DebugKit.cake.icon.png', [
+        <?= $this->Html->image('DebugKit./img/cake.icon.png', [
             'alt' => 'Debug Kit', 'title' => 'CakePHP ' . Configure::version() . ' Debug Kit'
         ]) ?>
     </li>
 </ul>
-<?php $this->Html->script('DebugKit.debug_kit', [
+<?php $this->Html->script('DebugKit./js/debug_kit', [
     'block' => true,
     'id' => '__debug_kit_app',
     'data-id' => $toolbar->id,
     'data-url' => Router::url('/', true),
-    'data-webroot' => $this->request->webroot,
+    'data-webroot' => $this->request->getAttribute("webroot"),
 ]) ?>

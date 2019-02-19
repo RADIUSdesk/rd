@@ -1,15 +1,15 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c), Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c), Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\View;
 
@@ -20,6 +20,8 @@ use Cake\Event\EventDispatcherInterface;
  *
  * Once collected context data can be passed to another object.
  * This is done in Controller, TemplateTask and View for example.
+ *
+ * @property array $_validViewOptions
  */
 trait ViewVarsTrait
 {
@@ -72,6 +74,7 @@ trait ViewVarsTrait
         $builder = $this->viewBuilder();
         if ($viewClass === null && $builder->getClassName() === null) {
             $builder->setClassName($this->viewClass);
+            unset($this->viewClass);
         }
         if ($viewClass) {
             $builder->setClassName($viewClass);
@@ -86,27 +89,29 @@ trait ViewVarsTrait
         }
 
         $deprecatedOptions = [
-            'layout' => 'layout',
-            'view' => 'template',
-            'theme' => 'theme',
-            'autoLayout' => 'autoLayout',
-            'viewPath' => 'templatePath',
-            'layoutPath' => 'layoutPath',
+            'layout' => 'setLayout',
+            'view' => 'setTemplate',
+            'theme' => 'setTheme',
+            'autoLayout' => 'enableAutoLayout',
+            'viewPath' => 'setTemplatePath',
+            'layoutPath' => 'setLayoutPath',
         ];
         foreach ($deprecatedOptions as $old => $new) {
             if (property_exists($this, $old)) {
                 $builder->{$new}($this->{$old});
-                trigger_error(sprintf(
+                $message = sprintf(
                     'Property $%s is deprecated. Use $this->viewBuilder()->%s() instead in beforeRender().',
                     $old,
                     $new
-                ), E_USER_DEPRECATED);
+                );
+                deprecationWarning($message);
             }
         }
 
         foreach (['name', 'helpers', 'plugin'] as $prop) {
             if (isset($this->{$prop})) {
-                $builder->{$prop}($this->{$prop});
+                $method = 'set' . ucfirst($prop);
+                $builder->{$method}($this->{$prop});
             }
         }
         $builder->setOptions($viewOptions);
@@ -115,7 +120,7 @@ trait ViewVarsTrait
             $this->viewVars,
             isset($this->request) ? $this->request : null,
             isset($this->response) ? $this->response : null,
-            $this instanceof EventDispatcherInterface ? $this->eventManager() : null
+            $this instanceof EventDispatcherInterface ? $this->getEventManager() : null
         );
     }
 

@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) :  Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) :  Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakefoundation.org CakePHP(tm) Project
  * @since         1.3.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Log\Engine;
 
@@ -182,23 +182,23 @@ class FileLog extends BaseLog
      */
     protected function _rotateFile($filename)
     {
-        $filepath = $this->_path . $filename;
-        clearstatcache(true, $filepath);
+        $filePath = $this->_path . $filename;
+        clearstatcache(true, $filePath);
 
-        if (!file_exists($filepath) ||
-            filesize($filepath) < $this->_size
+        if (!file_exists($filePath) ||
+            filesize($filePath) < $this->_size
         ) {
             return null;
         }
 
         $rotate = $this->_config['rotate'];
         if ($rotate === 0) {
-            $result = unlink($filepath);
+            $result = unlink($filePath);
         } else {
-            $result = rename($filepath, $filepath . '.' . time());
+            $result = rename($filePath, $filePath . '.' . time());
         }
 
-        $files = glob($filepath . '.*');
+        $files = glob($filePath . '.*');
         if ($files) {
             $filesToDelete = count($files) - $rotate;
             while ($filesToDelete > 0) {

@@ -8,10 +8,13 @@
 
 namespace App\Controller\Component;
 use Cake\Controller\Component;
+use Cake\ORM\TableRegistry;
 
 class VoucherGeneratorComponent extends Component {
 
     private $nameType		= 'adjective_noun'; 
+    
+    private $startNumber   = '00001';
 
     private $wordPool 		= array(
 		'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'any', 'can', 'her',
@@ -133,9 +136,8 @@ class VoucherGeneratorComponent extends Component {
     public $voucherNames	= array(); //We first have an empty list which we'll populate and add to each time we generate a voucher
 
     public function initialize(array $config){
-
         $this->controller = $this->_registry->getController();
-
+        $this->Radchecks  = TableRegistry::get('Radchecks'); 
     }
 
     public function generateVoucher(){
@@ -155,6 +157,44 @@ class VoucherGeneratorComponent extends Component {
         if($this->nameType == 'random_alpha_numeric'){
             return $this->_random_alpha_numeric();
         }  
+    }
+    
+    public function generatePassword(){
+        return $this->_random_alpha_numeric();
+    }
+    
+    public function generateUsernameForVoucher($prefix, $suffix){
+    
+        $like_statement = '[0-9][0-9][0-9][0-9][0-9]'; //FIXME if you want the vouchers to hve more numbers also add here
+        if($suffix !== ''){
+            $like_statement = $like_statement.'@'.$suffix;
+        }
+        if($prefix !==''){
+            $like_statement = $prefix.'-'.$like_statement;
+        }    
+    
+        $q_r = $this->Radchecks->find()
+            ->where(['Radchecks.username REGEXP' => $like_statement])
+            ->order(['Radchecks.username' => 'DESC'])
+            ->first();
+        if($q_r){
+            $username = $q_r->username;
+            $username = preg_replace('/^\w+-/', '', $username);//Remove prefix
+            $username = preg_replace('/@\w+$/', '', $username);//Remove sufix
+            $next_number = (int)$username+1;
+            $next_number = sprintf('%05d', $next_number);
+        }else{ 
+            $next_number = $this->startNumber;
+        }
+        
+        if($suffix !== ''){
+            $next_number = $next_number.'@'.$suffix;
+        }
+        
+        if($prefix !==''){
+            $next_number = $prefix.'-'.$next_number;
+        }
+        return $next_number;
     }
 
     private function _word_number_word_number(){

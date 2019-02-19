@@ -53,7 +53,6 @@ result in slow filesystem checks. To solve this issue two Level 2 optimization
 options exist, and you can decide to enable either if you have a lot of
 class_exists checks that are done for classes that do not exist in your project.
 
-
 ## Optimization Level 2/A: Authoritative class maps
 
 ### How to run it?
@@ -74,14 +73,13 @@ filesystem according to PSR-4 rules.
 
 ### Trade-offs
 
-This option makes the autoloader always returns very quickly. On the flipside it
+This option makes the autoloader always return very quickly. On the flipside it
 also means that in case a class is generated at runtime for some reason, it will
 not be allowed to be autoloaded. If your project or any of your dependencies does that
 then you might experience "class not found" issues in production. Enable this with care.
 
 > Note: This can not be combined with Level 2/B optimizations. You have to choose one as
 > they address the same issue in different ways.
-
 
 ## Optimization Level 2/B: APCu cache
 

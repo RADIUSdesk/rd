@@ -1,14 +1,14 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  * @since         3.4.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\ORM\Exception;
 
@@ -42,10 +42,38 @@ class PersistenceFailedException extends Exception
      * @param int $code The code of the error, is also the HTTP status code for the error.
      * @param \Exception|null $previous the previous exception.
      */
-    public function __construct(EntityInterface $entity, $message, $code = 500, $previous = null)
+    public function __construct(EntityInterface $entity, $message, $code = null, $previous = null)
     {
         $this->_entity = $entity;
+        if (is_array($message)) {
+            $errors = [];
+            foreach ($entity->getErrors() as $field => $error) {
+                $errors[] = $field . ': "' . $this->buildError($error) . '"';
+            }
+            if ($errors) {
+                $message[] = implode(', ', $errors);
+                $this->_messageTemplate = 'Entity %s failure (%s).';
+            }
+        }
         parent::__construct($message, $code, $previous);
+    }
+
+    /**
+     * @param string|array $error Error message.
+     * @return string
+     */
+    protected function buildError($error)
+    {
+        if (!is_array($error)) {
+            return $error;
+        }
+
+        $errors = [];
+        foreach ($error as $key => $message) {
+            $errors[] = is_int($key) ? $message : $key;
+        }
+
+        return implode(', ', $errors);
     }
 
     /**

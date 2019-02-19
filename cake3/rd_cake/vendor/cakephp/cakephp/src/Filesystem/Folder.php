@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         0.2.9
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Filesystem;
 
@@ -24,7 +24,7 @@ use RecursiveIteratorIterator;
  * Folder structure browser, lists folders and files.
  * Provides an Object interface for Common directory related tasks.
  *
- * @link http://book.cakephp.org/3.0/en/core-libraries/file-folder.html#folder-api
+ * @link https://book.cakephp.org/3.0/en/core-libraries/file-folder.html#folder-api
  */
 class Folder
 {
@@ -86,7 +86,7 @@ class Folder
      * Mode to be used on create. Does nothing on windows platforms.
      *
      * @var int
-     * http://book.cakephp.org/3.0/en/core-libraries/file-folder.html#Cake\Filesystem\Folder::$mode
+     * https://book.cakephp.org/3.0/en/core-libraries/file-folder.html#Cake\Filesystem\Folder::$mode
      */
     public $mode = 0755;
 
@@ -131,7 +131,7 @@ class Folder
      *
      * @param string|null $path Path to folder
      * @param bool $create Create folder if not found
-     * @param int|bool $mode Mode (CHMOD) to apply to created folder, false to ignore
+     * @param int|false $mode Mode (CHMOD) to apply to created folder, false to ignore
      */
     public function __construct($path = null, $create = false, $mode = false)
     {
@@ -172,7 +172,7 @@ class Folder
     public function cd($path)
     {
         $path = $this->realpath($path);
-        if (is_dir($path)) {
+        if ($path !== false && is_dir($path)) {
             return $this->path = $path;
         }
 
@@ -345,7 +345,7 @@ class Folder
      */
     public static function isRegisteredStreamWrapper($path)
     {
-        return preg_match('/^[A-Z]+(?=:\/\/)/i', $path, $matches) &&
+        return preg_match('/^[^:\/\/]+?(?=:\/\/)/', $path, $matches) &&
             in_array($matches[0], stream_get_wrappers());
     }
 
@@ -410,6 +410,7 @@ class Folder
      */
     public function inCakePath($path = '')
     {
+        deprecationWarning('Folder::inCakePath() is deprecated. Use Folder::inPath() instead.');
         $dir = substr(Folder::slashTerm(ROOT), 0, -1);
         $newdir = $dir . $path;
 
@@ -661,7 +662,7 @@ class Folder
         $directory = Folder::slashTerm($this->path);
         $stack = [$directory];
         $count = count($stack);
-        for ($i = 0, $j = $count; $i < $j; ++$i) {
+        for ($i = 0, $j = $count; $i < $j; $i++) {
             if (is_file($stack[$i])) {
                 $size += filesize($stack[$i]);
             } elseif (is_dir($stack[$i])) {
@@ -922,7 +923,7 @@ class Folder
      * Get the real path (taking ".." and such into account)
      *
      * @param string $path Path to resolve
-     * @return string|bool The resolved path
+     * @return string|false The resolved path
      */
     public function realpath($path)
     {

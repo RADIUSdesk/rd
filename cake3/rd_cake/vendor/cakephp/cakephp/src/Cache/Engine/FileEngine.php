@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         1.2.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Cache\Engine;
 
@@ -383,6 +383,7 @@ class FileEngine extends CacheEngine
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
+
         $path = new SplFileInfo($dir . $key);
 
         if (!$createKey && !$path->isFile()) {
@@ -420,21 +421,23 @@ class FileEngine extends CacheEngine
     {
         $dir = new SplFileInfo($this->_config['path']);
         $path = $dir->getPathname();
+        $success = true;
         if (!is_dir($path)) {
-            mkdir($path, 0775, true);
+            //@codingStandardsIgnoreStart
+            $success = @mkdir($path, 0775, true);
+            //@codingStandardsIgnoreEnd
         }
 
-        if ($this->_init && !($dir->isDir() && $dir->isWritable())) {
+        $isWritableDir = ($dir->isDir() && $dir->isWritable());
+        if (!$success || ($this->_init && !$isWritableDir)) {
             $this->_init = false;
             trigger_error(sprintf(
                 '%s is not writable',
                 $this->_config['path']
             ), E_USER_WARNING);
-
-            return false;
         }
 
-        return true;
+        return $success;
     }
 
     /**

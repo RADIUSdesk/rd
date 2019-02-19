@@ -1,14 +1,14 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  * @since         3.1.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Mailer;
 
@@ -179,7 +179,7 @@ abstract class Mailer implements EventListenerInterface
      * Cloned Email instance for restoring instance after email is sent by
      * mailer action.
      *
-     * @var string
+     * @var \Cake\Mailer\Email
      */
     protected $_clonedEmail;
 
@@ -225,6 +225,8 @@ abstract class Mailer implements EventListenerInterface
      */
     public function layout($layout)
     {
+        deprecationWarning('Mailer::layout() is deprecated. Use setLayout() which sets the layout on the email class instead.');
+
         $this->_email->viewBuilder()->setLayout($layout);
 
         return $this;
@@ -245,11 +247,14 @@ abstract class Mailer implements EventListenerInterface
      *
      * @param string $method Method name.
      * @param array $args Method arguments
-     * @return $this
+     * @return $this|mixed
      */
     public function __call($method, $args)
     {
-        $this->_email->$method(...$args);
+        $result = $this->_email->$method(...$args);
+        if (strpos($method, 'get') === 0) {
+            return $result;
+        }
 
         return $this;
     }

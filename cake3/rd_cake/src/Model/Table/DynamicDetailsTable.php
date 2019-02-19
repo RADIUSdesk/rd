@@ -20,6 +20,7 @@ class DynamicDetailsTable extends Table
         $this->hasMany('DynamicPhotos',['dependent' => true]); 
         $this->hasMany('DynamicPairs',['dependent' => true]);
         $this->hasMany('DynamicPages',['dependent' => true]); 
+        $this->hasMany('DataCollectors',['dependent' => true]); 
         $this->hasMany('DynamicDetailNotes',['dependent' => true]);
         $this->hasMany('DynamicDetailSocialLogins',['dependent' => true]);     
     }

@@ -3,8 +3,6 @@ Ext.define('Rd.controller.cDynamicDetails', {
     actionIndex: function(pnl){
 
         var me = this;
-        
-        
         if (me.populated) {
             return; 
         }     
@@ -29,13 +27,14 @@ Ext.define('Rd.controller.cDynamicDetails', {
         'dynamicDetails.winPairEdit',       'dynamicDetails.pnlDynamicDetailSettings',  'dynamicDetails.pnlDynamicDetailClickToConnect',
 		'dynamicDetails.cmbThemes',			'components.cmbPermanentUser',				'components.cmbRealm',
 		'components.cmbProfile',			'dynamicDetails.pnlDynamicDetailSocialLogin'  ,
-		'dynamicDetails.cmbDynamicDetailLanguages'     
+		'dynamicDetails.cmbDynamicDetailLanguages',
+		'dynamicDetails.pnlDynamicDetailEmails', 'dynamicDetails.winEmailAdd'     
     ],
     stores: ['sDynamicDetails','sAccessProvidersTree', 'sPermanentUsers','sProfiles','sRealms'],
     models: [
 		'mDynamicDetail','mAccessProviderTree','mDynamicPhoto', 
 		'mDynamicPage', 'mDynamicPair', 'mPermanentUser',
-		'mProfile',		'mRealm'
+		'mProfile',		'mRealm',       'mDataCollector'
 	],
     selectedRecord: null,
     config: {
@@ -59,7 +58,9 @@ Ext.define('Rd.controller.cDynamicDetails', {
         urlPreviewMobile:   '/cake3/rd_cake/dynamic-details/preview-chilli-mobile',
         urlPreviewDesktop:  '/cake3/rd_cake/dynamic-details/preview-chilli-desktop',
 		urlViewSocial:		'/cake3/rd_cake/dynamic-details/view-social-login.json',
-		urlEditSocial:		'/cake3/rd_cake/dynamic-details/edit-social-login.json'
+		urlEditSocial:		'/cake3/rd_cake/dynamic-details/edit-social-login.json',
+		urlAddEmail:        '/cake3/rd_cake/data-collectors/add.json',
+		urlEmailExportCsv:  '/cake3/rd_cake/data-collectors/export-csv'
     },
     refs: [
          {  ref:    'grid',           selector:   'gridDynamicDetails'}
@@ -97,6 +98,9 @@ Ext.define('Rd.controller.cDynamicDetails', {
             },
             'gridDynamicDetails #desktop'  : {
                 click:      me.previewDesktop
+            },
+            'gridDynamicDetails #dcEmail': {
+                click:      me.dcEmail
             },
             'gridDynamicDetails'   : {
                 itemclick:  me.gridClick
@@ -269,6 +273,32 @@ Ext.define('Rd.controller.cDynamicDetails', {
                     var me = this;
                     me.editSubmit(b,me.getUrlEditSocial());
                 }
+            },
+            'pnlDynamicDetailEmails':{
+                activate: function(t){
+                    console.log("Email tab active pappie");
+                }
+            },
+            'gridDynamicDetailEmails #reload': {
+                click:      me.emailReload
+            },
+            'gridDynamicDetailEmails #add': {
+                click:      me.emailAdd
+            },
+            'gridDynamicDetailEmails #edit': {
+               // click:      me.addEmail
+            },
+            'gridDynamicDetailEmails #delete': {
+                click:      me.emailDel
+            },
+            'gridDynamicDetailEmails #csv': {
+                click:      me.emailCsvExport
+            },
+            '#winCsvColumnSelectDynamicDetailsEmail #save': {
+                click:  me.emailCsvExportSubmit
+            },
+            'winEmailAdd #save': {
+                click:      me.emailAddSave
             }
         });
     },
@@ -462,17 +492,24 @@ Ext.define('Rd.controller.cDynamicDetails', {
         var sx      = form.down('#txtConnectSuffix');
         var cd      = form.down('#nrConnectDelay');
         var co      = form.down('#chkConnectOnly');
+        var re      = form.down('#chkCtcRequireEmail');
+        var rs      = form.down('#cmbReSupply');
+        
         var value   = chk.getValue();
         if(value){
             un.setDisabled(false);
             sx.setDisabled(false);
             cd.setDisabled(false);
-            co.setDisabled(false);                
+            co.setDisabled(false);
+            re.setDisabled(false); 
+            rs.setDisabled(false);              
         }else{
             un.setDisabled(true);
             sx.setDisabled(true);
             cd.setDisabled(true);
             co.setDisabled(true);
+            re.setDisabled(true); 
+            rs.setDisabled(true);
         }
     },
     del:   function(button){
@@ -579,7 +616,7 @@ Ext.define('Rd.controller.cDynamicDetails', {
     },
     csvExport: function(button,format) {
         var me          = this;
-        var columns     = me.getGrid().columns;
+        var columns     = me.getGrid().columnManager.columns;
         var col_list    = [];
         Ext.Array.each(columns, function(item,index){
             if(item.dataIndex != ''){
@@ -1509,6 +1546,204 @@ Ext.define('Rd.controller.cDynamicDetails', {
             },
             scope: me
         });
+    },
+    dcEmail: function(button){
+        var me = this;  
+        //Find out if there was something selected
+        if(me.getGrid().getSelectionModel().getCount() == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+            //Check if the node is not already open; else open the node:
+            var tp      = me.getGrid().up('tabpanel');
+            var sr      = me.getGrid().getSelectionModel().getLastSelected();
+            var id      = sr.getId();
+            var user_id = sr.get('user_id');
+            var tab_id  = 'dynamicDetailEmailTab_'+id;
+            var nt      = tp.down('#'+tab_id);
+            if(nt){
+                tp.setActiveTab(tab_id); //Set focus on  Tab
+                return;
+            }
+
+            var tab_name = me.selectedRecord.get('name');
+            //Tab not there - add one
+            tp.add({ 
+                title       : tab_name,
+                itemId      : tab_id,
+                closable    : true,
+                glyph       : Rd.config.icnEmail, 
+                layout      : 'fit', 
+                items       : {'xtype' : 'pnlDynamicDetailEmails',dynamic_detail_id: id, user_id: user_id}
+            });
+            tp.setActiveTab(tab_id); //Set focus on Add Tab
+        }
+    },
+    emailReload: function(b){
+        var me      = this;
+        b.up('pnlDynamicDetailEmails').down('gridDynamicDetailEmails').getStore().load();
+    },
+    emailAdd: function(b){
+        var me      = this;
+        var d_id    = b.up('pnlDynamicDetailEmails').dynamic_detail_id;
+        var store   = b.up('pnlDynamicDetailEmails').down('gridDynamicDetailEmails').getStore()
+
+        if(!Ext.WindowManager.get('winEmailAddId')){
+            var w   = Ext.widget('winEmailAdd',
+            {
+                id                  : 'winEmailAddId',
+                dynamic_detail_id   : d_id,
+                store               : store
+            });
+            w.show();      
+        }
+    },
+    emailAddSave: function(button){
+        var me      = this;
+        var form    = button.up('form');
+        var window  = form.up('window');
+
+        form.submit({
+            clientValidation : true,
+            url              : me.getUrlAddEmail(),
+            params           : {'dynamic_detail_id' : window.dynamic_detail_id },
+            success: function(form, action) {              
+                //FIXME reload store....
+                Ext.ux.Toaster.msg(
+                    i18n('sItem_updated'),
+                    i18n('sItem_updated_fine'),
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+                window.store.load();
+                window.close();
+            },
+            failure: Ext.ux.formFail
+        });
+    },
+    emailDel:   function(b){
+        var me      = this;
+        var grid    = b.up('pnlDynamicDetailEmails').down('gridDynamicDetailEmails');     
+        //Find out if there was something selected
+        if(grid.getSelectionModel().getCount() == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item_to_delete'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
+                if(val== 'yes'){
+                    grid.getStore().remove(grid.getSelectionModel().getSelection());
+                    grid.getStore().sync({
+                        success: function(batch,options){
+                            Ext.ux.Toaster.msg(
+                                i18n('sItem_deleted'),
+                                i18n('sItem_deleted_fine'),
+                                Ext.ux.Constants.clsInfo,
+                                Ext.ux.Constants.msgInfo
+                            );
+                            grid.getStore().load();   //Update the count   
+                        },
+                        failure: function(batch,options,c,d){
+                            Ext.ux.Toaster.msg(
+                                i18n('sProblems_deleting_item'),
+                                batch.proxy.getReader().rawData.message.message,
+                                Ext.ux.Constants.clsWarn,
+                                Ext.ux.Constants.msgWarn
+                            );
+                            grid.getStore().load(); //Reload from server since the sync was not good
+                        }
+                    });
+
+                }
+            });
+        }
+    },
+    emailCsvExport: function(b,format) {
+    
+        var grid        = b.up('pnlDynamicDetailEmails').down('gridDynamicDetailEmails');
+        var d_id        = b.up('pnlDynamicDetailEmails').dynamic_detail_id;
+        var me          = this;
+        var columns     = grid.columnManager.columns;
+        var col_list    = [];
+        Ext.Array.each(columns, function(item,index){
+            if(item.dataIndex != ''){
+                var chk = {boxLabel: item.text, name: item.dataIndex, checked: true};
+                col_list[index] = chk;
+            }
+        }); 
+
+        if(!Ext.WindowManager.get('winCsvColumnSelectDynamicDetailsEmail')){
+            var w = Ext.widget('winCsvColumnSelect',{id:'winCsvColumnSelectDynamicDetailsEmail',columns: col_list,dynamic_detail_id: d_id});
+            w.show();        
+        }
+    },
+    emailCsvExportSubmit: function(button){
+
+        var me      = this;
+        var win     = button.up('window');
+        var form    = win.down('form');
+
+        var chkList = form.query('checkbox');
+        var c_found = false;
+        var columns = [];
+        var c_count = 0;
+        Ext.Array.each(chkList,function(item){
+            if(item.getValue()){ //Only selected items
+                c_found = true;
+                columns[c_count] = {'name': item.getName()};
+                c_count = c_count +1; //For next one
+            }
+        },me);
+
+        if(!c_found){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_one_or_more'),
+                        i18n('sSelect_one_or_more_columns_please'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{     
+            //next we need to find the filter values:
+            var filters     = [];
+            var f_count     = 0;
+            var f_found     = false;
+            var filter_json ='';
+            
+            var filter_collection = me.getGrid().getStore().getFilters();     
+            if(filter_collection.count() > 0){
+                var i = 0;
+                while (f_count < filter_collection.count()) { 
+
+                   // console.log(filter_collection.getAt(f_count).serialize( ));
+                    f_found         = true;
+                    var ser_item    = filter_collection.getAt(f_count).serialize( );
+                    ser_item.field  = ser_item.property;
+                    filters[f_count]= ser_item;
+                    f_count         = f_count + 1;
+                    
+                }     
+            }
+            var dd_id           = win.dynamic_detail_id;
+             
+            var col_json        = "columns="+encodeURIComponent(Ext.JSON.encode(columns));
+            var extra_params    = Ext.Object.toQueryString(Ext.Ajax.getExtraParams());
+            var append_url      = "?"+extra_params+'&'+col_json;
+            if(f_found){
+                filter_json = "filter="+encodeURIComponent(Ext.JSON.encode(filters));
+                append_url  = append_url+'&'+filter_json;
+            }
+            append_url          = append_url+'&dynamic_detail_id='+dd_id;
+            
+            window.open(me.getUrlEmailExportCsv()+append_url);
+            win.close();
+        }
     }
 		
 });

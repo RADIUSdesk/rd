@@ -24,7 +24,7 @@ class SuggestsCommand extends BaseCommand
     {
         $this
             ->setName('suggests')
-            ->setDescription('Show package suggestions.')
+            ->setDescription('Shows package suggestions.')
             ->setDefinition(array(
                 new InputOption('by-package', null, InputOption::VALUE_NONE, 'Groups output by suggesting package'),
                 new InputOption('by-suggestion', null, InputOption::VALUE_NONE, 'Groups output by suggested package'),
@@ -88,7 +88,7 @@ EOT
                 continue;
             }
             foreach ($package['suggest'] as $suggestion => $reason) {
-                if (false === strpos('/', $suggestion) && !is_null($platform->findPackage($suggestion, '*'))) {
+                if (false === strpos('/', $suggestion) && null !== $platform->findPackage($suggestion, '*')) {
                     continue;
                 }
                 if (!isset($installed[$suggestion])) {

@@ -22,6 +22,9 @@ use Cake\Utility\Inflector;
 
 /**
  * Task class for generating seed files.
+ *
+ * @property \Bake\Shell\Task\BakeTemplateTask $BakeTemplate
+ * @property \Bake\Shell\Task\TestTask $Test
  */
 class SeedTask extends SimpleBakeTask
 {
@@ -57,6 +60,7 @@ class SeedTask extends SimpleBakeTask
         if (isset($this->plugin)) {
             $path = $this->_pluginPath($this->plugin) . $this->pathFragment;
         }
+
         return str_replace('/', DS, $path);
     }
 
@@ -122,6 +126,7 @@ class SeedTask extends SimpleBakeTask
     public function bake($name)
     {
         $this->params['no-test'] = true;
+
         return parent::bake($name);
     }
 
@@ -143,7 +148,7 @@ class SeedTask extends SimpleBakeTask
             }
         }
 
-        $parser->description(
+        $parser->setDescription(
             'Bake seed class.'
         )->addOption('plugin', [
             'short' => 'p',

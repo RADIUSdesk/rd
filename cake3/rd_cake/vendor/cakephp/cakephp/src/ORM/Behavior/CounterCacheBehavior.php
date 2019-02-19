@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\ORM\Behavior;
 
@@ -18,6 +18,7 @@ use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\ORM\Association;
 use Cake\ORM\Behavior;
+use RuntimeException;
 
 /**
  * CounterCache behavior
@@ -61,6 +62,7 @@ use Cake\ORM\Behavior;
  *
  * Counter cache using lambda function returning the count
  * This is equivalent to example #2
+ *
  * ```
  * [
  *     'Users' => [
@@ -74,6 +76,9 @@ use Cake\ORM\Behavior;
  *     ]
  * ]
  * ```
+ *
+ * When using a lambda function you can return `false` to disable updating the counter value
+ * for the current operation.
  *
  * Ignore updating the field if it is dirty
  * ```
@@ -120,7 +125,7 @@ class CounterCacheBehavior extends Behavior
         }
 
         foreach ($this->_config as $assoc => $settings) {
-            $assoc = $this->_table->association($assoc);
+            $assoc = $this->_table->getAssociation($assoc);
             foreach ($settings as $field => $config) {
                 if (is_int($field)) {
                     continue;
@@ -132,7 +137,7 @@ class CounterCacheBehavior extends Behavior
                 if (!is_callable($config) &&
                     isset($config['ignoreDirty']) &&
                     $config['ignoreDirty'] === true &&
-                    $entity->$entityAlias->dirty($field)
+                    $entity->$entityAlias->isDirty($field)
                 ) {
                     $this->_ignoreDirty[$registryAlias][$field] = true;
                 }
@@ -189,7 +194,7 @@ class CounterCacheBehavior extends Behavior
     protected function _processAssociations(Event $event, EntityInterface $entity)
     {
         foreach ($this->_config as $assoc => $settings) {
-            $assoc = $this->_table->association($assoc);
+            $assoc = $this->_table->getAssociation($assoc);
             $this->_processAssociation($event, $entity, $assoc, $settings);
         }
     }
@@ -202,6 +207,7 @@ class CounterCacheBehavior extends Behavior
      * @param \Cake\ORM\Association $assoc The association object
      * @param array $settings The settings for for counter cache for this association
      * @return void
+     * @throws \RuntimeException If invalid callable is passed.
      */
     protected function _processAssociation(Event $event, EntityInterface $entity, Association $assoc, array $settings)
     {
@@ -227,21 +233,30 @@ class CounterCacheBehavior extends Behavior
                 continue;
             }
 
-            if (!is_string($config) && is_callable($config)) {
+            if (is_callable($config)) {
+                if (is_string($config)) {
+                    throw new RuntimeException('You must not use a string as callable.');
+                }
                 $count = $config($event, $entity, $this->_table, false);
             } else {
                 $count = $this->_getCount($config, $countConditions);
             }
-
-            $assoc->getTarget()->updateAll([$field => $count], $updateConditions);
+            if ($count !== false) {
+                $assoc->getTarget()->updateAll([$field => $count], $updateConditions);
+            }
 
             if (isset($updateOriginalConditions)) {
-                if (!is_string($config) && is_callable($config)) {
+                if (is_callable($config)) {
+                    if (is_string($config)) {
+                        throw new RuntimeException('You must not use a string as callable.');
+                    }
                     $count = $config($event, $entity, $this->_table, true);
                 } else {
                     $count = $this->_getCount($config, $countOriginalConditions);
                 }
-                $assoc->getTarget()->updateAll([$field => $count], $updateOriginalConditions);
+                if ($count !== false) {
+                    $assoc->getTarget()->updateAll([$field => $count], $updateOriginalConditions);
+                }
             }
         }
     }

@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Database\Statement;
 
@@ -82,11 +82,11 @@ class BufferedStatement extends StatementDecorator
      * @param string $type The type to fetch.
      * @return array|false
      */
-    public function fetch($type = 'num')
+    public function fetch($type = parent::FETCH_TYPE_NUM)
     {
         if ($this->_allFetched) {
             $row = ($this->_counter < $this->_count) ? $this->_records[$this->_counter++] : false;
-            $row = ($row && $type === 'num') ? array_values($row) : $row;
+            $row = ($row && $type === static::FETCH_TYPE_NUM) ? array_values($row) : $row;
 
             return $row;
         }
@@ -107,12 +107,20 @@ class BufferedStatement extends StatementDecorator
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function fetchAssoc()
+    {
+        return $this->fetch(static::FETCH_TYPE_ASSOC);
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @param string $type The type to fetch.
      * @return array
      */
-    public function fetchAll($type = 'num')
+    public function fetchAll($type = parent::FETCH_TYPE_NUM)
     {
         if ($this->_allFetched) {
             return $this->_records;
@@ -133,7 +141,7 @@ class BufferedStatement extends StatementDecorator
     {
         if (!$this->_allFetched) {
             $counter = $this->_counter;
-            while ($this->fetch('assoc')) {
+            while ($this->fetch(static::FETCH_TYPE_ASSOC)) {
             }
             $this->_counter = $counter;
         }

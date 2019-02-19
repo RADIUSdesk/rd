@@ -20,6 +20,7 @@ Ext.define('Rd.view.dataUsage.pnlDataUsageDay', {
             fields  :[ 
                 {name: 'id',            type: 'int'},
                 {name: 'username',      type: 'string'},
+                {name: 'mac',           type: 'string'},
                 {name: 'data_in',       type: 'int'},
                 {name: 'data_out',      type: 'int'},
                 {name: 'data_total',    type: 'int'}
@@ -52,19 +53,20 @@ Ext.define('Rd.view.dataUsage.pnlDataUsageDay', {
                         margin  : m,
                         padding : p,
                         flex    : 1,
-                        bodyCls : 'subSubTab',
+                        bodyCls : 'pnlInfo',
                         layout  : 'fit',
                         border  : true,
                         ui      : 'light',
                         itemId  : 'dailyTotal',
                         tpl     : new Ext.XTemplate(
                             '<div class="divInfo">',   
-                            '<tpl if="type==\'realm\'"><h2 style="color: #009933;"><i class="fa fa-dribbble"></i> {item_name}</h2></tpl>',
-                            '<tpl if="type==\'user\'"><h2 style="color: #0066ff;"><i class="fa fa-user"></i> {item_name}</h2></tpl>',
-                            '<h1 style="font-size:250%;">{data_total}</h1>',       
+                            '<tpl if="type==\'realm\'"><h2 style="color:#303030;font-weight:lighter;"><i class="fa fa-dribbble"></i> {item_name}</h2></tpl>',
+                            '<tpl if="type==\'user\'"><h2 style="color:#033278;font-weight:lighter;"><i class="fa fa-user"></i> {item_name}</h2></tpl>',
+                            '<h1 style="font-size:250%;font-weight:lighter;">{data_total}</h1>',       
                             '<p style="color: #000000; font-size:110%;">',
-                                'In: {data_in}<br>',
-                                'Out: {data_out}',
+                                '<span class="grpUp"><i class="fa fa-arrow-circle-down"></i></span> In: {data_in}',
+                                '&nbsp;&nbsp;&nbsp;&nbsp;',
+                                '<span class="grpDown"><i class="fa fa-arrow-circle-up"></i></span> Out: {data_out}',
                             '</p>',
                             '</div>'
                         ),
@@ -130,6 +132,7 @@ Ext.define('Rd.view.dataUsage.pnlDataUsageDay', {
                         columns: [
                             { xtype: 'rownumberer'},
                             { text: 'Username',  dataIndex: 'username', flex: 1},
+                            { text: 'MAC Address',  dataIndex: 'mac', flex: 1, hidden: true},
                             { text: 'Data In',   dataIndex: 'data_in',  hidden: true, renderer: function(value){
                                     return Ext.ux.bytesToHuman(value)              
                                 } 

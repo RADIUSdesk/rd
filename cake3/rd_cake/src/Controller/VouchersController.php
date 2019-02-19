@@ -371,14 +371,34 @@ class VouchersController extends AppController{
         }
 
         while($counter < $qty){
-            $pwd = $this->VoucherGenerator->generateVoucher();
-            if(($suffix != '')&&($suffix_vouchers)){
-                $pwd = $pwd.'@'.$suffix;
-            }
-
-            $this->request->data['name']      = $pwd; 
-            $this->request->data['password']  = $pwd;
+        
+            if($this->request->data['single_field'] == 'false'){
+                $p = '';
+                if(array_key_exists('precede',$this->request->data)){
+                    if($this->request->data['precede'] !== ''){
+                        $p = $this->request->data['precede'];
+                    }
+                }
             
+                $s = '';
+                if(($suffix != '')&&($suffix_vouchers)){
+                    $s = $suffix;
+                }      
+                $un     = $this->VoucherGenerator->generateUsernameForVoucher($p,$s);
+                $pwd    = $this->VoucherGenerator->generatePassword();
+                $this->request->data['name']      = $un; 
+                $this->request->data['password']  = $pwd;
+                
+            }else{
+                $pwd = $this->VoucherGenerator->generateVoucher();
+                if(($suffix != '')&&($suffix_vouchers)){
+                    $pwd = $pwd.'@'.$suffix;
+                }
+                
+                $this->request->data['name']      = $pwd; 
+                $this->request->data['password']  = $pwd;
+            }        
+             
             $entity = $this->{$this->main_model}->newEntity($this->request->data());
             $this->{$this->main_model}->save($entity);
             if(!$entity->errors()){ //Hopefully taking care of duplicates is as simple as this :-)
@@ -388,8 +408,9 @@ class VouchersController extends AppController{
                     $row["$field"]= $entity->{"$field"};
                 }
                 array_push($created,$row);
-            } 
+            }
         }
+ 
 
         $this->set(array(
             'success' => true,

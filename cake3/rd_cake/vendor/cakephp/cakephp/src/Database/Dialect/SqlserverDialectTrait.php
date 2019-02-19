@@ -1,19 +1,20 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Database\Dialect;
 
+use Cake\Database\ExpressionInterface;
 use Cake\Database\Expression\FunctionExpression;
 use Cake\Database\Expression\OrderByExpression;
 use Cake\Database\Expression\UnaryExpression;
@@ -21,6 +22,7 @@ use Cake\Database\Query;
 use Cake\Database\Schema\SqlserverSchema;
 use Cake\Database\SqlDialectTrait;
 use Cake\Database\SqlserverCompiler;
+use Cake\Database\ValueBinder;
 use PDO;
 
 /**
@@ -102,7 +104,31 @@ trait SqlserverDialectTrait
     protected function _pagingSubquery($original, $limit, $offset)
     {
         $field = '_cake_paging_._cake_page_rownum_';
-        $order = $original->clause('order') ?: new OrderByExpression('(SELECT NULL)');
+
+        if ($original->clause('order')) {
+            // SQL server does not support column aliases in OVER clauses.  But
+            // the only practical way to specify the use of calculated columns
+            // is with their alias.  So substitute the select SQL in place of
+            // any column aliases for those entries in the order clause.
+            $select = $original->clause('select');
+            $order = new OrderByExpression();
+            $original
+                ->clause('order')
+                ->iterateParts(function ($direction, $orderBy) use ($select, $order) {
+                    $key = $orderBy;
+                    if (isset($select[$orderBy]) &&
+                        $select[$orderBy] instanceof ExpressionInterface
+                    ) {
+                        $key = $select[$orderBy]->sql(new ValueBinder());
+                    }
+                    $order->add([$key => $direction]);
+
+                    // Leave original order clause unchanged.
+                    return $orderBy;
+                });
+        } else {
+            $order = new OrderByExpression('(SELECT NULL)');
+        }
 
         $query = clone $original;
         $query->select([

@@ -3,15 +3,15 @@
 //===== MESHdesk ======
 
 //== Client WPA2 Personal passphrase (key) NOTE: We moved this setting to be under common_node_settings instead
-//$config['MESHdesk']['client_key']	= 'radiusdesk';
+//$config['MESHdesk']['client_key']	= 'radiusdesk'; 
 
 //_______________________________________________
 //== Pre-set values for the Captive Portals
 $config['Meshes']['captive_portal']['radius_1']         = '198.27.111.78'; // This will be the public IP Address of the FreeRADIUS / RADIUSdesk
 //$config['ApProfiles']['captive_portal']['radius_2']         = '198.27.111.78'; //Optional second fallback RADIUS
 $config['Meshes']['captive_portal']['radius_secret']    = 'testing123'; //Change this to the common site wide secret used by Dynamic RADIUS Clients
-//Use DNS name in ual_url to look more professional / or IP Address
-$config['Meshes']['captive_portal']['uam_url']          = 'http://198.27.111.78/cake3/rd_cake/dynamic-details/chilli-browser-detect/';
+//Use DNS name in ual_url to look more professional / or IP Address 
+$config['Meshes']['captive_portal']['uam_url']          = 'http://198.27.111.78/cake3/rd_cake/dynamic-details/chilli-browser-detect/'; 
 $config['Meshes']['captive_portal']['uam_secret']       = 'greatsecret'; //Usually you will not change this value
 
 //$config['ApProfiles']['captive_portal']['walled_garden'] = "www.radiusdesk.com,www.google.com"; //Optional
@@ -60,7 +60,7 @@ $config['common_node_settings']['heartbeat_interval']  = 60; //Send a heartbeat 
 $config['common_node_settings']['heartbeat_dead_after'] = 300; //Mark a device as dead if we have not had heartbeats in this time
 
 //New features
-$config['common_node_settings']['eth_br_chk']		= false;	//set to true to bridge the ethernet ports of non-gw units
+$config['common_node_settings']['eth_br_chk']		= false;	//set to true to bridge the ethernet ports of non-gw units	
 $config['common_node_settings']['eth_br_with']		= 0; 		//Zero has a special meaning which is the LAN
 $config['common_node_settings']['eth_br_for_all']	= false; 		//Apply this bridge to all non-gateway nodes
 
@@ -72,21 +72,21 @@ $config['common_node_settings']['tz_value']	        = 'SAST-2'; 	//Take the name
 
 //Gateway specific tweaks
 $config['common_node_settings']['gw_dhcp_timeout']  = 120;	//
-$config['common_node_settings']['gw_use_previous']  = true;	//
+$config['common_node_settings']['gw_use_previous']  = true;	//	
 $config['common_node_settings']['gw_auto_reboot']   = true;	//
 $config['common_node_settings']['gw_auto_reboot_time']   = 600;	//
 
 //Default key when none is set
-$config['common_node_settings']['client_key']	    = 'radiusdesk';
+$config['common_node_settings']['client_key']	    = 'radiusdesk'; 		
 
 
 //== Device types for MESHdesk ==
 
 $config['hardware'][0]      = array(
-		'name' 		=> __('Dragino MS14'),
+		'name' 		=> __('Dragino MS14'),   	
 		'id'    	=> 'dragino',
 		'radios'	=> 1,
-		'active'    => true,
+		'active'    => true, 
 		'max_power' => 18,
 		'eth_br'	=> 'eth0 eth1',
 		'two'		=> true,
@@ -108,14 +108,14 @@ $config['hardware'][0]      = array(
             'TX-STBC',
             'DSSS_CCK-40'
         )
-
+	
 );
 
 $config['hardware'][1]      = array(
-		'name' 		=> __('MP2 Basic'),
+		'name' 		=> __('MP2 Basic'),   	
 		'id'    	=> 'mp2_basic',
-		'radios'	=> 1,
-		'active'    => true,
+		'radios'	=> 1, 
+		'active'    => true, 
 		'max_power' => 18,
 		'eth_br'	=> 'eth0 eth1',
 		'two'		=> true,
@@ -137,14 +137,14 @@ $config['hardware'][1]      = array(
             'TX-STBC',
             'DSSS_CCK-40'
         )
-
+	
 );
 
 $config['hardware'][2]      = array(
-		'name' 		=> __('MP2 Phone'),
+		'name' 		=> __('MP2 Phone'),   	
 		'id'    	=> 'mp2_phone',
-		'radios'	=> 1,
-		'active'    => true,
+		'radios'	=> 1, 
+		'active'    => true, 
 		'max_power' => 18,
 		'eth_br'	=> 'eth0 eth1',
 		'two'		=> true,
@@ -165,15 +165,15 @@ $config['hardware'][2]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )
+        )	
 );
 
 
 $config['hardware'][3]      = array(
-		'name' 		=> __('OpenMesh OM2P'),
-		'id'    	=> 'om2p' ,
-		'radios'	=> 1,
-		'active'    => true,
+		'name' 		=> __('OpenMesh OM2P'),  	
+		'id'    	=> 'om2p' , 
+		'radios'	=> 1,  
+		'active'    => true, 
 		'max_power' => '20',
 		'eth_br'	=> 'eth0 eth1',
 		'two'		=> true,
@@ -195,14 +195,14 @@ $config['hardware'][3]      = array(
             'TX-STBC',
             'DSSS_CCK-40'
         )
-
+	
 );
 
 $config['hardware'][4]      = array(
-		'name' 		=> __('PicoStation M2'),
+		'name' 		=> __('PicoStation M2'),	
 		'id'    	=> 'pico2',
-		'radios'	=> 1,
-		'active'    => true,
+		'radios'	=> 1, 
+		'active'    => true, 
 		'max_power' => '28',
 		'eth_br'	=> 'eth0',
 		'two'		=> true,
@@ -228,10 +228,10 @@ $config['hardware'][4]      = array(
 );
 
 $config['hardware'][5]      = array(
-		'name' 		=> __('PicoStation M5'),
-		'id'    	=> 'pico5',
+		'name' 		=> __('PicoStation M5'),	
+		'id'    	=> 'pico5', 
 		'radios'	=> 1,
-		'active'    => true,
+		'active'    => true, 
 		'max_power' => '28',
 		'eth_br'	=> 'eth0',
 		'two'		=> false,
@@ -256,10 +256,10 @@ $config['hardware'][5]      = array(
 );
 
 $config['hardware'][6]      = array(
-		'name' 		=> __('NanoStation M2'),
+		'name' 		=> __('NanoStation M2'),	
 		'id'    	=> 'nano2',
-		'radios'	=> 1,
-		'active'    => true,
+		'radios'	=> 1, 
+		'active'    => true, 
 		'max_power' => '28',
 		'eth_br'	=> 'eth0',
 		'two'		=> true,
@@ -285,10 +285,10 @@ $config['hardware'][6]      = array(
 
 
 $config['hardware'][7]      = array(
-		'name' 		=> __('NanoStation M5'),
+		'name' 		=> __('NanoStation M5'),	
 		'id'    	=> 'nano5',
-		'radios'	=> 1,
-		'active'    => true,
+		'radios'	=> 1, 
+		'active'    => true, 
 		'max_power' => '28',
 		'eth_br'	=> 'eth0',
 		'two'		=> false,
@@ -308,14 +308,14 @@ $config['hardware'][7]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )
+        )	
 );
 
 $config['hardware'][8]      = array(
-		'name' 		=> __('UniFi AP'),
+		'name' 		=> __('UniFi AP'),	
 		'id'    	=> 'unifiap',
-		'radios'	=> 1,
-		'active'    => true,
+		'radios'	=> 1, 
+		'active'    => true, 
 		'max_power' => '23',
 		'eth_br'	=> 'eth0',
 		'two'		=> true,
@@ -336,14 +336,14 @@ $config['hardware'][8]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )
+        )	
 );
 
 $config['hardware'][9]      = array(
-		'name' 		=> __('UniFi AP-LR'),
+		'name' 		=> __('UniFi AP-LR'),	
 		'id'    	=> 'unifilrap',
-		'radios'	=> 1,
-		'active'    => true,
+		'radios'	=> 1, 
+		'active'    => true, 
 		'max_power' => '27',
 		'eth_br'	=> 'eth0',
 		'two'		=> true,
@@ -364,14 +364,14 @@ $config['hardware'][9]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )
+        )	
 );
 
 $config['hardware'][10]      = array(
-		'name' 		=> __('TP-Link WR841N'),
-		'id'    	=> 'tl841n' ,
-		'radios'	=> 1,
-		'active'    => true,
+		'name' 		=> __('TP-Link WR841N'),  	
+		'id'    	=> 'tl841n' , 
+		'radios'	=> 1,  
+		'active'    => true, 
 		'max_power' => '21',
 		'eth_br'	=> 'eth0 eth1',
 		'two'		=> true,
@@ -392,17 +392,17 @@ $config['hardware'][10]      = array(
             'RX-STBC1',
             'TX-STBC',
             'DSSS_CCK-40'
-        )
+        )	
 );
 
 $config['hardware'][11]      = array(
-		'name' 		=> __('UniFi AP PRO (Dual Radio)'),
+		'name' 		=> __('UniFi AP PRO (Dual Radio)'),	
 		'id'    	=> 'unifiappro',
-		'radios'	=> 2,
+		'radios'	=> 2, 
 		'active'    => true,
 		'eth_br'	=> 'eth0',
 
-		//First radio
+		//First radio 
 		'max_power' => '17',
 		'two'		=> false,
 		'five'		=> true,
@@ -449,13 +449,13 @@ $config['hardware'][11]      = array(
 
 
 $config['hardware'][12]      = array(
-		'name' 		=> __('TP-Link WDR3500 (Dual Radio)'),
+		'name' 		=> __('TP-Link WDR3500 (Dual Radio)'),	
 		'id'    	=> 'tl_wdr3500',
-		'radios'	=> 2,
+		'radios'	=> 2, 
 		'active'    => true,
 		'eth_br'	=> 'eth0 eth1',
 
-		//First radio
+		//First radio 
 		'max_power' => '20',
 		'two'		=> true,
 		'five'		=> false,
@@ -502,13 +502,13 @@ $config['hardware'][12]      = array(
 
 
 $config['hardware'][13]      = array(
-		'name' 		=> __('TP-Link WDR3600 (Dual Radio)'),
+		'name' 		=> __('TP-Link WDR3600 (Dual Radio)'),	
 		'id'    	=> 'tl_wdr3600',
-		'radios'	=> 2,
+		'radios'	=> 2, 
 		'active'    => true,
 		'eth_br'	=> 'eth0 eth1',
 
-		//First radio
+		//First radio 
 		'max_power' => '20',
 		'two'		=> true,
 		'five'		=> false,
@@ -562,7 +562,7 @@ $config['hardware'][14]      = array(
         'active'    	=> true,
         'eth_br'        => 'eth0',
 
-        //First radio
+        //First radio 
         'max_power' => '23',
         'two'           => true,
         'five'          => false,
@@ -609,10 +609,10 @@ $config['hardware'][14]      = array(
 
 
 $config['hardware'][15]      = array(
-		'name' 		=> __('Generic 1 Radio'),
+		'name' 		=> __('Generic 1 Radio'),	
 		'id'    	=> 'genoneradio',
-		'radios'	=> 1,
-		'active'    => true,
+		'radios'	=> 1, 
+		'active'    => true, 
 		'max_power' => '18',
 		'eth_br'	=> 'eth0',
 		'two'		=> true,
@@ -634,7 +634,7 @@ $config['hardware'][15]      = array(
             'TX-STBC',
             'DSSS_CCK-40'
         )
-
+	
 );
 
 $config['hardware'][16]      = array(
@@ -644,7 +644,7 @@ $config['hardware'][16]      = array(
         'active'    	=> true,
         'eth_br'        => 'eth0',
 
-        //First radio
+        //First radio 
         'max_power' => '18',
         'two'           => true,
         'five'          => false,
@@ -689,7 +689,7 @@ $config['hardware'][16]      = array(
 );
 
 $config['hardware'][17]      = array(
-	'name'    		=> __('AirGateway'),
+	'name'    		=> __('AirGateway'),       
     'id'          	=> 'airgw',
     'radios'      	=> 1,
     'active'    	=> true,
@@ -714,12 +714,12 @@ $config['hardware'][17]      = array(
         'TX-STBC',
         'DSSS_CCK-40'
     )
-
+     
 );
 
 $config['hardware'][18]      = array(
-	'name'     		=> __('AirRouter'),
-    'id'          	=> 'airrouter' ,
+	'name'     		=> __('AirRouter'),        
+    'id'          	=> 'airrouter' ,  
    	'radios'      	=> 1,
     'active'    	=> true,
  	'max_power' 	=> '19',
@@ -742,12 +742,12 @@ $config['hardware'][18]      = array(
         'RX-STBC1',
         'TX-STBC',
         'DSSS_CCK-40'
-    )
+    )     
 );
 
 $config['hardware'][19]      = array(
-	'name'          => __('AirRouterHP'),
-	'id'          	=> 'airrouterhp' ,
+	'name'          => __('AirRouterHP'),      
+	'id'          	=> 'airrouterhp' ,  
 	'radios'      	=> 1,
 	'active'    	=> true,
 	'max_power'   	=> '26',
@@ -770,11 +770,11 @@ $config['hardware'][19]      = array(
         'RX-STBC1',
         'TX-STBC',
         'DSSS_CCK-40'
-    )
+    ) 
 );
 
 $config['hardware'][20]      = array(
-  	'name'          => __('BulletM2'),
+  	'name'          => __('BulletM2'),         
   	'id'          	=> 'bulm2',
   	'radios'      	=> 1,
 	'active'    	=> true,
@@ -802,7 +802,7 @@ $config['hardware'][20]      = array(
 );
 
 $config['hardware'][21]      = array(
-  	'name'          => __('RB433 (Dual Radio)'),
+  	'name'          => __('RB433 (Dual Radio)'),      
   	'id'          	=> 'rb433',
   	'radios'      	=> 2,
   	'active'    	=> true,
@@ -817,7 +817,7 @@ $config['hardware'][21]      = array(
   	'two1'        	=> false,
   	'five1'        	=> true,
   	'hwmode1'     	=> '11a',
-
+    
     //Default Advanced WiFi settings (Enchancement made 8/9/15)
     'radio0_htmode'         => 'HT20',
     'radio0_txpower'        => '27',
@@ -836,9 +836,9 @@ $config['hardware'][21]      = array(
 );
 
 $config['hardware'][22]      = array(
-    'name'          => __('TP-Link WA850RE'),
+    'name'          => __('TP-Link WA850RE'), 
     'id'            => 'tl_wa850re',
-    'radios'        => 1,
+    'radios'        => 1, 
     'active'        => true,
     'max_power'     => '21',
     'eth_br'        => 'eth0',
@@ -864,9 +864,9 @@ $config['hardware'][22]      = array(
 );
 
 $config['hardware'][23]      = array(
-    'name'          => __('TP-Link WA901ND'),
+    'name'          => __('TP-Link WA901ND'), 
     'id'            => 'tl_wa901n' ,
-    'radios'        => 1,
+    'radios'        => 1, 
     'active'        => true,
     'max_power'     => '21',
     'eth_br'        => 'eth0',
@@ -951,14 +951,14 @@ $config['hardware'][25]      = array(
 );
 
 $config['hardware'][26]      = array(
-		'name' 		    => __('TP-Link Archer C7 (AC)'),
+		'name' 		    => __('TP-Link Archer C7 (AC)'),	
 		'id'    	    => 'tl_ac1750_c7',
-		'radios'	    => 2,
+		'radios'	    => 2, 
 		'active'        => true,
 		'device_type'   => 'ac', //Options are 'standard' (if left out) or 'ac' for AC devices, more options to follow
 		'eth_br'	    => 'eth1',
 
-		//First radio
+		//First radio 
 		'max_power'     => '30',
 		'two'		    => false,
 		'five'		    => true,
@@ -978,7 +978,7 @@ $config['hardware'][26]      = array(
         'radio0_ldpc'           => true,
         'radio0_beacon_int'     => 100,
         'radio0_ht_capab'       => array(
-
+   
         ),
 
         'radio1_htmode'         => 'HT20',
@@ -998,14 +998,14 @@ $config['hardware'][26]      = array(
 );
 
 $config['hardware'][27]      = array(
-		'name' 		    => __('Xiaomi MiWiFi Mini (AC)'),
+		'name' 		    => __('Xiaomi MiWiFi Mini (AC)'),	
 		'id'    	    => 'miwifi_mini',
-		'radios'	    => 2,
+		'radios'	    => 2, 
 		'active'        => true,
 		'device_type'   => 'ac', //Options are 'standard' (if left out) or 'ac' for AC devices, more options to follow
 		'eth_br'	    => 'eth0.1',
 
-		//First radio
+		//First radio 
 		'max_power'     => '30',
 		'two'		    => false,
 		'five'		    => true,
@@ -1025,7 +1025,7 @@ $config['hardware'][27]      = array(
         'radio0_ldpc'           => true,
         'radio0_beacon_int'     => 100,
         'radio0_ht_capab'       => array(
-
+   
         ),
 
         'radio1_htmode'         => 'HT20',
@@ -1135,7 +1135,7 @@ $config['hardware'][31]      = array(
     'radios'        => 1,
     'active'        => true,
     'max_power'     => '30',
-    'eth_br'        => 'eth0',
+    'eth_br'        => 'eth0', 
     'two'           => true,
     'five'          => false,
     'hwmode'        => '11g',
@@ -1163,7 +1163,7 @@ $config['hardware'][32]      = array(
     'radios'        => 1,
     'active'        => true,
     'max_power'     => '23',
-    'eth_br'        => 'eth0 eth1',
+    'eth_br'        => 'eth0 eth1', 
     'two'           => true,
     'five'          => false,
     'hwmode'        => '11g',
@@ -1186,14 +1186,14 @@ $config['hardware'][32]      = array(
 );
 
 $config['hardware'][33]      = array(
-		'name' 		    => __('Yuncore  XD3200 (AC)'),
+		'name' 		    => __('Yuncore  XD3200 (AC)'),	
 		'id'    	    => 'yc_xd3200',
-		'radios'	    => 2,
+		'radios'	    => 2, 
 		'active'        => true,
 		'device_type'   => 'ac', //Options are 'standard' (if left out) or 'ac' for AC devices, more options to follow
 		'eth_br'	    => 'eth0',
 
-		//First radio
+		//First radio 
 		'max_power'     => '30',
 		'two'		    => false,
 		'five'		    => true,
@@ -1213,7 +1213,7 @@ $config['hardware'][33]      = array(
         'radio0_ldpc'           => true,
         'radio0_beacon_int'     => 100,
         'radio0_ht_capab'       => array(
-
+   
         ),
 
         'radio1_htmode'         => 'HT20',
@@ -1234,14 +1234,14 @@ $config['hardware'][33]      = array(
 
 
 $config['hardware'][34]      = array(
-		'name' 		    => __('Wally DR344 (AC)'),
+		'name' 		    => __('Wally DR344 (AC)'),	
 		'id'    	    => 'wally_dr344_ac',
-		'radios'	    => 2,
+		'radios'	    => 2, 
 		'active'        => true,
 		'device_type'   => 'ac', //Options are 'standard' (if left out) or 'ac' for AC devices, more options to follow
 		'eth_br'	    => 'eth0 eth1',
 
-		//First radio
+		//First radio 
 		'max_power'     => '30',
 		'two'		    => false,
 		'five'		    => true,
@@ -1261,7 +1261,7 @@ $config['hardware'][34]      = array(
         'radio0_ldpc'           => true,
         'radio0_beacon_int'     => 100,
         'radio0_ht_capab'       => array(
-
+   
         ),
 
         'radio1_htmode'         => 'HT20',
@@ -1281,63 +1281,10 @@ $config['hardware'][34]      = array(
 );
 
 
-$config['hardware'][35]      = array(
-        'name'          => __('Open Mesh MR1750'),
-        'id'            => 'om_mr1750',
-        'radios'        => 2,
-        'active'    	=> true,
-        'eth_br'        => 'eth0',
-
-        //First radio
-				'max_power'=> '18',
-        'two0'          => false,
-        'five0'         => true,
-        'hwmode0'       => '11a',
-
-				//Second radio - This is extra for two radio devices
-        'max_power1' => '18',
-        'two1'           => true,
-        'five1'          => false,
-        'hwmode1'        => '11g',
-
-        //Default Advanced WiFi settings (Enchancement made 8/9/15)
-				'radio0_htmode'         => 'HT20',
-        'radio0_txpower'        => '18',
-        'radio0_diversity'      => true,
-        'radio0_distance'       => '300',
-        'radio0_noscan'         => false,
-        'radio0_ldpc'           => true,
-        'radio0_beacon_int'     => 100,
-        'radio0_ht_capab'       => array(
-            'SHORT-GI-40',
-            'RX-STBC1',
-            'TX-STBC',
-            'DSSS_CCK-40'
-        ),
-
-        //Default Advanced WiFi settings (Enchancement made 8/9/15)
-				'radio1_htmode'         => 'HT20',
-        'radio1_txpower'        => '18',
-        'radio1_diversity'      => true,
-        'radio1_distance'       => '300',
-        'radio1_noscan'         => false,
-        'radio1_ldpc'           => true,
-        'radio1_beacon_int'     => 100,
-        'radio1_disable_b'      => true,
-        'radio1_ht_capab'       => array(
-            'SHORT-GI-40',
-            'RX-STBC1',
-            'TX-STBC',
-            'DSSS_CCK-40'
-        )
-);
-
-
-
 
 
 //== MESHdesk SSID/BSSID
-$config['MEHSdesk']['bssid'] = "02:CA:FE:CA:00:00"; //This will be the first one; subsequent ones will be incremented
+$config['MEHSdesk']['bssid'] = "02:CA:FE:CA:00:00"; //This will be the first one; subsequent ones will be incremented 
 
 //== MESHdesk Defaul MAP settings ==
 $config['mesh_specifics']['map']['type']     = "ROADMAP";

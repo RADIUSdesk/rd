@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.18, for Linux (i686)
+-- MySQL dump 10.13  Distrib 5.7.25, for Linux (x86_64)
 --
 -- Host: localhost    Database: rd
 -- ------------------------------------------------------
--- Server version	5.7.18-0ubuntu0.16.04.1
+-- Server version	5.7.25-0ubuntu0.18.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -681,6 +681,38 @@ INSERT INTO `countries` VALUES (4,'United Kingdom','GB','/cake2/rd_cake/webroot/
 UNLOCK TABLES;
 
 --
+-- Table structure for table `data_collectors`
+--
+
+DROP TABLE IF EXISTS `data_collectors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `data_collectors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dynamic_detail_id` int(11) DEFAULT NULL,
+  `email` varchar(255) NOT NULL,
+  `mac` varchar(36) NOT NULL,
+  `cp_mac` varchar(36) DEFAULT NULL,
+  `public_ip` varchar(36) DEFAULT NULL,
+  `nasid` varchar(255) DEFAULT NULL,
+  `ssid` varchar(255) DEFAULT NULL,
+  `is_mobile` tinyint(1) NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `data_collectors`
+--
+
+LOCK TABLES `data_collectors` WRITE;
+/*!40000 ALTER TABLE `data_collectors` DISABLE KEYS */;
+/*!40000 ALTER TABLE `data_collectors` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `device_notes`
 --
 
@@ -859,6 +891,13 @@ CREATE TABLE `dynamic_clients` (
   `user_id` int(11) DEFAULT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
+  `data_limit_active` tinyint(1) NOT NULL DEFAULT '0',
+  `data_limit_amount` int(11) NOT NULL DEFAULT '1',
+  `data_limit_unit` enum('kb','mb','gb','tb') DEFAULT 'mb',
+  `data_limit_reset_on` int(3) NOT NULL DEFAULT '1',
+  `data_limit_reset_hour` int(3) NOT NULL DEFAULT '0',
+  `data_limit_reset_minute` int(3) NOT NULL DEFAULT '0',
+  `data_used` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -997,6 +1036,8 @@ CREATE TABLE `dynamic_details` (
   `slideshow_enforce_watching` tinyint(1) NOT NULL DEFAULT '1',
   `slideshow_enforce_seconds` int(4) NOT NULL DEFAULT '10',
   `available_languages` varchar(255) NOT NULL DEFAULT '',
+  `ctc_require_email` tinyint(1) NOT NULL DEFAULT '0',
+  `ctc_resupply_email_interval` int(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1007,7 +1048,7 @@ CREATE TABLE `dynamic_details` (
 
 LOCK TABLES `dynamic_details` WRITE;
 /*!40000 ALTER TABLE `dynamic_details` DISABLE KEYS */;
-INSERT INTO `dynamic_details` VALUES (3,'SA Coast - Struisbaai',1,'1484077003.png','27128037032','27128037033','27128037034','bredasdorp@discovercapeagulhas.co.za','http://www.discovercapeagulhas.co.za/','1','Longstreet','Bredasdorp','Bredasdorp','South Africa',0,0,44,1,'http://www.radiusdesk.com',0,'http://www.radiusdesk.com',1,30,1,'click_to_connect','ssid',0,0,'2013-05-23 09:57:09','2017-05-21 14:21:28',1,1,1,'mysite',1,120,'Default',0,1,0,187,'/rd_login/cc/d/index.html','/rd_login/cc/m/index.html','/rd_login/mt/d/index.html','/rd_login/mt/m/index.html','en_GB',NULL,NULL,0,'',0,0,0,1,30,'en_GB,fr_FR,en_GB');
+INSERT INTO `dynamic_details` VALUES (3,'SA Coast - Struisbaai',1,'1484077003.png','27128037032','27128037033','27128037034','bredasdorp@discovercapeagulhas.co.za','http://www.discovercapeagulhas.co.za/','1','Longstreet','Bredasdorp','Bredasdorp','South Africa',0,0,44,1,'http://www.radiusdesk.com',0,'http://www.radiusdesk.com',1,30,1,'click_to_connect','ssid',0,0,'2013-05-23 09:57:09','2017-05-21 14:21:28',1,1,1,'mysite',1,120,'Default',0,1,0,187,'/rd_login/cc/d/index.html','/rd_login/cc/m/index.html','/rd_login/mt/d/index.html','/rd_login/mt/m/index.html','en_GB',NULL,NULL,0,'',0,0,0,1,30,'en_GB,fr_FR,en_GB',0,0);
 /*!40000 ALTER TABLE `dynamic_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3548,4 +3589,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-07-15 17:45:21
+-- Dump completed on 2019-01-28 10:05:29

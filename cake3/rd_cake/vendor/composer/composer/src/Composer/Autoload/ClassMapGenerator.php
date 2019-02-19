@@ -75,7 +75,7 @@ class ClassMapGenerator
 
         $map = array();
         $filesystem = new Filesystem();
-        $cwd = getcwd();
+        $cwd = realpath(getcwd());
 
         foreach ($path as $file) {
             $filePath = $file->getPathname();
@@ -90,6 +90,11 @@ class ClassMapGenerator
                 $filePath = preg_replace('{[\\\\/]{2,}}', '/', $filePath);
             }
 
+            // check the realpath of the file against the blacklist as the path might be a symlink and the blacklist is realpath'd so symlink are resolved
+            if ($blacklist && preg_match($blacklist, strtr(realpath($filePath), '\\', '/'))) {
+                continue;
+            }
+            // check non-realpath of file for directories symlink in project dir
             if ($blacklist && preg_match($blacklist, strtr($filePath, '\\', '/'))) {
                 continue;
             }
@@ -173,6 +178,10 @@ class ClassMapGenerator
         $pos = strrpos($contents, '?>');
         if (false !== $pos && false === strpos(substr($contents, $pos), '<?')) {
             $contents = substr($contents, 0, $pos);
+        }
+        // strip comments if short open tags are in the file
+        if (preg_match('{(<\?)(?!(php|hh))}i', $contents)) {
+            $contents = preg_replace('{//.* | /\*(?:[^*]++|\*(?!/))*\*/}x', '', $contents);
         }
 
         preg_match_all('{

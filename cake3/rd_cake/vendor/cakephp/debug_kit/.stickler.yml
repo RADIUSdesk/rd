@@ -1,7 +1,11 @@
 linters:
   phpcs:
     standard: CakePHP
-    extensions: '.php'
+    fixer: true
 
 ignore:
   branches: ['2.2']
+
+fixers:
+  enable: true
+  workflow: commit

@@ -24,12 +24,12 @@ use Hybridauth\User;
  *
  *        // google's custom auth url params
  *       'authorize_url_parameters' => [
- *              'approval_prompt' => 'force', // to pass only when you need to acquire a new refresh token. 
+ *              'approval_prompt' => 'force', // to pass only when you need to acquire a new refresh token.
  *              'access_type'     => ..,      // is set to 'offline' by default
  *              'hd'              => ..,
  *              'state'           => ..,
  *              // etc.
- *       ] 
+ *       ]
  *   ];
  *
  *   $adapter = new Hybridauth\Provider\Google( $config );
@@ -38,7 +38,7 @@ use Hybridauth\User;
  *       $adapter->authenticate();
  *
  *       $userProfile = $adapter->getUserProfile();
- *       $tokens = $adapter->getAccessToken(); 
+ *       $tokens = $adapter->getAccessToken();
  *       $contacts = $adapter->getUserContacts(['max-results' => 75]);
  *   }
  *   catch( Exception $e ){
@@ -74,29 +74,19 @@ class Google extends OAuth2
 
     /**
     * {@inheritdoc}
-    *
-    * Add access_type=offline as default extra parameter when generating authorize url. 
-    *
-    * Any other parameter can be now set through adapter config. Example:
-    *
-    *   $config = [
-    *       'callback' => '...',
-    *       'keys'     => [ 'id' => '...', 'secret' => '..' ],
-    *
-    *        // google's custom auth url params
-    *       'authorize_url_parameters' => [
-    *              'approval_prompt' => 'force', // to pass only when you need to acquire a new refresh token. 
-    *              'hd'              => ..,
-    *              'state'           => ..,
-    *              // etc.
-    *       ] 
-    *   ];
     */
-    protected function getAuthorizeUrl($parameters = [])
+    protected function initialize()
     {
-        $parameters = ['access_type' => 'offline'];
+        parent::initialize();
 
-        return parent::getAuthorizeUrl($parameters);
+        $this->AuthorizeUrlParameters += [
+            'access_type' => 'offline'
+        ];
+
+        $this->tokenRefreshParameters += [
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret
+        ];
     }
 
     /**
@@ -132,7 +122,8 @@ class Google extends OAuth2
         $userProfile->emailVerified = $data->get('verified') ? $userProfile->email : '';
 
         if ($data->filter('image')->exists('url')) {
-            $userProfile->photoURL = substr($data->filter('image')->get('url'), 0, -2) . 150;
+            $photoSize = $this->config->get('photo_size') ?: '150';
+            $userProfile->photoURL = substr($data->filter('image')->get('url'), 0, -2) . $photoSize;
         }
 
         if (! $userProfile->email && $data->exists('emails')) {
@@ -153,7 +144,7 @@ class Google extends OAuth2
     /**
     * Fetch user email
     */
-    protected function fetchUserEmail($userProfile, $data)
+    protected function fetchUserEmail(User\Profile $userProfile, Data\Collection $data)
     {
         foreach ($data->get('emails') as $email) {
             if ('account' == $email->type) {
@@ -170,7 +161,7 @@ class Google extends OAuth2
     /**
     * Fetch user profile url
     */
-    protected function fetchUserProfileUrl($userProfile, $data)
+    protected function fetchUserProfileUrl(User\Profile $userProfile, Data\Collection $data)
     {
         foreach ($data->get('urls') as $url) {
             if ($url->get('primary')) {
@@ -186,7 +177,7 @@ class Google extends OAuth2
     /**
     * Fetch use birthday
     */
-    protected function fetchBirthday($userProfile, $birthday)
+    protected function fetchBirthday(User\Profile $userProfile, $birthday)
     {
         $result = (new Data\Parser())->parseBirthday($birthday, '-');
 
@@ -205,7 +196,7 @@ class Google extends OAuth2
         $parameters = ['max-results' => 500] + $parameters;
 
         // Google Gmail and Android contacts
-        if (false !== strpos($this->scope, '/m8/feeds/')) {
+        if (false !== strpos($this->scope, '/m8/feeds/') || false !== strpos($this->scope, '/auth/contacts.readonly')) {
             return $this->getGmailContacts($parameters);
         }
 

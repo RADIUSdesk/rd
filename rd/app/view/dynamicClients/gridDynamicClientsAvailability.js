@@ -12,8 +12,8 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClientsAvailability' ,{
     requires: [
         'Rd.view.components.ajaxToolbar'
     ],
-    urlMenu:        '/cake2/rd_cake/dynamic_client_states/menu_for_grid.json',
-    urlIndex:       '/cake2/rd_cake/dynamic_client_states/index.json',
+    urlMenu:        '/cake3/rd_cake/dynamic-client-states/menu_for_grid.json',
+    urlIndex:       '/cake3/rd_cake/dynamic-client-states/index.json',
     columns: [
         {xtype: 'rownumberer',stateId: 'StateGridDynamicClientsAvailability1'},
         { 
@@ -53,7 +53,7 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClientsAvailability' ,{
                     messageProperty : 'message'
                 },
                 api: {
-                    destroy  : '/cake2/rd_cake/dynamic_client_states/delete.json'
+                    destroy  : '/cake3/rd_cake/dynamic-client-states/delete.json'
                 }
             },
             listeners: {

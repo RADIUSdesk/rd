@@ -15,7 +15,6 @@ the Composer execution process.
 > executed. If a dependency of the root package specifies its own scripts,
 > Composer does not execute those additional scripts.
 
-
 ## Event names
 
 Composer fires the following named events during its execution process:
@@ -210,6 +209,10 @@ simply running `composer test`:
 }
 ```
 
+Similar to the `run-script` command you can give additional arguments to scripts,
+e.g. `composer test -- --filter <pattern>` will pass `--filter <pattern>` along
+to the `phpunit` script.
+
 > **Note:** Before executing scripts, Composer's bin-dir is temporarily pushed
 > on top of the PATH environment variable so that binaries of dependencies
 > are easily accessible. In this example no matter if the `phpunit` binary is
@@ -271,3 +274,17 @@ resolve to whatever php process is currently being used:
 One limitation of this is that you can not call multiple commands in
 a row like `@php install && @php foo`. You must split them up in a
 JSON array of commands.
+
+## Custom descriptions.
+
+You can set custom script descriptions with the following in your `composer.json`:
+
+```json
+{
+    "scripts-descriptions": {
+        "test": "Run all tests!"
+    }
+}
+```
+
+> **Note:** You can only set custom descriptions of custom commands.

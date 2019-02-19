@@ -1,21 +1,22 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Http\Client\Adapter;
 
 use Cake\Core\Exception\Exception;
 use Cake\Http\Client\Request;
 use Cake\Http\Client\Response;
+use Cake\Http\Exception\HttpException;
 
 /**
  * Implements sending Cake\Http\Client\Request
@@ -89,7 +90,7 @@ class Stream
      *
      * @param array $headers The list of headers from the request(s)
      * @param string $content The response content.
-     * @return array The list of responses from the request(s)
+     * @return \Cake\Http\Client\Response[] The list of responses from the request(s)
      */
     public function createResponses($headers, $content)
     {
@@ -104,7 +105,7 @@ class Stream
             $end = isset($indexes[$i + 1]) ? $indexes[$i + 1] - $start : null;
             $headerSlice = array_slice($headers, $start, $end);
             $body = $i == $last ? $content : '';
-            $responses[] = new Response($headerSlice, $body);
+            $responses[] = $this->_buildResponse($headerSlice, $body);
         }
 
         return $responses;
@@ -123,7 +124,7 @@ class Stream
         $this->_buildHeaders($request, $options);
         $this->_buildOptions($request, $options);
 
-        $url = $request->url();
+        $url = $request->getUri();
         $scheme = parse_url($url, PHP_URL_SCHEME);
         if ($scheme === 'https') {
             $this->_buildSslContext($request, $options);
@@ -148,14 +149,6 @@ class Stream
         $headers = [];
         foreach ($request->getHeaders() as $name => $values) {
             $headers[] = sprintf('%s: %s', $name, implode(', ', $values));
-        }
-
-        $cookies = [];
-        foreach ($request->cookies() as $name => $value) {
-            $cookies[] = "$name=$value";
-        }
-        if ($cookies) {
-            $headers[] = 'Cookie: ' . implode('; ', $cookies);
         }
         $this->_contextOptions['header'] = implode("\r\n", $headers);
     }
@@ -191,16 +184,16 @@ class Stream
      */
     protected function _buildOptions(Request $request, $options)
     {
-        $this->_contextOptions['method'] = $request->method();
-        $this->_contextOptions['protocol_version'] = $request->version();
+        $this->_contextOptions['method'] = $request->getMethod();
+        $this->_contextOptions['protocol_version'] = $request->getProtocolVersion();
         $this->_contextOptions['ignore_errors'] = true;
 
         if (isset($options['timeout'])) {
             $this->_contextOptions['timeout'] = $options['timeout'];
         }
-        if (isset($options['redirect'])) {
-            $this->_contextOptions['max_redirects'] = (int)$options['redirect'];
-        }
+        // Redirects are handled in the client layer because of cookie handling issues.
+        $this->_contextOptions['max_redirects'] = 0;
+
         if (isset($options['proxy']['proxy'])) {
             $this->_contextOptions['request_fulluri'] = true;
             $this->_contextOptions['proxy'] = $options['proxy']['proxy'];
@@ -229,7 +222,7 @@ class Stream
             $options['ssl_cafile'] = CORE_PATH . 'config' . DIRECTORY_SEPARATOR . 'cacert.pem';
         }
         if (!empty($options['ssl_verify_host'])) {
-            $url = $request->url();
+            $url = $request->getUri();
             $host = parse_url($url, PHP_URL_HOST);
             $this->_sslContextOptions['peer_name'] = $host;
         }
@@ -246,7 +239,7 @@ class Stream
      *
      * @param \Cake\Http\Client\Request $request The request object.
      * @return array Array of populated Response objects
-     * @throws \Cake\Core\Exception\Exception
+     * @throws \Cake\Http\Exception\HttpException
      */
     protected function _send(Request $request)
     {
@@ -255,7 +248,7 @@ class Stream
             $deadline = time() + $this->_contextOptions['timeout'];
         }
 
-        $url = $request->url();
+        $url = $request->getUri();
         $this->_open($url);
         $content = '';
         $timedOut = false;
@@ -277,7 +270,7 @@ class Stream
         fclose($this->_stream);
 
         if ($timedOut) {
-            throw new Exception('Connection timed out ' . $url);
+            throw new HttpException('Connection timed out ' . $url, 504);
         }
 
         $headers = $meta['wrapper_data'];
@@ -286,6 +279,19 @@ class Stream
         }
 
         return $this->createResponses($headers, $content);
+    }
+
+    /**
+     * Build a response object
+     *
+     * @param array $headers Unparsed headers.
+     * @param string $body The response body.
+     *
+     * @return \Cake\Http\Client\Response
+     */
+    protected function _buildResponse($headers, $body)
+    {
+        return new Response($headers, $body);
     }
 
     /**

@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         1.2.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Cache;
 
@@ -33,36 +33,33 @@ use RuntimeException;
  *
  * ```
  * Cache::config('shared', [
- *    'className' => 'Cake\Cache\Engine\ApcEngine',
+ *    'className' => 'Cake\Cache\Engine\ApcuEngine',
  *    'prefix' => 'my_app_'
  * ]);
  * ```
  *
- * This would configure an APC cache engine to the 'shared' alias. You could then read and write
+ * This would configure an APCu cache engine to the 'shared' alias. You could then read and write
  * to that cache alias by using it for the `$config` parameter in the various Cache methods.
  *
  * In general all Cache operations are supported by all cache engines.
  * However, Cache::increment() and Cache::decrement() are not supported by File caching.
  *
- * There are 5 built-in caching engines:
+ * There are 6 built-in caching engines:
  *
  * - `FileEngine` - Uses simple files to store content. Poor performance, but good for
  *    storing large objects, or things that are not IO sensitive. Well suited to development
  *    as it is an easy cache to inspect and manually flush.
- * - `ApcEngine` - Uses the APC object cache, one of the fastest caching engines.
+ * - `ApcuEngine` - Uses the APCu object cache, one of the fastest caching engines.
  * - `MemcacheEngine` - Uses the PECL::Memcache extension and Memcached for storage.
- *   Fast reads/writes, and benefits from memcache being distributed.
- * - `XcacheEngine` - Uses the Xcache extension, an alternative to APC.
+ *    Fast reads/writes, and benefits from memcache being distributed.
+ * - `XcacheEngine` - Uses the Xcache extension, an alternative to APCu.
  * - `WincacheEngine` - Uses Windows Cache Extension for PHP. Supports wincache 1.1.0 and higher.
- *   This engine is recommended to people deploying on windows with IIS.
+ *    This engine is recommended to people deploying on windows with IIS.
  * - `RedisEngine` - Uses redis and php-redis extension to store cache data.
  *
  * See Cache engine documentation for expected configuration keys.
  *
  * @see config/app.php for configuration settings
- * @param string $name Name of the configuration
- * @param array $config Optional associative array of settings passed to the engine
- * @return array [engine, settings] on success, false on failure
  */
 class Cache
 {
@@ -76,7 +73,8 @@ class Cache
      * @var array
      */
     protected static $_dsnClassMap = [
-        'apc' => 'Cake\Cache\Engine\ApcEngine',
+        'apc' => 'Cake\Cache\Engine\ApcuEngine', // @deprecated Since 3.6. Use apcu instead.
+        'apcu' => 'Cake\Cache\Engine\ApcuEngine',
         'file' => 'Cake\Cache\Engine\FileEngine',
         'memcached' => 'Cake\Cache\Engine\MemcachedEngine',
         'null' => 'Cake\Cache\Engine\NullEngine',
@@ -108,22 +106,47 @@ class Cache
 
     /**
      * Returns the Cache Registry instance used for creating and using cache adapters.
-     * Also allows for injecting of a new registry instance.
      *
-     * @param \Cake\Core\ObjectRegistry|null $registry Injectable registry object.
      * @return \Cake\Core\ObjectRegistry
      */
-    public static function registry(ObjectRegistry $registry = null)
+    public static function getRegistry()
     {
-        if ($registry) {
-            static::$_registry = $registry;
-        }
-
         if (!static::$_registry) {
             static::$_registry = new CacheRegistry();
         }
 
         return static::$_registry;
+    }
+
+    /**
+     * Sets the Cache Registry instance used for creating and using cache adapters.
+     *
+     * Also allows for injecting of a new registry instance.
+     *
+     * @param \Cake\Core\ObjectRegistry $registry Injectable registry object.
+     * @return void
+     */
+    public static function setRegistry(ObjectRegistry $registry)
+    {
+        static::$_registry = $registry;
+    }
+
+    /**
+     * Returns the Cache Registry instance used for creating and using cache adapters.
+     * Also allows for injecting of a new registry instance.
+     *
+     * @param \Cake\Core\ObjectRegistry|null $registry Injectable registry object.
+     * @return \Cake\Core\ObjectRegistry
+     * @deprecated Deprecated since 3.5. Use getRegistry() and setRegistry() instead.
+     */
+    public static function registry(ObjectRegistry $registry = null)
+    {
+        deprecationWarning('Use Cache::getRegistry() and Cache::setRegistry() instead.');
+        if ($registry) {
+            static::setRegistry($registry);
+        }
+
+        return static::getRegistry();
     }
 
     /**
@@ -135,7 +158,7 @@ class Cache
      */
     protected static function _buildEngine($name)
     {
-        $registry = static::registry();
+        $registry = static::getRegistry();
 
         if (empty(static::$_config[$name]['className'])) {
             throw new InvalidArgumentException(
@@ -144,7 +167,33 @@ class Cache
         }
 
         $config = static::$_config[$name];
-        $registry->load($name, $config);
+
+        try {
+            $registry->load($name, $config);
+        } catch (RuntimeException $e) {
+            if (!array_key_exists('fallback', $config)) {
+                $registry->set($name, new NullEngine());
+                trigger_error($e->getMessage(), E_USER_WARNING);
+
+                return;
+            }
+
+            if ($config['fallback'] === false) {
+                throw $e;
+            }
+
+            if ($config['fallback'] === $name) {
+                throw new InvalidArgumentException(sprintf('"%s" cache configuration cannot fallback to itself.', $name), null, $e);
+            }
+
+            $fallbackEngine = clone static::engine($config['fallback']);
+            $newConfig = $config + ['groups' => [], 'prefix' => null];
+            $fallbackEngine->setConfig('groups', $newConfig['groups'], false);
+            if ($newConfig['prefix']) {
+                $fallbackEngine->setConfig('prefix', $newConfig['prefix'], false);
+            }
+            $registry->set($name, $fallbackEngine);
+        }
 
         if ($config['className'] instanceof CacheEngine) {
             $config = $config['className']->getConfig();
@@ -174,7 +223,7 @@ class Cache
             return new NullEngine();
         }
 
-        $registry = static::registry();
+        $registry = static::getRegistry();
 
         if (isset($registry->{$config})) {
             return $registry->{$config};

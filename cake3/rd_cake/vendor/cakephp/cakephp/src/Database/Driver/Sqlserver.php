@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Database\Driver;
 
@@ -26,7 +26,6 @@ use PDO;
 class Sqlserver extends Driver
 {
 
-    use PDODriverTrait;
     use SqlserverDialectTrait;
 
     /**
@@ -35,11 +34,11 @@ class Sqlserver extends Driver
      * @var array
      */
     protected $_baseConfig = [
-        'persistent' => false,
         'host' => 'localhost\SQLEXPRESS',
         'username' => '',
         'password' => '',
         'database' => 'cake',
+        'port' => '',
         // PDO::SQLSRV_ENCODING_UTF8
         'encoding' => 65001,
         'flags' => [],
@@ -54,8 +53,14 @@ class Sqlserver extends Driver
     ];
 
     /**
-     * Establishes a connection to the database server
+     * Establishes a connection to the database server.
      *
+     * Please note that the PDO::ATTR_PERSISTENT attribute is not supported by
+     * the SQL Server PHP PDO drivers.  As a result you cannot use the
+     * persistent config option when connecting to a SQL Server  (for more
+     * information see: https://github.com/Microsoft/msphpsql/issues/65).
+     *
+     * @throws \InvalidArgumentException if an unsupported setting is in the driver config
      * @return bool true on success
      */
     public function connect()
@@ -64,8 +69,12 @@ class Sqlserver extends Driver
             return true;
         }
         $config = $this->_config;
+
+        if (isset($config['persistent']) && $config['persistent']) {
+            throw new \InvalidArgumentException('Config setting "persistent" cannot be set to true, as the Sqlserver PDO driver does not support PDO::ATTR_PERSISTENT');
+        }
+
         $config['flags'] += [
-            PDO::ATTR_PERSISTENT => $config['persistent'],
             PDO::ATTR_EMULATE_PREPARES => false,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ];
@@ -73,8 +82,12 @@ class Sqlserver extends Driver
         if (!empty($config['encoding'])) {
             $config['flags'][PDO::SQLSRV_ATTR_ENCODING] = $config['encoding'];
         }
+        $port = '';
+        if (strlen($config['port'])) {
+            $port = ',' . $config['port'];
+        }
 
-        $dsn = "sqlsrv:Server={$config['host']};Database={$config['database']};MultipleActiveResultSets=false";
+        $dsn = "sqlsrv:Server={$config['host']}{$port};Database={$config['database']};MultipleActiveResultSets=false";
         if ($config['app'] !== null) {
             $dsn .= ";APP={$config['app']}";
         }
@@ -92,7 +105,7 @@ class Sqlserver extends Driver
         }
         $this->_connect($dsn, $config);
 
-        $connection = $this->connection();
+        $connection = $this->getConnection();
         if (!empty($config['init'])) {
             foreach ((array)$config['init'] as $command) {
                 $connection->exec($command);

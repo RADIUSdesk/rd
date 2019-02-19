@@ -32,7 +32,7 @@ class PanelRegistry extends ObjectRegistry
      */
     public function __construct(EventManager $events)
     {
-        $this->eventManager($events);
+        $this->setEventManager($events);
     }
 
     /**
@@ -60,7 +60,7 @@ class PanelRegistry extends ObjectRegistry
      */
     protected function _throwMissingClassError($class, $plugin)
     {
-        throw new \RuntimeException("Unable to find '$class' panel.");
+        throw new \RuntimeException(__d('debug_kit', "Unable to find '{0}' panel.", $class));
     }
 
     /**
@@ -76,7 +76,7 @@ class PanelRegistry extends ObjectRegistry
     protected function _create($class, $alias, $config)
     {
         $instance = new $class($this, $config);
-        $this->eventManager()->on($instance);
+        $this->getEventManager()->on($instance);
 
         return $instance;
     }

@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\View\Form;
 
@@ -177,7 +177,12 @@ class ArrayContext implements ContextInterface
             return null;
         }
 
-        return Hash::get($this->_context['defaults'], $field);
+        // Using Hash::check here incase the default value is actually null
+        if (Hash::check($this->_context['defaults'], $field)) {
+            return Hash::get($this->_context['defaults'], $field);
+        }
+
+        return Hash::get($this->_context['defaults'], $this->stripNesting($field));
     }
 
     /**
@@ -194,6 +199,9 @@ class ArrayContext implements ContextInterface
             return false;
         }
         $required = Hash::get($this->_context['required'], $field);
+        if ($required === null) {
+            $required = Hash::get($this->_context['required'], $this->stripNesting($field));
+        }
 
         return (bool)$required;
     }
@@ -221,7 +229,11 @@ class ArrayContext implements ContextInterface
         if (!is_array($this->_context['schema'])) {
             return null;
         }
+
         $schema = Hash::get($this->_context['schema'], $field);
+        if ($schema === null) {
+            $schema = Hash::get($this->_context['schema'], $this->stripNesting($field));
+        }
 
         return isset($schema['type']) ? $schema['type'] : null;
     }
@@ -237,10 +249,13 @@ class ArrayContext implements ContextInterface
         if (!is_array($this->_context['schema'])) {
             return [];
         }
-        $schema = (array)Hash::get($this->_context['schema'], $field);
+        $schema = Hash::get($this->_context['schema'], $field);
+        if ($schema === null) {
+            $schema = Hash::get($this->_context['schema'], $this->stripNesting($field));
+        }
         $whitelist = ['length' => null, 'precision' => null];
 
-        return array_intersect_key($schema, $whitelist);
+        return array_intersect_key((array)$schema, $whitelist);
     }
 
     /**
@@ -272,5 +287,18 @@ class ArrayContext implements ContextInterface
         }
 
         return Hash::get($this->_context['errors'], $field);
+    }
+
+    /**
+     * Strips out any numeric nesting
+     *
+     * For example users.0.age will output as users.age
+     *
+     * @param string $field A dot separated path
+     * @return string A string with stripped numeric nesting
+     */
+    protected function stripNesting($field)
+    {
+        return preg_replace('/\.\d*\./', '.', $field);
     }
 }

@@ -7,6 +7,34 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
     bodyStyle: {backgroundColor : Rd.config.panelGrey },
     initComponent: function(){
         var me = this;
+        
+        
+        var reSupply = Ext.create('Ext.data.Store', {
+            fields: ['id', 'name'],
+            data : [
+                {"id":0,  "name":"Never"},
+                {"id":1,  "name":"Every Day"},
+                {"id":7,  "name":"Every Week"},
+                {"id":30, "name":"Every Month"},
+                {"id":90, "name":"Every 3 Months"}
+            ]
+        });
+
+        // Create the combo box, attached to the states data store
+        var cmbReSupply = Ext.create('Ext.form.ComboBox', {
+            fieldLabel      : 'Re-Supply Email Interval',
+            store           : reSupply,
+            queryMode       : 'local',
+            displayField    : 'name',
+            valueField      : 'id',
+            name            : 'ctc_resupply_email_interval',
+            itemId          : 'cmbReSupply',
+            labelCls        : 'lblRd',
+            allowBlank      : false,
+            forceSelection  : true,
+            value           : 0
+        });
+        
         me.items =  { 
                 xtype       : 'form',
                 height      : '100%', 
@@ -77,7 +105,17 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
                         inputValue  : 'connect_only',
                         checked     : false,
                         disabled    : true
-                    }
+                    },
+                    {
+                        xtype       : 'checkbox',      
+                        fieldLabel  : 'Require Email To Connect',
+                        itemId      : 'chkCtcRequireEmail',
+                        name        : 'ctc_require_email',
+                        inputValue  : 'ctc_require_email',
+                        checked     : false,
+                        disabled    : true
+                    },
+                    cmbReSupply
                 ],
                 buttons: [
                     {

@@ -62,6 +62,26 @@ class VariablesPanel extends DebugPanel
     }
 
     /**
+     * Safely retrieves debug information from an object
+     * and applies a callback.
+     *
+     * @param callable $walker The walker to apply on the debug info array.
+     * @param object $item The item whose debug info to retrieve.
+     *
+     * @return array|string
+     */
+    protected function _walkDebugInfo(callable $walker, $item)
+    {
+        try {
+            $info = $item->__debugInfo();
+        } catch (\Exception $exception) {
+            return __d('debug_kit', 'Could not retrieve debug info - {0}. Error: {1} in {2}, line {3}', get_class($item), $exception->getMessage(), $exception->getFile(), $exception->getLine());
+        }
+
+        return array_map($walker, $info);
+    }
+
+    /**
      * Shutdown event
      *
      * @param \Cake\Event\Event $event The event
@@ -69,7 +89,7 @@ class VariablesPanel extends DebugPanel
      */
     public function shutdown(Event $event)
     {
-        $controller = $event->subject();
+        $controller = $event->getSubject();
         $errors = [];
 
         $walker = function (&$item) use (&$walker) {
@@ -81,12 +101,12 @@ class VariablesPanel extends DebugPanel
                     $item = $item->toArray();
                 } catch (\Cake\Database\Exception $e) {
                     //Likely issue is unbuffered query; fall back to __debugInfo
-                    $item = array_map($walker, $item->__debugInfo());
+                    $item = $this->_walkDebugInfo($walker, $item);
                 } catch (RuntimeException $e) {
                     // Likely a non-select query.
-                    $item = array_map($walker, $item->__debugInfo());
+                    $item = $this->_walkDebugInfo($walker, $item);
                 } catch (InvalidArgumentException $e) {
-                    $item = array_map($walker, $item->__debugInfo());
+                    $item = $this->_walkDebugInfo($walker, $item);
                 }
             } elseif ($item instanceof Closure ||
                 $item instanceof PDO ||
@@ -101,9 +121,19 @@ class VariablesPanel extends DebugPanel
                     $item->getFile(),
                     $item->getLine()
                 );
-            } elseif (is_object($item) && method_exists($item, '__debugInfo')) {
-                // Convert objects into using __debugInfo.
-                $item = array_map($walker, $item->__debugInfo());
+            } elseif (is_object($item)) {
+                if (method_exists($item, '__debugInfo')) {
+                    // Convert objects into using __debugInfo.
+                    $item = $this->_walkDebugInfo($walker, $item);
+                } else {
+                    try {
+                        serialize($item);
+                    } catch (\Exception $e) {
+                        $item = __d('debug_kit', 'Unserializable object - {0}. Error: {1} in {2}, line {3}', get_class($item), $e->getMessage(), $e->getFile(), $e->getLine());
+                    }
+                }
+            } elseif (is_resource($item)) {
+                $item = sprintf('[%s] %s', get_resource_type($item), $item);
             }
 
             return $item;

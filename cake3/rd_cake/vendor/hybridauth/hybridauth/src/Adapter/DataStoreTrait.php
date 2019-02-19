@@ -7,11 +7,16 @@
 
 namespace Hybridauth\Adapter;
 
+/**
+ * Trait DataStoreTrait
+ */
 trait DataStoreTrait
 {
     /**
-    * Returns storage instance
-    */
+     * Returns storage instance
+     *
+     * @return \Hybridauth\Storage\StorageInterface
+     */
     abstract public function getStorage();
 
     /**
@@ -20,16 +25,14 @@ trait DataStoreTrait
      * This method is mainly used for OAuth tokens (access, secret, refresh, and whatnot), but it
      * can be also used by providers to store any other useful data (i.g., user_id, auth_nonce, etc.)
      *
-     * @param string $token
+     * @param string $name
      * @param mixed  $value
-     *
-     * @return mixed
      */
     protected function storeData($name, $value = null)
     {
         // if empty, we simply delete the thing as we'd want to only store necessary data
         if (empty($value)) {
-            return $this->deleteStoredData($name);
+            $this->deleteStoredData($name);
         }
 
         $this->getStorage()->set($this->providerId.'.'.$name, $value);
@@ -42,7 +45,7 @@ trait DataStoreTrait
      * can be also used by providers to retrieve from store any other useful data (i.g., user_id,
      * auth_nonce, etc.)
      *
-     * @param string $token
+     * @param string $name
      *
      * @return mixed
      */

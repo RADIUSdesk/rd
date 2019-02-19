@@ -7,7 +7,6 @@
 
 namespace Hybridauth\Adapter;
 
-use Hybridauth\Exception;
 use Hybridauth\Exception\InvalidOpenidIdentifierException;
 use Hybridauth\Exception\AuthorizationDeniedException;
 use Hybridauth\Exception\InvalidOpenidResponseException;
@@ -83,13 +82,13 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface
             return true;
         }
 
-        $openid_mode = filter_input(INPUT_GET, 'openid_mode');
-
-        if (empty($openid_mode)) {
+        if (empty($_REQUEST['openid_mode'])) {
             $this->authenticateBegin();
         } else {
             return $this->authenticateFinish();
         }
+
+        return null;
     }
 
     /**
@@ -149,11 +148,14 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface
     * Finalize the authorization process.
     *
     * @throws AuthorizationDeniedException
-    * @throws UnexpectedApiResponseException 
+    * @throws UnexpectedApiResponseException
     */
     protected function authenticateFinish()
     {
-        $this->logger->debug(sprintf('%s::authenticateFinish(), callback url:', get_class($this)), [HttpClient\Util::getCurrentUrl(true)]);
+        $this->logger->debug(
+            sprintf('%s::authenticateFinish(), callback url:', get_class($this)),
+            [HttpClient\Util::getCurrentUrl(true)]
+        );
 
         if ($this->openIdClient->mode == 'cancel') {
             throw new AuthorizationDeniedException('User has cancelled the authentication.');
@@ -177,6 +179,10 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface
 
     /**
     * Fetch user profile from received openid attributes
+    *
+    * @param array $openidAttributes
+    *
+    * @return User\Profile
     */
     protected function fetchUserProfile($openidAttributes)
     {
@@ -207,8 +213,13 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface
 
     /**
     * Extract users display names
+    *
+    * @param User\Profile $userProfile
+    * @param Data\Collection $data
+    *
+    * @return User\Profile
     */
-    protected function fetchUserDisplayName($userProfile, $data)
+    protected function fetchUserDisplayName(User\Profile $userProfile, Data\Collection $data)
     {
         $userProfile->displayName = $data->get('namePerson');
 
@@ -225,8 +236,13 @@ abstract class OpenID extends AbstractAdapter implements AdapterInterface
 
     /**
     * Extract users gender
+    *
+    * @param User\Profile $userProfile
+    * @param string $gender
+    *
+    * @return User\Profile
     */
-    protected function fetchUserGender($userProfile, $gender)
+    protected function fetchUserGender(User\Profile $userProfile, $gender)
     {
         $gender = strtolower($gender);
 

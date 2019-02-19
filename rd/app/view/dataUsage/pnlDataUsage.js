@@ -32,7 +32,9 @@ Ext.define('Rd.view.dataUsage.pnlDataUsage', {
                         tooltip: i18n('sReload')
                     },
                     {
-                        xtype   : 'cmbRealm'
+                        xtype   : 'cmbRealm',
+                        width   : 300,
+                        labelWidth : 50 
                     },
                     { 
                         xtype   : 'button',    

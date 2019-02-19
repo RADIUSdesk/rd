@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Database\Log;
 
@@ -81,7 +81,7 @@ class LoggingStatement extends StatementDecorator
         $query->took = round((microtime(true) - $startTime) * 1000, 0);
         $query->params = $params ?: $this->_compiledParams;
         $query->query = $this->queryString;
-        $this->logger()->log($query);
+        $this->getLogger()->log($query);
     }
 
     /**
@@ -109,15 +109,41 @@ class LoggingStatement extends StatementDecorator
      * Sets the logger object instance. When called with no arguments
      * it returns the currently setup logger instance
      *
-     * @param object|null $instance Logger object instance.
-     * @return object|null Logger instance
+     * @deprecated 3.5.0 Use getLogger() and setLogger() instead.
+     * @param \Cake\Database\Log\QueryLogger|null $instance Logger object instance.
+     * @return \Cake\Database\Log\QueryLogger|null Logger instance
      */
     public function logger($instance = null)
     {
+        deprecationWarning(
+            'LoggingStatement::logger() is deprecated. ' .
+            'Use LoggingStatement::setLogger()/getLogger() instead.'
+        );
         if ($instance === null) {
-            return $this->_logger;
+            return $this->getLogger();
         }
 
         return $this->_logger = $instance;
+    }
+
+    /**
+     * Sets a logger
+     *
+     * @param \Cake\Database\Log\QueryLogger $logger Logger object
+     * @return void
+     */
+    public function setLogger($logger)
+    {
+        $this->_logger = $logger;
+    }
+
+    /**
+     * Gets the logger object
+     *
+     * @return \Cake\Database\Log\QueryLogger logger instance
+     */
+    public function getLogger()
+    {
+        return $this->_logger;
     }
 }

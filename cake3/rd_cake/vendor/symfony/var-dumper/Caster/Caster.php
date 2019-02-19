@@ -48,11 +48,6 @@ class Caster
      */
     public static function castObject($obj, $class, $hasDebugInfo = false)
     {
-        if ($class instanceof \ReflectionClass) {
-            @trigger_error(sprintf('Passing a ReflectionClass to %s() is deprecated since version 3.3 and will be unsupported in 4.0. Pass the class name as string instead.', __METHOD__), E_USER_DEPRECATED);
-            $hasDebugInfo = $class->hasMethod('__debugInfo');
-            $class = $class->name;
-        }
         if ($hasDebugInfo) {
             $a = $obj->__debugInfo();
         } elseif ($obj instanceof \Closure) {
@@ -65,11 +60,20 @@ class Caster
         }
 
         if ($a) {
+            static $publicProperties = array();
+
             $i = 0;
             $prefixedKeys = array();
             foreach ($a as $k => $v) {
-                if (isset($k[0]) && "\0" !== $k[0] && !property_exists($class, $k)) {
-                    $prefixedKeys[$i] = self::PREFIX_DYNAMIC.$k;
+                if (isset($k[0]) ? "\0" !== $k[0] : \PHP_VERSION_ID >= 70200) {
+                    if (!isset($publicProperties[$class])) {
+                        foreach (get_class_vars($class) as $prop => $v) {
+                            $publicProperties[$class][$prop] = true;
+                        }
+                    }
+                    if (!isset($publicProperties[$class][$k])) {
+                        $prefixedKeys[$i] = self::PREFIX_DYNAMIC.$k;
+                    }
                 } elseif (isset($k[16]) && "\0" === $k[16] && 0 === strpos($k, "\0class@anonymous\0")) {
                     $prefixedKeys[$i] = "\0".get_parent_class($class).'@anonymous'.strrchr($k, "\0");
                 }
@@ -109,8 +113,8 @@ class Caster
 
             if (null === $v) {
                 $type |= self::EXCLUDE_NULL & $filter;
-            }
-            if (empty($v)) {
+                $type |= self::EXCLUDE_EMPTY & $filter;
+            } elseif (false === $v || '' === $v || '0' === $v || 0 === $v || 0.0 === $v || array() === $v) {
                 $type |= self::EXCLUDE_EMPTY & $filter;
             }
             if ((self::EXCLUDE_NOT_IMPORTANT & $filter) && !in_array($k, $listedProperties, true)) {

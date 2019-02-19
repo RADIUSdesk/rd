@@ -1,3 +1,6 @@
+/*
+ * Port to cake3: JT 09/15/18
+*/
 Ext.define('Rd.view.dynamicClients.gridUnknownDynamicClients' ,{
     extend		:'Ext.grid.Panel',
     alias 		: 'widget.gridUnknownDynamicClients',
@@ -13,7 +16,7 @@ Ext.define('Rd.view.dynamicClients.gridUnknownDynamicClients' ,{
     viewConfig  : {
         loadMask    :true
     },
-    urlMenu     : '/cake2/rd_cake/unknown_dynamic_clients/menu_for_grid.json',
+    urlMenu     : '/cake3/rd_cake/unknown-dynamic-clients/menu_for_grid.json',
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me      = this;

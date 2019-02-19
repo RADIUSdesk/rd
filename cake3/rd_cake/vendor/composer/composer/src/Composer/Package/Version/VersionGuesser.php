@@ -59,28 +59,40 @@ class VersionGuesser
      * @param array  $packageConfig
      * @param string $path          Path to guess into
      *
-     * @return array versionData, 'version', 'pretty_version' and 'commit' keys
+     * @return null|array versionData, 'version', 'pretty_version' and 'commit' keys
      */
     public function guessVersion(array $packageConfig, $path)
     {
         if (function_exists('proc_open')) {
             $versionData = $this->guessGitVersion($packageConfig, $path);
             if (null !== $versionData && null !== $versionData['version']) {
-                return $versionData;
+                return $this->postprocess($versionData);
             }
 
             $versionData = $this->guessHgVersion($packageConfig, $path);
             if (null !== $versionData && null !== $versionData['version']) {
-                return $versionData;
+                return $this->postprocess($versionData);
             }
 
             $versionData = $this->guessFossilVersion($packageConfig, $path);
             if (null !== $versionData && null !== $versionData['version']) {
-                return $versionData;
+                return $this->postprocess($versionData);
             }
 
-            return $this->guessSvnVersion($packageConfig, $path);
+            $versionData = $this->guessSvnVersion($packageConfig, $path);
+            if (null !== $versionData && null !== $versionData['version']) {
+                return $this->postprocess($versionData);
+            }
         }
+    }
+
+    private function postprocess(array $versionData)
+    {
+        if ('-dev' === substr($versionData['version'], -4) && preg_match('{\.9{7}}', $versionData['version'])) {
+            $versionData['pretty_version'] = preg_replace('{(\.9{7})+}', '.x', $versionData['version']);
+        }
+
+        return $versionData;
     }
 
     private function guessGitVersion(array $packageConfig, $path)
@@ -98,7 +110,7 @@ class VersionGuesser
 
             // find current branch and collect all branch names
             foreach ($this->process->splitLines($output) as $branch) {
-                if ($branch && preg_match('{^(?:\* ) *(\(no branch\)|\(detached from \S+\)|\(HEAD detached at FETCH_HEAD\)|\S+) *([a-f0-9]+) .*$}', $branch, $match)) {
+                if ($branch && preg_match('{^(?:\* ) *(\(no branch\)|\(detached from \S+\)|\(HEAD detached at \S+\)|\S+) *([a-f0-9]+) .*$}', $branch, $match)) {
                     if ($match[1] === '(no branch)' || substr($match[1], 0, 10) === '(detached ' || substr($match[1], 0, 17) === '(HEAD detached at') {
                         $version = 'dev-' . $match[2];
                         $prettyVersion = $version;
@@ -108,9 +120,6 @@ class VersionGuesser
                         $version = $this->versionParser->normalizeBranch($match[1]);
                         $prettyVersion = 'dev-' . $match[1];
                         $isFeatureBranch = 0 === strpos($version, 'dev-');
-                        if ('9999999-dev' === $version) {
-                            $version = $prettyVersion;
-                        }
                     }
 
                     if ($match[2]) {
@@ -175,7 +184,7 @@ class VersionGuesser
             $isFeatureBranch = 0 === strpos($version, 'dev-');
 
             if ('9999999-dev' === $version) {
-                $version = 'dev-' . $branch;
+                return array('version' => $version, 'commit' => null, 'pretty_version' => 'dev-'.$branch);
             }
 
             if (!$isFeatureBranch) {
@@ -217,8 +226,8 @@ class VersionGuesser
                     break;
                 }
 
-                // do not compare against other feature branches
-                if ($candidate === $branch || !preg_match('{^(master|trunk|default|develop|\d+\..+)$}', $candidate, $match)) {
+                // do not compare against itself or other feature branches
+                if ($candidate === $branch || !preg_match('{^(' . $nonFeatureBranches . '|master|trunk|default|develop|\d+\..+)$}', $candidate, $match)) {
                     continue;
                 }
 
@@ -231,9 +240,6 @@ class VersionGuesser
                     $length = strlen($output);
                     $version = $this->versionParser->normalizeBranch($candidate);
                     $prettyVersion = 'dev-' . $match[1];
-                    if ('9999999-dev' === $version) {
-                        $version = $prettyVersion;
-                    }
                 }
             }
         }
@@ -251,10 +257,6 @@ class VersionGuesser
             $branch = trim($output);
             $version = $this->versionParser->normalizeBranch($branch);
             $prettyVersion = 'dev-' . $branch;
-
-            if ('9999999-dev' === $version) {
-                $version = $prettyVersion;
-            }
         }
 
         // try to fetch current version from fossil tags
@@ -286,9 +288,6 @@ class VersionGuesser
                     // we are in a branches path
                     $version = $this->versionParser->normalizeBranch($matches[3]);
                     $prettyVersion = 'dev-' . $matches[3];
-                    if ('9999999-dev' === $version) {
-                        $version = $prettyVersion;
-                    }
 
                     return array('version' => $version, 'commit' => '', 'pretty_version' => $prettyVersion);
                 }

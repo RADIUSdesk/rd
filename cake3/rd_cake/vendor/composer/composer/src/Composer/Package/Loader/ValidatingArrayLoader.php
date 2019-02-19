@@ -17,6 +17,7 @@ use Composer\Package\BasePackage;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Package\Version\VersionParser;
 use Composer\Repository\PlatformRepository;
+use Composer\Spdx\SpdxLicenses;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -64,30 +65,69 @@ class ValidatingArrayLoader implements LoaderInterface
             }
         }
 
+        if (!empty($this->config['config']['platform'])) {
+            foreach ((array) $this->config['config']['platform'] as $key => $platform) {
+                try {
+                    $this->versionParser->normalize($platform);
+                } catch (\Exception $e) {
+                    $this->errors[] = 'config.platform.' . $key . ' : invalid value ('.$platform.'): '.$e->getMessage();
+                }
+            }
+        }
+
         $this->validateRegex('type', '[A-Za-z0-9-]+');
         $this->validateString('target-dir');
         $this->validateArray('extra');
-        $this->validateFlatArray('bin');
+
+        if (isset($this->config['bin'])) {
+            if (is_string($this->config['bin'])) {
+                $this->validateString('bin');
+            } else {
+                $this->validateFlatArray('bin');
+            }
+        }
+
         $this->validateArray('scripts'); // TODO validate event names & listener syntax
         $this->validateString('description');
         $this->validateUrl('homepage');
         $this->validateFlatArray('keywords', '[\p{N}\p{L} ._-]+');
 
-        if (isset($this->config['license'])) {
-            if (is_string($this->config['license'])) {
-                $this->validateRegex('license', '[A-Za-z0-9+. ()-]+');
-            } else {
-                $this->validateFlatArray('license', '[A-Za-z0-9+. ()-]+');
-            }
-        }
-
+        $releaseDate = null;
         $this->validateString('time');
         if (!empty($this->config['time'])) {
             try {
-                $date = new \DateTime($this->config['time'], new \DateTimeZone('UTC'));
+                $releaseDate = new \DateTime($this->config['time'], new \DateTimeZone('UTC'));
             } catch (\Exception $e) {
                 $this->errors[] = 'time : invalid value ('.$this->config['time'].'): '.$e->getMessage();
                 unset($this->config['time']);
+            }
+        }
+
+        // check for license validity on newly updated branches
+        if (isset($this->config['license']) && (!$releaseDate || $releaseDate->getTimestamp() >= strtotime('-8days'))) {
+            if (is_array($this->config['license']) || is_string($this->config['license'])) {
+                $licenses = (array) $this->config['license'];
+
+                // strip proprietary since it's not a valid SPDX identifier, but is accepted by composer
+                foreach ($licenses as $key => $license) {
+                    if ('proprietary' === $license) {
+                        unset($licenses[$key]);
+                    }
+                }
+
+                $licenseValidator = new SpdxLicenses();
+                if (count($licenses) === 1 && !$licenseValidator->validate($licenses) && $licenseValidator->validate(trim($licenses[0]))) {
+                    $this->warnings[] = sprintf(
+                        'License %s must not contain extra spaces, make sure to trim it.',
+                        json_encode($this->config['license'])
+                    );
+                } elseif (array() !== $licenses && !$licenseValidator->validate($licenses)) {
+                    $this->warnings[] = sprintf(
+                        'License %s is not a valid SPDX license identifier, see https://spdx.org/licenses/ if you use an open license.' . PHP_EOL .
+                        'If the software is closed-source, you may use "proprietary" as license.',
+                        json_encode($this->config['license'])
+                    );
+                }
             }
         }
 

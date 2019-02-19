@@ -37,11 +37,13 @@ class DynamicDetailsController extends AppController{
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model' => $this->main_model
         ]);
-        
+
+        $this->loadComponent('JsonErrors');
+
         $this->loadComponent('Notes', [
             'model'     => 'DynamicDetailNotes',
             'condition' => 'dynamic_detail_id'
-        ]);    
+        ]);
     }
     
     
@@ -349,7 +351,7 @@ class DynamicDetailsController extends AppController{
                 array_push($heading_line,$c->name);
             }
         }
-        fputcsv($fp, $heading_line,';','"');
+        fputcsv($fp, $heading_line,',','"');
         foreach($q_r as $i){
 
             $columns    = array();
@@ -374,7 +376,7 @@ class DynamicDetailsController extends AppController{
                         array_push($csv_line,$i->{$column_name});  
                     }
                 }
-                fputcsv($fp, $csv_line,';','"');
+                fputcsv($fp, $csv_line,',','"');
             }
         }
 
@@ -677,21 +679,20 @@ class DynamicDetailsController extends AppController{
         }
         //We will not modify user_id
         unset($this->request->data['user_id']);
-
-        //connect_check compulsory check
-        if(isset($this->request->data['connect_check'])){
-            $this->request->data['connect_check'] = 1;
-        }else{
-            $this->request->data['connect_check'] = 0;
+        
+        $check_items = [
+			'connect_check',
+			'connect_only',
+			'ctc_require_email'
+		];
+        foreach($check_items as $i){
+            if(isset($this->request->data[$i])){
+                $this->request->data[$i] = 1;
+            }else{
+                $this->request->data[$i] = 0;
+            }
         }
-
-        //connect_only compulsory check
-        if(isset($this->request->data['connect_only'])){
-            $this->request->data['connect_only'] = 1;
-        }else{
-            $this->request->data['connect_only'] = 0;
-        }
-
+        
         $entity = $this->{$this->main_model}->get($this->request->data['id']);
         $this->{$this->main_model}->patchEntity($entity, $this->request->data());
 
@@ -1466,7 +1467,7 @@ class DynamicDetailsController extends AppController{
 
             $message = 'Error';
             $this->set(array(
-                'errors'    => $this->{$this->modelClass}->validationErrors,
+                'errors'    => $this->JsonErrors->entityErros($entity, $message),
                 'success'   => false,
                 'message'   => array('message' => 'Could not save data'),
                 '_serialize' => array('errors','success','message')
@@ -1549,6 +1550,27 @@ class DynamicDetailsController extends AppController{
         }
         
         $menu = $this->GridButtons->returnButtons($user,false,'basic_no_disabled');
+        $this->set(array(
+            'items'         => $menu,
+            'success'       => true,
+            '_serialize'    => array('items','success')
+        ));
+    }
+    
+    public function menuForDynamicEmails(){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+        
+        $menu = $this->GridButtons->returnButtons($user,false,'basic_no_disabled');
+        array_push($menu[0]['items'],[
+            'xtype'     => 'button',     
+            'glyph'     => Configure::read('icnCsv'), 
+            'scale'     => 'large', 
+            'itemId'    => 'csv',      
+            'tooltip'   => __('Export CSV')
+        ]);
         $this->set(array(
             'items'         => $menu,
             'success'       => true,

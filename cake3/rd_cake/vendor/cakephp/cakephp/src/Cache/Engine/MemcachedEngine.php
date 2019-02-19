@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         2.5.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Cache\Engine;
 
@@ -153,7 +153,7 @@ class MemcachedEngine extends CacheEngine
 
         $servers = [];
         foreach ($this->_config['servers'] as $server) {
-            $servers[] = $this->_parseServerString($server);
+            $servers[] = $this->parseServerString($server);
         }
 
         if (!$this->_Memcached->addServers($servers)) {
@@ -173,10 +173,9 @@ class MemcachedEngine extends CacheEngine
         }
 
         if ($this->_config['username'] !== null && $this->_config['password'] !== null) {
-            $sasl = method_exists($this->_Memcached, 'setSaslAuthData') && ini_get('memcached.use_sasl');
-            if (!$sasl) {
+            if (!method_exists($this->_Memcached, 'setSaslAuthData')) {
                 throw new InvalidArgumentException(
-                    'Memcached extension is not build with SASL support'
+                    'Memcached extension is not built with SASL support'
                 );
             }
             $this->_Memcached->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
@@ -243,7 +242,7 @@ class MemcachedEngine extends CacheEngine
      * @param string $server The server address string.
      * @return array Array containing host, port
      */
-    protected function _parseServerString($server)
+    public function parseServerString($server)
     {
         $socketTransport = 'unix://';
         if (strpos($server, $socketTransport) === 0) {
@@ -268,6 +267,29 @@ class MemcachedEngine extends CacheEngine
     }
 
     /**
+     * Backwards compatible alias of parseServerString
+     *
+     * @param string $server The server address string.
+     * @return array Array containing host, port
+     * @deprecated 3.4.13 Will be removed in 4.0.0
+     */
+    protected function _parseServerString($server)
+    {
+        return $this->parseServerString($server);
+    }
+
+    /**
+     * Read an option value from the memcached connection.
+     *
+     * @param string $name The option name to read.
+     * @return string|int|null|bool
+     */
+    public function getOption($name)
+    {
+        return $this->_Memcached->getOption($name);
+    }
+
+    /**
      * Write data for key into cache. When using memcached as your cache engine
      * remember that the Memcached pecl extension does not support cache expiry
      * times greater than 30 days in the future. Any duration greater than 30 days
@@ -276,7 +298,7 @@ class MemcachedEngine extends CacheEngine
      * @param string $key Identifier for the data
      * @param mixed $value Data to be cached
      * @return bool True if the data was successfully cached, false on failure
-     * @see http://php.net/manual/en/memcache.set.php
+     * @see https://secure.php.net/manual/en/memcache.set.php
      */
     public function write($key, $value)
     {
@@ -478,7 +500,7 @@ class MemcachedEngine extends CacheEngine
             }
         }
 
-        $groups = $this->_Memcached->getMulti($this->_compiledGroupNames);
+        $groups = $this->_Memcached->getMulti($this->_compiledGroupNames) ?: [];
         if (count($groups) !== count($this->_config['groups'])) {
             foreach ($this->_compiledGroupNames as $group) {
                 if (!isset($groups[$group])) {

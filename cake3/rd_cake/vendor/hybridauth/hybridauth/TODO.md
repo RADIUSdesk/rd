@@ -27,6 +27,7 @@ Facebook            | OAuth2   |  [X]         |  [X]        |
 Twitter             | OAuth1   |  [X]         |  [X]        | 
 Google              | OAuth2   |  [X]         |  [X]        | 
 GitHub              | OAuth2   |  [X]         |  [X]        | 
+GitLab              | OAuth2   |  [X]         |  [X]        | 
 Reddit              | OAuth2   |  [X]         |  [X]        | 
 BitBucket           | OAuth2   |  [X]         |  [X]        | 
 WordPress           | OAuth2   |  [X]         |  [X]        | 
@@ -51,6 +52,15 @@ Discord             | OAuth2   |  [X]         |  [X]        |
 TwitchTV            | OAuth2   |  [X]         |  [X]        | 
 
 -----------------------
+
+#### Documentaion
+
+- [ ] New version of the documentation
+- [ ] Upgrade guide from 2.x.x
+- [ ] Examples
+- [ ] Guides
+
+We need to provide new version of the documentation and other related materials.
 
 #### Optional Tasks:
 

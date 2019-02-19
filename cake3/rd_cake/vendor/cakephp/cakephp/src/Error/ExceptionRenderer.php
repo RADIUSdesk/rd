@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         2.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Error;
 
@@ -20,9 +20,9 @@ use Cake\Core\Configure;
 use Cake\Core\Exception\Exception as CakeException;
 use Cake\Core\Exception\MissingPluginException;
 use Cake\Event\Event;
+use Cake\Http\Exception\HttpException;
 use Cake\Http\Response;
-use Cake\Http\ServerRequest;
-use Cake\Network\Exception\HttpException;
+use Cake\Http\ServerRequestFactory;
 use Cake\Routing\DispatcherFactory;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
@@ -115,7 +115,7 @@ class ExceptionRenderer implements ExceptionRendererInterface
     protected function _getController()
     {
         if (!$request = Router::getRequest(true)) {
-            $request = ServerRequest::createFromGlobals();
+            $request = ServerRequestFactory::fromGlobals();
         }
         $response = new Response();
         $controller = null;
@@ -168,12 +168,16 @@ class ExceptionRenderer implements ExceptionRendererInterface
         }
 
         $message = $this->_message($exception, $code);
-        $url = $this->controller->request->getRequestTarget();
+        $url = $this->controller->getRequest()->getRequestTarget();
+        $response = $this->controller->getResponse();
 
-        if (method_exists($exception, 'responseHeader')) {
-            $this->controller->response->header($exception->responseHeader());
+        if ($exception instanceof CakeException) {
+            foreach ((array)$exception->responseHeader() as $key => $value) {
+                $response = $response->withHeader($key, $value);
+            }
         }
-        $this->controller->response->statusCode($code);
+        $response = $response->withStatus($code);
+
         $viewVars = [
             'message' => $message,
             'url' => h($url),
@@ -196,6 +200,7 @@ class ExceptionRenderer implements ExceptionRendererInterface
         if ($unwrapped instanceof CakeException && $isDebug) {
             $this->controller->set($unwrapped->getAttributes());
         }
+        $this->controller->response = $response;
 
         return $this->_outputMessage($template);
     }
@@ -212,8 +217,7 @@ class ExceptionRenderer implements ExceptionRendererInterface
         $result = call_user_func([$this, $method], $exception);
         $this->_shutdown();
         if (is_string($result)) {
-            $this->controller->response->body($result);
-            $result = $this->controller->response;
+            $result = $this->controller->response->withStringBody($result);
         }
 
         return $result;
@@ -334,8 +338,8 @@ class ExceptionRenderer implements ExceptionRendererInterface
             return $this->_outputMessage('error500');
         } catch (MissingPluginException $e) {
             $attributes = $e->getAttributes();
-            if (isset($attributes['plugin']) && $attributes['plugin'] === $this->controller->plugin) {
-                $this->controller->plugin = null;
+            if (isset($attributes['plugin']) && $attributes['plugin'] === $this->controller->getPlugin()) {
+                $this->controller->setPlugin(null);
             }
 
             return $this->_outputMessageSafe('error500');
@@ -361,8 +365,9 @@ class ExceptionRenderer implements ExceptionRendererInterface
             ->setTemplatePath('Error');
         $view = $this->controller->createView('View');
 
-        $this->controller->response->body($view->render($template, 'error'));
-        $this->controller->response->type('html');
+        $this->controller->response = $this->controller->response
+            ->withType('html')
+            ->withStringBody($view->render($template, 'error'));
 
         return $this->controller->response;
     }
@@ -378,7 +383,7 @@ class ExceptionRenderer implements ExceptionRendererInterface
     {
         $this->controller->dispatchEvent('Controller.shutdown');
         $dispatcher = DispatcherFactory::create();
-        $eventManager = $dispatcher->eventManager();
+        $eventManager = $dispatcher->getEventManager();
         foreach ($dispatcher->filters() as $filter) {
             $eventManager->on($filter);
         }

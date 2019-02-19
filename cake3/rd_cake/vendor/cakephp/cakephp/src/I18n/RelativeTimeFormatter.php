@@ -1,21 +1,21 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.2.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\I18n;
 
 use Cake\Chronos\ChronosInterface;
-use DatetimeInterface;
+use DateTimeInterface;
 
 /**
  * Helper class for formatting relative dates & times.
@@ -37,7 +37,7 @@ class RelativeTimeFormatter
     {
         $isNow = $other === null;
         if ($isNow) {
-            $other = $date->now($date->tz);
+            $other = $date->now($date->getTimezone());
         }
         $diffInterval = $date->diff($other);
 
@@ -91,10 +91,10 @@ class RelativeTimeFormatter
      * @return string Relative time string.
      * @see \Cake\I18n\Time::timeAgoInWords()
      */
-    public function timeAgoInWords(DatetimeInterface $time, array $options = [])
+    public function timeAgoInWords(DateTimeInterface $time, array $options = [])
     {
         $options = $this->_options($options, FrozenTime::class);
-        if ($options['timezone']) {
+        if ($options['timezone'] && $time instanceof ChronosInterface) {
             $time = $time->timezone($options['timezone']);
         }
 
@@ -276,15 +276,15 @@ class RelativeTimeFormatter
     /**
      * Format a into a relative date string.
      *
-     * @param \DatetimeInterface $date The date to format.
+     * @param \DateTimeInterface $date The date to format.
      * @param array $options Array of options.
      * @return string Relative date string.
      * @see \Cake\I18n\Date::timeAgoInWords()
      */
-    public function dateAgoInWords(DatetimeInterface $date, array $options = [])
+    public function dateAgoInWords(DateTimeInterface $date, array $options = [])
     {
         $options = $this->_options($options, FrozenDate::class);
-        if ($options['timezone']) {
+        if ($options['timezone'] && $date instanceof ChronosInterface) {
             $date = $date->timezone($options['timezone']);
         }
 

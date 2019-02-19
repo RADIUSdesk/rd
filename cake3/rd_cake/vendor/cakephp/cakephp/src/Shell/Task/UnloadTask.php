@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Shell\Task;
 
@@ -52,7 +52,40 @@ class UnloadTask extends Shell
             return false;
         }
 
+        $app = APP . 'Application.php';
+        if (file_exists($app) && !$this->param('no_app')) {
+            $this->modifyApplication($app, $plugin);
+
+            return true;
+        }
+
         return (bool)$this->_modifyBootstrap($plugin);
+    }
+
+    /**
+     * Update the applications bootstrap.php file.
+     *
+     * @param string $app Path to the application to update.
+     * @param string $plugin Name of plugin.
+     * @return bool If modify passed.
+     */
+    protected function modifyApplication($app, $plugin)
+    {
+        $finder = "@\\\$this\-\>addPlugin\(\s*'$plugin'(.|.\n|)+\);+@";
+
+        $content = file_get_contents($app);
+        $newContent = preg_replace($finder, '', $content);
+
+        if ($newContent === $content) {
+            return false;
+        }
+
+        file_put_contents($app, $newContent);
+
+        $this->out('');
+        $this->out(sprintf('%s modified', $app));
+
+        return true;
     }
 
     /**
@@ -97,6 +130,11 @@ class UnloadTask extends Shell
 
         $parser->addOption('cli', [
                 'help' => 'Use the bootstrap_cli file.',
+                'boolean' => true,
+                'default' => false,
+            ])
+            ->addOption('no_app', [
+                'help' => 'Do not update the Application if it exist. Forces config/bootstrap.php to be updated.',
                 'boolean' => true,
                 'default' => false,
             ])

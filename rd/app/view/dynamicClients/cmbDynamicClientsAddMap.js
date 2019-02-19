@@ -19,7 +19,7 @@ Ext.define('Rd.view.dynamicClients.cmbDynamicClientsAddMap', {
                     type    : 'ajax',
                     format  : 'json',
                     batchActions: true,
-                    url     : '/cake2/rd_cake/dynamic_clients/clients_avail_for_map.json',
+                    url     : '/cake3/rd_cake/dynamic-clients/clients-avail-for-map.json',
                     reader: {
                         type            : 'json',
                         rootProperty    : 'items',

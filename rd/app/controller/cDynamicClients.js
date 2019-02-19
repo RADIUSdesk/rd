@@ -49,24 +49,24 @@ Ext.define('Rd.controller.cDynamicClients', {
     selectedRecord: null,
     config: {
         urlApChildCheck : '/cake3/rd_cake/access-providers/child-check.json',
-        urlExportCsv    : '/cake2/rd_cake/dynamic_clients/export_csv',
-        urlAdd          : '/cake2/rd_cake/dynamic_clients/add.json',
-        urlDelete       : '/cake2/rd_cake/dynamic_clients/delete.json',
-		urlEdit         : '/cake2/rd_cake/dynamic_clients/edit.json',
+        urlExportCsv    : '/cake3/rd_cake/dynamic-clients/export_csv',
+        urlAdd          : '/cake3/rd_cake/dynamic-clients/add.json',
+        urlDelete       : '/cake3/rd_cake/dynamic-clients/delete.json',
+		urlEdit         : '/cake3/rd_cake/dynamic-clients/edit.json',
 		urlNoteAdd      : '/cake3/rd_cake/dynamic-clients/note-add.json',
-		urlView         : '/cake2/rd_cake/dynamic_clients/view.json',
-		urlViewPhoto    : '/cake2/rd_cake/dynamic_clients/view_photo.json',
-        urlPhotoBase    : '/cake2/rd_cake/webroot/img/nas/',
-        urlUploadPhoto  : '/cake2/rd_cake/dynamic_clients/upload_photo/',
+		urlView         : '/cake3/rd_cake/dynamic-clients/view.json',
+		urlViewPhoto    : '/cake3/rd_cake/dynamic-clients/view_photo.json',
+        urlPhotoBase    : '/cake3/rd_cake/webroot/img/nas/',
+        urlUploadPhoto  : '/cake3/rd_cake/dynamic-clients/upload_photo/',
         
-        urlMapDelete    : '/cake2/rd_cake/dynamic_clients/delete_map.json',
-        urlMapSave      : '/cake2/rd_cake/dynamic_clients/edit_map.json',
+        urlMapDelete    : '/cake3/rd_cake/dynamic-clients/delete_map.json',
+        urlMapSave      : '/cake3/rd_cake/dynamic-clients/edit_map.json',
         urlGreenMark    : 'resources/images/map_markers/green-dot.png',
         urlRedMark      : 'resources/images/map_markers/red-dot.png', 
         urlBlueMark     : 'resources/images/map_markers/blue-dot.png', 
         urlYellowMark   : 'resources/images/map_markers/yellow-dot.png',
-        urlViewMapPref  : '/cake2/rd_cake/dynamic_clients/view_map_pref.json', 
-        urlEditMapPref  : '/cake2/rd_cake/dynamic_clients/edit_map_pref.json'
+        urlViewMapPref  : '/cake3/rd_cake/dynamic-clients/view_map_pref.json',
+        urlEditMapPref  : '/cake3/rd_cake/dynamic-clients/edit_map_pref.json'
     },
     refs: [
         {  ref: 'grid',     selector: 'gridDynamicClients'  },
@@ -319,7 +319,11 @@ Ext.define('Rd.controller.cDynamicClients', {
             },
             '#pnlMapsEdit #save': {
                 click: me.btnMapSave
+            },
+            '#tabDataLimit #chkDataLimitActive' : {
+                change:     me.chkDataLimitActiveChange
             }
+            
         });
     },
     appClose:   function(){
@@ -1488,6 +1492,38 @@ Ext.define('Rd.controller.cDynamicClients', {
             },
             scope: me
         });
+    },
+    chkDataLimitActiveChange: function(chk){
+        var me      = this;
+        var form    = chk.up('form');
+        var amount  = form.down('#nrDataLimitAmount');
+        var unit    = form.down('#cmbDataLimitUnit');
+        var reset   = form.down('#nrDataLimitResetOn');
+        var hour    = form.down('#nrDataLimitResetHour');
+        var minute  = form.down('#nrDataLimitResetMinute');
+        if(chk.getValue()){
+            amount.setVisible(true);
+            amount.setDisabled(false);
+            unit.setVisible(true);
+            unit.setDisabled(false);
+            reset.setVisible(true);
+            reset.setDisabled(false);
+            hour.setVisible(true);
+            hour.setDisabled(false);
+            minute.setVisible(true);
+            minute.setDisabled(false);
+        }else{
+            amount.setVisible(false);
+            amount.setDisabled(true);
+            unit.setVisible(false);
+            unit.setDisabled(true);
+            reset.setVisible(false);
+            reset.setDisabled(true);
+            hour.setVisible(false);
+            hour.setDisabled(true);
+            minute.setVisible(false);
+            minute.setDisabled(true);
+        }
     }
     
 });

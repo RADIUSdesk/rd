@@ -257,11 +257,12 @@ class LabelPdf extends TCPDF {
 
         //Disgard the entries that does not feature a days from first login...
         if($label_detail['days_valid'] != ''){
+            $valid_for = $this->_friendly_valid_for($label_detail['days_valid']);
             $this->_add_pair(
                     $field_width,
                     array(
                         'key'       => iconv('UTF-8', 'windows-1252',gettext('Valid for')),
-                        'value'     => iconv('UTF-8', 'windows-1252',$label_detail['days_valid'])
+                        'value'     => iconv('UTF-8', 'windows-1252',$valid_for)
                     )
             );
         }
@@ -301,6 +302,54 @@ class LabelPdf extends TCPDF {
         $this->SetTextColor(0, 0, 0);
 
     }
+    
+    private function _friendly_valid_for($time_valid){
+	    $pieces         = explode("-", $time_valid);
+        $days_valid     = $pieces[0];  
+        $hours_valid    = $pieces[1];
+        $minutes_valid  = $pieces[2]; 
+        
+        if(($hours_valid == '00')&&($minutes_valid == '00')){
+            if($days_valid == 1){
+                return $days_valid.' '.gettext('Day');
+            }else{
+                return $days_valid.' '.gettext('Days');
+            }     
+        }
+        
+        if(($days_valid == '0')&&($minutes_valid == '00')){
+            if($hours_valid == 1){
+                return $hours_valid.' '.gettext('Hour');
+            }else{
+                return $hours_valid.' '.gettext('Hours');
+            }  
+        }
+        
+        if(($days_valid == '0')&&($hours_valid == '00')){
+            if($minutes_valid == 1){
+                return $minutes_valid.' '.gettext('Minute');
+            }else{
+                return $minutes_valid.' '.gettext('Minutes');
+            }  
+        }
+	    
+	    if($days_valid == 1){
+	        $dv_string = $days_valid.' '.gettext('Day');
+	    }else{
+	        $dv_string = $days_valid.' '.gettext('Days');
+	    }
+	    
+	    if($hours_valid == 1){
+	        $hv_string = $hours_valid.' '.gettext('Hour');
+	    }else{
+	        $hv_string = $hours_valid.' '.gettext('Hours');
+	    }
+	    
+	    $mv_string = $minutes_valid.' '.gettext('Min');
+	    
+	    return $dv_string.' '.$hv_string.' '.$mv_string;
+	    
+	}
     
 }
 
@@ -728,9 +777,11 @@ class VoucherPdf extends TCPDF {
 				$this->SetFont( $font_type, $font_format_i, $text_size);
 				$this->SetX($this->x_start+2);
 				$this->Cell(20,$cell_height,__("Valid for") , 0, 0, "L");
+				
+				$valid_for = $this->_friendly_valid_for($voucher['days_valid']);
 
 				$this->SetFont( $font_type, $font_format_b, $text_size);
-				$this->Cell(30,$cell_height, $voucher['days_valid'], 0, 2, "L");
+				$this->Cell(30,$cell_height,$valid_for, 0, 2, "L");
 			}
 
 			//---Expiry Date---
@@ -792,6 +843,55 @@ class VoucherPdf extends TCPDF {
 			$this->y_start = $this->y_start + 40;
 		}
 	}
+	
+	private function _friendly_valid_for($time_valid){
+	    $pieces         = explode("-", $time_valid);
+        $days_valid     = $pieces[0];  
+        $hours_valid    = $pieces[1];
+        $minutes_valid  = $pieces[2]; 
+        
+        if(($hours_valid == '00')&&($minutes_valid == '00')){
+            if($days_valid == 1){
+                return $days_valid.' '.gettext('Day');
+            }else{
+                return $days_valid.' '.gettext('Days');
+            }     
+        }
+        
+        if(($days_valid == '0')&&($minutes_valid == '00')){
+            if($hours_valid == 1){
+                return $hours_valid.' '.gettext('Hour');
+            }else{
+                return $hours_valid.' '.gettext('Hours');
+            }  
+        }
+        
+        if(($days_valid == '0')&&($hours_valid == '00')){
+            if($minutes_valid == 1){
+                return $minutes_valid.' '.gettext('Minute');
+            }else{
+                return $minutes_valid.' '.gettext('Minutes');
+            }  
+        }
+	    
+	    if($days_valid == 1){
+	        $dv_string = $days_valid.' '.gettext('Day');
+	    }else{
+	        $dv_string = $days_valid.' '.gettext('Days');
+	    }
+	    
+	    if($hours_valid == 1){
+	        $hv_string = $hours_valid.' '.gettext('Hour');
+	    }else{
+	        $hv_string = $hours_valid.' '.gettext('Hours');
+	    }
+	    
+	    $mv_string = $minutes_valid.' '.gettext('Min');
+	    
+	    return $dv_string.' '.$hv_string.' '.$mv_string;
+	    
+	}
+	
 }
 
 ?>

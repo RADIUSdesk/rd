@@ -76,8 +76,7 @@ This is a list of common pitfalls on using Composer, and how to avoid them.
 
 ## I have a dependency which contains a "repositories" definition in its composer.json, but it seems to be ignored.
 
-The [`repositories`](../04-schema.md#repositories) configuration property is defined as [root-only]
-(../04-schema.md#root-package). It is not inherited. You can read more about the reasons behind this in the "[why can't
+The [`repositories`](../04-schema.md#repositories) configuration property is defined as [root-only](../04-schema.md#root-package). It is not inherited. You can read more about the reasons behind this in the "[why can't
 composer load repositories recursively?](../faqs/why-can't-composer-load-repositories-recursively.md)" article.
 The simplest work-around to this limitation, is moving or duplicating the `repositories` definition into your root
 composer.json.
@@ -147,7 +146,7 @@ Or, you can increase the limit with a command-line argument:
 php -d memory_limit=-1 composer.phar <...>
 ```
 
-This issue can also happen on cPanel instances, when the shell fork bomb protection is activated. For more information, see the [documentation](https://documentation.cpanel.net/display/ALD/Shell+Fork+Bomb+Protection) of the fork bomb feature on the cPanel site.
+This issue can also happen on cPanel instances, when the shell fork bomb protection is activated. For more information, see the [documentation](https://documentation.cpanel.net/display/68Docs/Shell+Fork+Bomb+Protection) of the fork bomb feature on the cPanel site.
 
 ## Xdebug impact on Composer
 
@@ -245,7 +244,7 @@ following workarounds:
 On linux, it seems that running this command helps to make ipv4 traffic have a
 higher prio than ipv6, which is a better alternative than disabling ipv6 entirely:
 
-```Bash
+```bash
 sudo sh -c "echo 'precedence ::ffff:0:0/96 100' >> /etc/gai.conf"
 ```
 
@@ -257,13 +256,13 @@ On windows the only way is to disable ipv6 entirely I am afraid (either in windo
 
 Get name of your network device:
 
-```
+```bash
 networksetup -listallnetworkservices
 ```
 
 Disable IPv6 on that device (in this case "Wi-Fi"):
 
-```
+```bash
 networksetup -setv6off Wi-Fi
 ```
 
@@ -271,7 +270,7 @@ Run composer ...
 
 You can enable IPv6 again with:
 
-```
+```bash
 networksetup -setv6automatic Wi-Fi
 ```
 
@@ -289,7 +288,7 @@ The reason for this is a SSH Bug: https://bugzilla.mindrot.org/show_bug.cgi?id=1
 
 As a workaround, open a SSH connection to your Git host before running Composer:
 
-```
+```bash
 ssh -t git@mygitserver.tld
 composer update
 ```

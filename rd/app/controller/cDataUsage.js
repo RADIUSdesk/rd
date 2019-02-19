@@ -5,13 +5,28 @@ Ext.define('Rd.controller.cDataUsage', {
         var me = this;   
         if (me.populated) {
             return; 
-        }     
+        }
+        
+        /*     
         pnl.add({
             xtype   : 'pnlDataUsage',
             border  : true,
             itemId  : 'tabDataUsage',
             plain   : true
         });
+        */
+         
+        pnl.add({
+            xtype   : 'tabpanel',
+            border  : false,
+            itemId  : 'tabDataUsage',
+            plain   : true,
+            cls     : 'subSubTab', //Make darker -> Maybe grey
+            items   : [
+                { 'title' : 'RADIUS Users',     xtype: 'pnlDataUsage',          'glyph': Rd.config.icnUser},
+                { 'title' : 'RADIUS Clients',   xtype: 'pnlDataUsageClients',   'glyph': Rd.config.icnWifi}
+            ]
+        });      
         me.populated = true;
     },
 
@@ -23,21 +38,33 @@ Ext.define('Rd.controller.cDataUsage', {
         'dataUsage.pnlDataUsageWeek',
         'dataUsage.pnlDataUsageMonth',
         'dataUsage.pnlDataUsageGraph',
-        'dataUsage.pnlDataUsageUserDetail'
+        'dataUsage.pnlDataUsageUserDetail',
+        //Add ON
+        'dataUsage.pnlDataUsageClients',
+        'dataUsage.pnlDataUsageClientsDay',
+        'dataUsage.pnlDataUsageClientsWeek',
+        'dataUsage.pnlDataUsageClientsMonth',
+        'dataUsage.pnlDataUsageClientDetail'
     ],
     stores: [],
     models: ['mRealm','mUserStat'],
     selectedRecord: null,
     config: {
-        urlUsageForRealm    : '/cake2/rd_cake/data_usage/usage_for_realm.json',
-        username            : false,
-        type                : 'realm' //default is realm
+        urlUsageForRealm            : '/cake3/rd_cake/data-usages/usage_for_realm.json',
+        urlClientUsageForRealm      : '/cake3/rd_cake/data-usages/client_usage_for_realm.json',
+        username                    : false,
+        type                        : 'realm' //default is realm
     },
     refs: [
          {  ref: 'pnlDataUsageDay',     selector:   'pnlDataUsageDay'},
          {  ref: 'pnlDataUsageWeek',    selector:   'pnlDataUsageWeek'},
          {  ref: 'pnlDataUsageMonth',   selector:   'pnlDataUsageMonth'},
-         {  ref: 'pnlDataUsage',        selector:   'pnlDataUsage'}      
+         {  ref: 'pnlDataUsage',        selector:   'pnlDataUsage'},
+         //Add ON
+         {  ref: 'pnlDataUsageClientsDay',     selector:   'pnlDataUsageClientsDay'},
+         {  ref: 'pnlDataUsageClientsWeek',    selector:   'pnlDataUsageClientsWeek'},
+         {  ref: 'pnlDataUsageClientsMonth',   selector:   'pnlDataUsageClientsMonth'},
+         {  ref: 'pnlDataUsageClients',        selector:   'pnlDataUsageClients'}      
     ],
     init: function() {
         var me = this;
@@ -52,22 +79,45 @@ Ext.define('Rd.controller.cDataUsage', {
             '#tabDataUsage' : {
                 destroy   :      me.appClose   
             },
-            '#tabDataUsage cmbRealm' : {
+            //Users
+            'pnlDataUsage cmbRealm' : {
                 change      : me.realmChange,
                 afterrender : me.afterRenderEventRealm   
             },
-            '#tabDataUsage #reload' : {
+            'pnlDataUsage #reload' : {
                 click      : me.reload   
             },
-            '#tabDataUsage #btnShowRealm' : {
+            'pnlDataUsage #btnShowRealm' : {
                 click       : me.btnShowRealmClick
             },
-            '#tabDataUsage grid' : {
+            'pnlDataUsage grid' : {
                 rowclick    : me.rowClickEvent
             },
-            '#tabDataUsage #btnSeeMore' : {
+            'pnlDataUsage #btnSeeMore' : {
+                click       : me.openActivityViewer
+            },
+            
+            //ADD ON - RADIUS Clients
+            'pnlDataUsageClients'  : {
+                afterlayout : me.resizeClientsSegments
+            },
+            'pnlDataUsageClients cmbRealm' : {
+                change      : me.realmClientChange,
+                afterrender : me.afterRenderEventRealm   
+            },   
+            'pnlDataUsageClients #reload' : {
+                click      : me.reloadClients   
+            },
+            'pnlDataUsageClients #btnShowRealm' : {
+                click       : me.btnClientsShowRealmClick
+            },
+            'pnlDataUsageClients grid' : {
+                rowclick    : me.rowClientsClickEvent
+            },
+            'pnlDataUsageClients #btnSeeMore' : {
                 click       : me.openActivityViewer
             }
+            
         });
     },
     appClose:   function(){
@@ -215,5 +265,125 @@ Ext.define('Rd.controller.cDataUsage', {
         var me  = this;
         var pnl = me.getPnlDataUsage();
         me.application.runAction('cActivityMonitor','Index',pnl); 
+    },
+    //Add ON
+    resizeClientsSegments: function(pnl){
+        var me = this;
+        if(pnl.getHeight() > 400){
+            me.getPnlDataUsageClientsDay().setHeight((pnl.getHeight()-40));
+            me.getPnlDataUsageClientsWeek().setHeight((pnl.getHeight()-40));
+            me.getPnlDataUsageClientsMonth().setHeight((pnl.getHeight()-40));
+        }
+    },
+    reloadClients: function(){
+        var me = this;
+        me.fetchDataClientsUsage();
+    },
+    btnClientsShowRealmClick: function(btn){
+        var me = this;
+        me.getPnlDataUsageClients().down('cmbRealm').setDisabled(false);
+        btn.hide();
+        me.setUsername(me.getPnlDataUsageClients().down('cmbRealm').getValue());
+        me.setType('realm');  
+        me.fetchDataClientsUsage();
+    },
+    fetchDataClientsUsage: function(){
+        var me = this;
+        me.getPnlDataUsageClients().setLoading(true);
+        Ext.Ajax.request({
+                url: me.getUrlClientUsageForRealm(),
+                params: {
+                    type    : me.getType(),
+                    username: me.getUsername()
+                },
+                method: 'GET',
+                success: function(response){
+                    var jsonData = Ext.JSON.decode(response.responseText);
+                    me.getPnlDataUsageClients().setLoading(false);
+                    me.paintDataClientUsage(jsonData.data);
+                }
+            });
+    },
+    realmClientChange: function(cmb){
+        var me = this;
+        me.setType('realm')
+        me.setUsername(cmb.getValue())
+        me.fetchDataClientsUsage();
+    },
+    paintDataClientUsage: function(data){
+        var me          = this;    
+        var totalDay    = me.getPnlDataUsageClientsDay().down('#dailyTotal');
+        var totalWeek   = me.getPnlDataUsageClientsWeek().down('#weeklyTotal');
+        var totalMonth  = me.getPnlDataUsageClientsMonth().down('#monthlyTotal');
+        
+        data.daily.totals.data_in = Ext.ux.bytesToHuman(data.daily.totals.data_in);
+        data.daily.totals.data_out = Ext.ux.bytesToHuman(data.daily.totals.data_out);
+        data.daily.totals.data_total = Ext.ux.bytesToHuman(data.daily.totals.data_total);
+        
+        totalDay.setData(data.daily.totals);
+        
+        data.weekly.totals.data_in      = Ext.ux.bytesToHuman(data.weekly.totals.data_in);
+        data.weekly.totals.data_out     = Ext.ux.bytesToHuman(data.weekly.totals.data_out);
+        data.weekly.totals.data_total   = Ext.ux.bytesToHuman(data.weekly.totals.data_total);
+        
+        totalWeek.setData(data.weekly.totals);
+        
+        data.monthly.totals.data_in     = Ext.ux.bytesToHuman(data.monthly.totals.data_in);
+        data.monthly.totals.data_out    = Ext.ux.bytesToHuman(data.monthly.totals.data_out);
+        data.monthly.totals.data_total  = Ext.ux.bytesToHuman(data.monthly.totals.data_total);
+        
+        totalMonth.setData(data.monthly.totals);
+          
+        Ext.data.StoreManager.lookup('dayClientsStore').setData(data.daily.top);
+        Ext.data.StoreManager.lookup('activeStore').setData(data.daily.active_sessions);
+        me.getPnlDataUsageClientsDay().down('cartesian').getStore().setData(data.daily.graph.items);
+        
+        Ext.data.StoreManager.lookup('weekClientsStore').setData(data.weekly.top);
+        me.getPnlDataUsageClientsWeek().down('cartesian').getStore().setData(data.weekly.graph.items);
+        
+        Ext.data.StoreManager.lookup('monthClientsStore').setData(data.monthly.top);
+        me.getPnlDataUsageClientsMonth().down('cartesian').getStore().setData(data.monthly.graph.items);
+        
+        if(data.client_detail != undefined){
+            me.paintClientsDetail(data.client_detail); 
+        }else{
+            me.hideClientsDetail();   
+        }    
+    },
+    rowClientsClickEvent: function(grid,record){
+        var me       = this;
+        var nasid    = record.get('nasid');
+        me.getPnlDataUsageClients().down('#btnShowRealm').show();
+        me.getPnlDataUsageClients().down('cmbRealm').setDisabled(true);
+        me.setUsername(nasid);
+        me.setType('nas_id'); 
+        me.fetchDataClientsUsage();
+    },
+    paintClientsDetail: function(client_detail){
+        var me          = this; 
+        me.getPnlDataUsageClientsDay().down('pnlDataUsageClientDetail').paintClientDetail(client_detail);
+        me.getPnlDataUsageClientsDay().down('#plrDaily').hide();
+        me.getPnlDataUsageClientsDay().down('pnlDataUsageClientDetail').show();
+        
+        me.getPnlDataUsageClientsWeek().down('pnlDataUsageClientDetail').paintClientDetail(client_detail);
+        me.getPnlDataUsageClientsWeek().down('#plrWeekly').hide();
+        me.getPnlDataUsageClientsWeek().down('pnlDataUsageClientDetail').show();
+        
+        me.getPnlDataUsageClientsMonth().down('pnlDataUsageClientDetail').paintClientDetail(client_detail);
+        me.getPnlDataUsageClientsMonth().down('#plrMonthly').hide();
+        me.getPnlDataUsageClientsMonth().down('pnlDataUsageClientDetail').show();
+           
+    },
+    hideClientsDetail: function(){
+        var me          = this; 
+        me.getPnlDataUsageClientsDay().down('#plrDaily').show();
+        me.getPnlDataUsageClientsDay().down('pnlDataUsageClientDetail').hide();
+        
+        me.getPnlDataUsageClientsWeek().down('#plrWeekly').show();
+        me.getPnlDataUsageClientsWeek().down('pnlDataUsageClientDetail').hide();
+        
+        me.getPnlDataUsageClientsMonth().down('#plrMonthly').show();
+        me.getPnlDataUsageClientsMonth().down('pnlDataUsageClientDetail').hide();
+    
     }
 });

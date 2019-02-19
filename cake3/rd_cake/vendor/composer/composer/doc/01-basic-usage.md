@@ -35,11 +35,11 @@ As you can see, [`require`](04-schema.md#require) takes an object that maps
 
 Composer uses this information to search for the right set of files in package
 "repositories" that you register using the [`repositories`](04-schema.md#repositories)
-key, or in Packagist, the default package respository. In the above example,
+key, or in Packagist, the default package repository. In the above example,
 since no other repository has been registered in the `composer.json` file, it is
 assumed that the `monolog/monolog` package is registered on Packagist. (See more
 about Packagist [below](#packagist), or read more about repositories
-[here](05-repositories.md).
+[here](05-repositories.md)).
 
 ### Package Names
 
@@ -56,7 +56,7 @@ you to require certain versions of server software. See
 ### Package Version Constraints
 
 In our example, we are requesting the Monolog package with the version constraint
-[`1.0.*`](http://semver.mwl.be/#?package=monolog%2Fmonolog&version=1.0.*).
+[`1.0.*`](https://semver.mwl.be/#?package=monolog%2Fmonolog&version=1.0.*).
 This means any version in the `1.0` development branch, or any version that is
 greater than or equal to 1.0 and less than 1.1 (`>=1.0 <1.1`).
 
@@ -192,7 +192,7 @@ includes PHP itself, PHP extensions and some system libraries.
   require the `php-64bit` package.
 
 * `hhvm` represents the version of the HHVM runtime and allows you to apply
-  a constraint, e.g., '>=2.3.3'.
+  a constraint, e.g., `>=2.3.3`.
 
 * `ext-<name>` allows you to require PHP extensions (includes core
   extensions). Versioning can be quite inconsistent here, so it's often
@@ -255,7 +255,7 @@ In addition to PSR-4 autoloading, Composer also supports PSR-0, classmap and
 files autoloading. See the [`autoload`](04-schema.md#autoload) reference for
 more information.
 
-See also the docs on [`optimizing the autoloader`](articles/autoloader-optimization.md).
+See also the docs on [optimizing the autoloader](articles/autoloader-optimization.md).
 
 > **Note:** Composer provides its own autoloader. If you don't want to use that
 > one, you can just include `vendor/composer/autoload_*.php` files, which return

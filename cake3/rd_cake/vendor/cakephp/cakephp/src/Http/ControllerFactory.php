@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.3.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Http;
 
@@ -30,16 +30,37 @@ class ControllerFactory
      * @param \Cake\Http\ServerRequest $request The request to build a controller for.
      * @param \Cake\Http\Response $response The response to use.
      * @return \Cake\Controller\Controller
+     * @throws \ReflectionException
      */
     public function create(ServerRequest $request, Response $response)
     {
+        $className = $this->getControllerClass($request);
+        if (!$className) {
+            $this->missingController($request);
+        }
+        $reflection = new ReflectionClass($className);
+        if ($reflection->isAbstract() || $reflection->isInterface()) {
+            $this->missingController($request);
+        }
+
+        return $reflection->newInstance($request, $response);
+    }
+
+    /**
+     * Determine the controller class name based on current request and controller param
+     *
+     * @param \Cake\Http\ServerRequest $request The request to build a controller for.
+     * @return string|null
+     */
+    public function getControllerClass(ServerRequest $request)
+    {
         $pluginPath = $controller = null;
         $namespace = 'Controller';
-        if ($request->getParam('plugin')) {
-            $pluginPath = $request->getParam('plugin') . '.';
-        }
         if ($request->getParam('controller')) {
             $controller = $request->getParam('controller');
+        }
+        if ($request->getParam('plugin')) {
+            $pluginPath = $request->getParam('plugin') . '.';
         }
         if ($request->getParam('prefix')) {
             if (strpos($request->getParam('prefix'), '/') === false) {
@@ -65,16 +86,7 @@ class ControllerFactory
             $this->missingController($request);
         }
 
-        $className = App::className($pluginPath . $controller, $namespace, 'Controller');
-        if (!$className) {
-            $this->missingController($request);
-        }
-        $reflection = new ReflectionClass($className);
-        if ($reflection->isAbstract() || $reflection->isInterface()) {
-            $this->missingController($request);
-        }
-
-        return $reflection->newInstance($request, $response, $controller);
+        return App::className($pluginPath . $controller, $namespace, 'Controller') ?: null;
     }
 
     /**

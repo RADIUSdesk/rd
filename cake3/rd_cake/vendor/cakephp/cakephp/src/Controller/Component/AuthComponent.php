@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         0.10.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Controller\Component;
 
@@ -21,9 +21,9 @@ use Cake\Core\App;
 use Cake\Core\Exception\Exception;
 use Cake\Event\Event;
 use Cake\Event\EventDispatcherTrait;
+use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
-use Cake\Network\Exception\ForbiddenException;
 use Cake\Routing\Router;
 use Cake\Utility\Hash;
 
@@ -34,7 +34,7 @@ use Cake\Utility\Hash;
  *
  * @property \Cake\Controller\Component\RequestHandlerComponent $RequestHandler
  * @property \Cake\Controller\Component\FlashComponent $Flash
- * @link http://book.cakephp.org/3.0/en/controllers/components/authentication.html
+ * @link https://book.cakephp.org/3.0/en/controllers/components/authentication.html
  */
 class AuthComponent extends Component
 {
@@ -221,7 +221,7 @@ class AuthComponent extends Component
     /**
      * Instance of the Session object
      *
-     * @var \Cake\Network\Session
+     * @var \Cake\Http\Session
      * @deprecated 3.1.0 Will be removed in 4.0
      */
     public $session;
@@ -252,9 +252,17 @@ class AuthComponent extends Component
     public function initialize(array $config)
     {
         $controller = $this->_registry->getController();
-        $this->eventManager($controller->eventManager());
+        $this->setEventManager($controller->getEventManager());
         $this->response =& $controller->response;
-        $this->session = $controller->request->session();
+        $this->session = $controller->getRequest()->getSession();
+
+        if ($this->getConfig('ajaxLogin')) {
+            deprecationWarning(
+                'The `ajaxLogin` option is deprecated. Your client-side ' .
+                'code should instead check for 403 status code and show ' .
+                'appropriate login form.'
+            );
+        }
     }
 
     /**
@@ -277,6 +285,7 @@ class AuthComponent extends Component
      *
      * @param \Cake\Event\Event $event Event instance.
      * @return \Cake\Http\Response|null
+     * @throws \ReflectionException
      */
     public function authCheck(Event $event)
     {
@@ -284,10 +293,10 @@ class AuthComponent extends Component
             return null;
         }
 
-        /* @var \Cake\Controller\Controller $controller */
+        /** @var \Cake\Controller\Controller $controller */
         $controller = $event->getSubject();
 
-        $action = strtolower($controller->request->getParam('action'));
+        $action = strtolower($controller->getRequest()->getParam('action'));
         if (!$controller->isAction($action)) {
             return null;
         }
@@ -346,7 +355,7 @@ class AuthComponent extends Component
      */
     protected function _isAllowed(Controller $controller)
     {
-        $action = strtolower($controller->request->getParam('action'));
+        $action = strtolower($controller->getRequest()->getParam('action'));
 
         return in_array($action, array_map('strtolower', $this->allowedActions));
     }
@@ -375,12 +384,12 @@ class AuthComponent extends Component
         if ($auth === false) {
             throw new Exception('At least one authenticate object must be available.');
         }
-        $result = $auth->unauthenticated($this->request, $response);
+        $result = $auth->unauthenticated($controller->getRequest(), $response);
         if ($result !== null) {
             return $result;
         }
 
-        if (!$controller->request->is('ajax')) {
+        if (!$controller->getRequest()->is('ajax')) {
             $this->flash($this->_config['authError']);
 
             return $controller->redirect($this->_loginActionRedirectUrl());
@@ -392,8 +401,6 @@ class AuthComponent extends Component
                 $this->_config['ajaxLogin'],
                 $this->RequestHandler->ajaxLayout
             );
-
-            return $response->withStatus(403);
         }
 
         return $response->withStatus(403);
@@ -433,11 +440,8 @@ class AuthComponent extends Component
      */
     protected function _isLoginAction(Controller $controller)
     {
-        $url = '';
-        if (isset($controller->request->url)) {
-            $url = $controller->request->url;
-        }
-        $url = Router::normalize($url);
+        $uri = $controller->request->getUri();
+        $url = Router::normalize($uri->getPath());
         $loginAction = Router::normalize($this->_config['loginAction']);
 
         return $loginAction === $url;
@@ -448,7 +452,7 @@ class AuthComponent extends Component
      *
      * @param \Cake\Controller\Controller $controller A reference to the controller object
      * @return \Cake\Http\Response
-     * @throws \Cake\Network\Exception\ForbiddenException
+     * @throws \Cake\Http\Exception\ForbiddenException
      */
     protected function _unauthorized(Controller $controller)
     {
@@ -527,7 +531,7 @@ class AuthComponent extends Component
             $user = $this->user();
         }
         if (empty($request)) {
-            $request = $this->request;
+            $request = $this->getController()->getRequest();
         }
         if (empty($this->_authorizeObjects)) {
             $this->constructAuthorize();
@@ -614,7 +618,7 @@ class AuthComponent extends Component
      *
      * @param string|array|null $actions Controller action name or array of actions
      * @return void
-     * @link http://book.cakephp.org/3.0/en/controllers/components/authentication.html#making-actions-public
+     * @link https://book.cakephp.org/3.0/en/controllers/components/authentication.html#making-actions-public
      */
     public function allow($actions = null)
     {
@@ -645,7 +649,7 @@ class AuthComponent extends Component
      * @param string|array|null $actions Controller action name or array of actions
      * @return void
      * @see \Cake\Controller\Component\AuthComponent::allow()
-     * @link http://book.cakephp.org/3.0/en/controllers/components/authentication.html#making-actions-require-authorization
+     * @link https://book.cakephp.org/3.0/en/controllers/components/authentication.html#making-actions-require-authorization
      */
     public function deny($actions = null)
     {
@@ -671,7 +675,7 @@ class AuthComponent extends Component
      *
      * @param array|\ArrayAccess $user User data.
      * @return void
-     * @link http://book.cakephp.org/3.0/en/controllers/components/authentication.html#identifying-users-and-logging-them-in
+     * @link https://book.cakephp.org/3.0/en/controllers/components/authentication.html#identifying-users-and-logging-them-in
      */
     public function setUser($user)
     {
@@ -685,7 +689,7 @@ class AuthComponent extends Component
      * which the authenticate classes can listen for and perform custom logout logic.
      *
      * @return string Normalized config `logoutRedirect`
-     * @link http://book.cakephp.org/3.0/en/controllers/components/authentication.html#logging-users-out
+     * @link https://book.cakephp.org/3.0/en/controllers/components/authentication.html#logging-users-out
      */
     public function logout()
     {
@@ -705,7 +709,7 @@ class AuthComponent extends Component
      *
      * @param string|null $key Field to retrieve. Leave null to get entire User record.
      * @return mixed|null Either User record or null if no user is logged in, or retrieved field if key is specified.
-     * @link http://book.cakephp.org/3.0/en/controllers/components/authentication.html#accessing-the-logged-in-user
+     * @link https://book.cakephp.org/3.0/en/controllers/components/authentication.html#accessing-the-logged-in-user
      */
     public function user($key = null)
     {
@@ -741,7 +745,7 @@ class AuthComponent extends Component
             $this->constructAuthenticate();
         }
         foreach ($this->_authenticateObjects as $auth) {
-            $result = $auth->getUser($this->request);
+            $result = $auth->getUser($this->getController()->getRequest());
             if (!empty($result) && is_array($result)) {
                 $this->_authenticationProvider = $auth;
                 $event = $this->dispatchEvent('Auth.afterIdentify', [$result, $auth]);
@@ -777,7 +781,7 @@ class AuthComponent extends Component
      */
     public function redirectUrl($url = null)
     {
-        $redirectUrl = $this->request->getQuery(static::QUERY_STRING_REDIRECT);
+        $redirectUrl = $this->getController()->getRequest()->getQuery(static::QUERY_STRING_REDIRECT);
         if ($redirectUrl && (substr($redirectUrl, 0, 1) !== '/' || substr($redirectUrl, 0, 2) === '//')) {
             $redirectUrl = null;
         }
@@ -817,7 +821,7 @@ class AuthComponent extends Component
             $this->constructAuthenticate();
         }
         foreach ($this->_authenticateObjects as $auth) {
-            $result = $auth->authenticate($this->request, $this->response);
+            $result = $auth->authenticate($this->getController()->getRequest(), $this->response);
             if (!empty($result)) {
                 $this->_authenticationProvider = $auth;
                 $event = $this->dispatchEvent('Auth.afterIdentify', [$result, $auth]);
@@ -866,7 +870,7 @@ class AuthComponent extends Component
             }
             $config = array_merge($global, (array)$config);
             $this->_authenticateObjects[$alias] = new $className($this->_registry, $config);
-            $this->eventManager()->on($this->_authenticateObjects[$alias]);
+            $this->getEventManager()->on($this->_authenticateObjects[$alias]);
         }
 
         return $this->_authenticateObjects;
@@ -877,7 +881,7 @@ class AuthComponent extends Component
      *
      * @param \Cake\Auth\Storage\StorageInterface|null $storage Sets provided
      *   object as storage or if null returns configured storage object.
-     * @return \Cake\Auth\Storage\StorageInterface|null
+     * @return \Cake\Auth\Storage\StorageInterface|\Cake\Core\InstanceConfigTrait|null
      */
     public function storage(StorageInterface $storage = null)
     {
@@ -903,7 +907,9 @@ class AuthComponent extends Component
         if (!class_exists($className)) {
             throw new Exception(sprintf('Auth storage adapter "%s" was not found.', $class));
         }
-        $this->_storage = new $className($this->request, $this->response, $config);
+        $request = $this->getController()->getRequest();
+        $response = $this->getController()->getResponse();
+        $this->_storage = new $className($request, $response, $config);
 
         return $this->_storage;
     }
@@ -1015,7 +1021,7 @@ class AuthComponent extends Component
      */
     protected function _getUrlToRedirectBackTo()
     {
-        $urlToRedirectBackTo = $this->request->here(false);
+        $urlToRedirectBackTo = $this->request->getRequestTarget();
         if (!$this->request->is('get')) {
             $urlToRedirectBackTo = $this->request->referer(true);
         }

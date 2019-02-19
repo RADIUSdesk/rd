@@ -29,12 +29,15 @@ The config of dependencies is ignored. This makes the `config` field
 ### name
 
 The name of the package. It consists of vendor name and project name,
-separated by `/`.
-
-Examples:
+separated by `/`. Examples:
 
 * monolog/monolog
 * igorw/event-source
+
+The name can contain any character, including white spaces, and it's case
+insensitive (`foo/bar` and `Foo/Bar` are considered the same package). In order
+to simplify its installation, it's recommended to define a short and lowercase
+name that doesn't include non-alphanumeric characters or white spaces.
 
 Required for published packages (libraries).
 
@@ -143,17 +146,13 @@ The recommended notation for the most common licenses is (alphabetical):
 - BSD-3-Clause
 - BSD-4-Clause
 - GPL-2.0
-- GPL-2.0+
 - GPL-3.0
-- GPL-3.0+
 - LGPL-2.1
-- LGPL-2.1+
 - LGPL-3.0
-- LGPL-3.0+
 - MIT
 
 Optional, but it is highly recommended to supply this. More identifiers are
-listed at the [SPDX Open Source License Registry](https://www.spdx.org/licenses/).
+listed at the [SPDX Open Source License Registry](https://spdx.org/licenses/).
 
 For closed-source software, you may use `"proprietary"` as the license identifier.
 
@@ -215,7 +214,7 @@ An example:
         {
             "name": "Jordi Boggiano",
             "email": "j.boggiano@seld.be",
-            "homepage": "http://seld.be",
+            "homepage": "https://seld.be",
             "role": "Developer"
         }
     ]
@@ -292,6 +291,10 @@ explicitly require it as well, along with its sufficient stability flag.
 
 Example:
 
+Assuming `doctrine/doctrine-fixtures-bundle` requires `"doctrine/data-fixtures": "dev-master"`
+then inside the root composer.json you need to add the second line below to allow dev
+releases for the `doctrine/data-fixtures` package :
+
 ```json
 {
     "require": {
@@ -304,7 +307,9 @@ Example:
 `require` and `require-dev` additionally support explicit references (i.e.
 commit) for dev versions to make sure they are locked to a given state, even
 when you run update. These only work if you explicitly require a dev version
-and append the reference with `#<ref>`.
+and append the reference with `#<ref>`. This is also a
+[root-only](04-schema.md#root-package) feature and will be ignored in
+dependencies.
 
 Example:
 
@@ -352,7 +357,6 @@ Example:
 > your system. You may use it to help you compile the list of extensions you
 > use and require. Alternatively you may use third party tools to analyze
 > your project for the list of extensions used.
-
 
 #### require
 
@@ -568,7 +572,7 @@ Example:
 #### Files
 
 If you want to require certain files explicitly on every request then you can use
-the 'files' autoloading mechanism. This is useful if your package includes PHP functions
+the `files` autoloading mechanism. This is useful if your package includes PHP functions
 that cannot be autoloaded by PHP.
 
 Example:
@@ -583,7 +587,7 @@ Example:
 
 #### Exclude files from classmaps
 
-If you want to exclude some files or folders from the classmap you can use the 'exclude-from-classmap' property.
+If you want to exclude some files or folders from the classmap you can use the `exclude-from-classmap` property.
 This might be useful to exclude test classes in your live environment, for example, as those will be skipped
 from the classmap even when building an optimized autoloader.
 
@@ -605,7 +609,7 @@ Example:
 
 The autoloader can have quite a substantial impact on your request time
 (50-100ms per request in large frameworks using a lot of classes). See the
-[`article about optimizing the autoloader`](articles/autoloader-optimization.md)
+[article about optimizing the autoloader](articles/autoloader-optimization.md)
 for more details on how to reduce this impact.
 
 ### autoload-dev <span>([root-only](04-schema.md#root-package))</span>
@@ -765,7 +769,7 @@ Example:
                 "name": "smarty/smarty",
                 "version": "3.1.7",
                 "dist": {
-                    "url": "http://www.smarty.net/files/Smarty-3.1.7.zip",
+                    "url": "https://www.smarty.net/files/Smarty-3.1.7.zip",
                     "type": "zip"
                 },
                 "source": {
@@ -880,7 +884,7 @@ but the same branch is installed (in the example: latest-testing).
 An example:
 
 If you have a testing branch, that is heavily maintained during a testing phase and is
-deployed to your staging environment, normally "composer show -s" will give you `versions : * dev-master`.
+deployed to your staging environment, normally `composer show -s` will give you `versions : * dev-master`.
 
 If you configure `latest-.*` as a pattern for non-feature-branches like this:
 
@@ -890,7 +894,7 @@ If you configure `latest-.*` as a pattern for non-feature-branches like this:
 }
 ```
 
-Then "composer show -s" will give you `versions : * dev-latest-testing`.
+Then `composer show -s` will give you `versions : * dev-latest-testing`.
 
 Optional.
 

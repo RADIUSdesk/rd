@@ -26,7 +26,7 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
     private $useRefHandles = -1;
 
     /**
-     * @param array $data A array as returned by ClonerInterface::cloneVar()
+     * @param array $data An array as returned by ClonerInterface::cloneVar()
      */
     public function __construct(array $data)
     {
@@ -34,7 +34,7 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * @return string The type of the value.
+     * @return string The type of the value
      */
     public function getType()
     {
@@ -61,9 +61,9 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * @param bool $recursive Whether values should be resolved recursively or not.
+     * @param bool $recursive Whether values should be resolved recursively or not
      *
-     * @return scalar|array|null|Data[] A native representation of the original value.
+     * @return string|int|float|bool|array|null|Data[] A native representation of the original value
      */
     public function getValue($recursive = false)
     {
@@ -72,7 +72,7 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
         if ($item instanceof Stub && Stub::TYPE_REF === $item->type && !$item->position) {
             $item = $item->value;
         }
-        if (!$item instanceof Stub) {
+        if (!($item = $this->getStub($item)) instanceof Stub) {
             return $item;
         }
         if (Stub::TYPE_STRING === $item->type) {
@@ -82,7 +82,7 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
         $children = $item->position ? $this->data[$item->position] : array();
 
         foreach ($children as $k => $v) {
-            if ($recursive && !$v instanceof Stub) {
+            if ($recursive && !($v = $this->getStub($v)) instanceof Stub) {
                 continue;
             }
             $children[$k] = clone $this;
@@ -90,12 +90,12 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
             $children[$k]->position = $item->position;
 
             if ($recursive) {
-                if ($v instanceof Stub && Stub::TYPE_REF === $v->type && $v->value instanceof Stub) {
+                if (Stub::TYPE_REF === $v->type && ($v = $this->getStub($v->value)) instanceof Stub) {
                     $recursive = (array) $recursive;
-                    if (isset($recursive[$v->value->position])) {
+                    if (isset($recursive[$v->position])) {
                         continue;
                     }
-                    $recursive[$v->value->position] = true;
+                    $recursive[$v->position] = true;
                 }
                 $children[$k] = $children[$k]->getValue($recursive);
             }
@@ -123,7 +123,7 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
     public function __get($key)
     {
         if (null !== $data = $this->seek($key)) {
-            $item = $data->data[$data->position][$data->key];
+            $item = $this->getStub($data->data[$data->position][$data->key]);
 
             return $item instanceof Stub || array() === $item ? $data : $item;
         }
@@ -163,18 +163,6 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
         }
 
         return sprintf('%s (count=%d)', $this->getType(), count($value));
-    }
-
-    /**
-     * @return array The raw data structure
-     *
-     * @deprecated since version 3.3. Use array or object access instead.
-     */
-    public function getRawData()
-    {
-        @trigger_error(sprintf('The %s() method is deprecated since version 3.3 and will be removed in 4.0. Use the array or object access instead.', __METHOD__));
-
-        return $this->data;
     }
 
     /**
@@ -227,7 +215,7 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
      *
      * @param string|int $key The key to seek to
      *
-     * @return self|null A clone of $this of null if the key is not set
+     * @return self|null A clone of $this or null if the key is not set
      */
     public function seek($key)
     {
@@ -236,7 +224,7 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
         if ($item instanceof Stub && Stub::TYPE_REF === $item->type && !$item->position) {
             $item = $item->value;
         }
-        if (!$item instanceof Stub || !$item->position) {
+        if (!($item = $this->getStub($item)) instanceof Stub || !$item->position) {
             return;
         }
         $keys = array($key);
@@ -247,6 +235,7 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
                 $keys[] = Caster::PREFIX_PROTECTED.$key;
                 $keys[] = Caster::PREFIX_VIRTUAL.$key;
                 $keys[] = "\0$item->class\0$key";
+                // no break
             case Stub::TYPE_ARRAY:
             case Stub::TYPE_RESOURCE:
                 break;
@@ -295,7 +284,10 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
 
         if (!$item instanceof Stub) {
             $cursor->attr = array();
-            $type = gettype($item);
+            $type = \gettype($item);
+            if ($item && 'array' === $type) {
+                $item = $this->getStub($item);
+            }
         } elseif (Stub::TYPE_REF === $item->type) {
             if ($item->handle) {
                 if (!isset($refs[$r = $item->handle - (PHP_INT_MAX >> 1)])) {
@@ -309,7 +301,7 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
             }
             $cursor->attr = $item->attr;
             $type = $item->class ?: gettype($item->value);
-            $item = $item->value;
+            $item = $this->getStub($item->value);
         }
         if ($item instanceof Stub) {
             if ($item->refCount) {
@@ -346,16 +338,22 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
                     $item = clone $item;
                     $item->type = $item->class;
                     $item->class = $item->value;
-                    // No break;
+                    // no break
                 case Stub::TYPE_OBJECT:
                 case Stub::TYPE_RESOURCE:
                     $withChildren = $children && $cursor->depth !== $this->maxDepth && $this->maxItemsPerDepth;
                     $dumper->enterHash($cursor, $item->type, $item->class, $withChildren);
                     if ($withChildren) {
-                        $cut = $this->dumpChildren($dumper, $cursor, $refs, $children, $cut, $item->type, null !== $item->class);
+                        if ($cursor->skipChildren) {
+                            $withChildren = false;
+                            $cut = -1;
+                        } else {
+                            $cut = $this->dumpChildren($dumper, $cursor, $refs, $children, $cut, $item->type, null !== $item->class);
+                        }
                     } elseif ($children && 0 <= $cut) {
                         $cut += count($children);
                     }
+                    $cursor->skipChildren = false;
                     $dumper->leaveHash($cursor, $item->type, $item->class, $withChildren, $cut);
                     break;
 
@@ -405,5 +403,23 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
         }
 
         return $hashCut;
+    }
+
+    private function getStub($item)
+    {
+        if (!$item || !\is_array($item)) {
+            return $item;
+        }
+
+        $stub = new Stub();
+        $stub->type = Stub::TYPE_ARRAY;
+        foreach ($item as $stub->class => $stub->position) {
+        }
+        if (isset($item[0])) {
+            $stub->cut = $item[0];
+        }
+        $stub->value = $stub->cut + ($stub->position ? \count($this->data[$stub->position]) : 0);
+
+        return $stub;
     }
 }

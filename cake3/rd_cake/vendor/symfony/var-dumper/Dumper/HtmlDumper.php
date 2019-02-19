@@ -56,7 +56,7 @@ class HtmlDumper extends CliDumper
     /**
      * {@inheritdoc}
      */
-    public function __construct($output = null, $charset = null, $flags = 0)
+    public function __construct($output = null, string $charset = null, int $flags = 0)
     {
         AbstractDumper::__construct($output, $charset, $flags);
         $this->dumpId = 'sf-dump-'.mt_rand();
@@ -155,24 +155,31 @@ if (!doc.addEventListener) {
 function toggle(a, recursive) {
     var s = a.nextSibling || {}, oldClass = s.className, arrow, newClass;
 
-    if ('sf-dump-compact' == oldClass) {
+    if (/\bsf-dump-compact\b/.test(oldClass)) {
         arrow = '▼';
         newClass = 'sf-dump-expanded';
-    } else if ('sf-dump-expanded' == oldClass) {
+    } else if (/\bsf-dump-expanded\b/.test(oldClass)) {
         arrow = '▶';
         newClass = 'sf-dump-compact';
     } else {
         return false;
     }
 
+    if (doc.createEvent && s.dispatchEvent) {
+        var event = doc.createEvent('Event');
+        event.initEvent('sf-dump-expanded' === newClass ? 'sfbeforedumpexpand' : 'sfbeforedumpcollapse', true, false);
+
+        s.dispatchEvent(event);
+    }
+
     a.lastChild.innerHTML = arrow;
-    s.className = newClass;
+    s.className = s.className.replace(/\bsf-dump-(compact|expanded)\b/, newClass);
 
     if (recursive) {
         try {
             a = s.querySelectorAll('.'+oldClass);
             for (s = 0; s < a.length; ++s) {
-                if (a[s].className !== newClass) {
+                if (-1 == a[s].className.indexOf(newClass)) {
                     a[s].className = newClass;
                     a[s].previousSibling.lastChild.innerHTML = arrow;
                 }
@@ -187,7 +194,7 @@ function toggle(a, recursive) {
 function collapse(a, recursive) {
     var s = a.nextSibling || {}, oldClass = s.className;
 
-    if ('sf-dump-expanded' == oldClass) {
+    if (/\bsf-dump-expanded\b/.test(oldClass)) {
         toggle(a, recursive);
 
         return true;
@@ -199,7 +206,7 @@ function collapse(a, recursive) {
 function expand(a, recursive) {
     var s = a.nextSibling || {}, oldClass = s.className;
 
-    if ('sf-dump-compact' == oldClass) {
+    if (/\bsf-dump-compact\b/.test(oldClass)) {
         toggle(a, recursive);
 
         return true;
@@ -254,8 +261,8 @@ function highlight(root, activeNode, nodes) {
 
 function resetHighlightedNodes(root) {
     Array.from(root.querySelectorAll('.sf-dump-str, .sf-dump-key, .sf-dump-public, .sf-dump-protected, .sf-dump-private')).forEach(function (strNode) {
-        strNode.className = strNode.className.replace(/\b sf-dump-highlight\b/, '');
-        strNode.className = strNode.className.replace(/\b sf-dump-highlight-active\b/, '');
+        strNode.className = strNode.className.replace(/\bsf-dump-highlight\b/, '');
+        strNode.className = strNode.className.replace(/\bsf-dump-highlight-active\b/, '');
     });
 }
 
@@ -303,6 +310,9 @@ return function (root, x) {
 
         return "concat(" + parts.join(",") + ", '')";
     }
+    function xpathHasClass(className) {
+        return "contains(concat(' ', normalize-space(@class), ' '), ' " + className +" ')";
+    }
     addEventListener(root, 'mouseover', function (e) {
         if ('' != refStyle.innerHTML) {
             refStyle.innerHTML = '';
@@ -334,7 +344,7 @@ return function (root, x) {
                 if (f && t && f[0] !== t[0]) {
                     r.innerHTML = r.innerHTML.replace(new RegExp('^'+f[0].replace(rxEsc, '\\$1'), 'mg'), t[0]);
                 }
-                if ('sf-dump-compact' == r.className) {
+                if (/\bsf-dump-compact\b/.test(r.className)) {
                     toggle(s, isCtrlKey(e));
                 }
             }
@@ -352,7 +362,7 @@ return function (root, x) {
         } else if (/\bsf-dump-str-toggle\b/.test(a.className)) {
             e.preventDefault();
             e = a.parentNode.parentNode;
-            e.className = e.className.replace(/sf-dump-str-(expand|collapse)/, a.parentNode.className);
+            e.className = e.className.replace(/\bsf-dump-str-(expand|collapse)\b/, a.parentNode.className);
         }
     });
 
@@ -366,7 +376,6 @@ return function (root, x) {
     for (i = 0; i < len; ++i) {
         elt = t[i];
         if ('SAMP' == elt.tagName) {
-            elt.className = 'sf-dump-expanded';
             a = elt.previousSibling || {};
             if ('A' != a.tagName) {
                 a = doc.createElement('A');
@@ -378,15 +387,18 @@ return function (root, x) {
             a.title = (a.title ? a.title+'\n[' : '[')+keyHint+'+click] Expand all children';
             a.innerHTML += '<span>▼</span>';
             a.className += ' sf-dump-toggle';
+
             x = 1;
             if ('sf-dump' != elt.parentNode.className) {
                 x += elt.parentNode.getAttribute('data-depth')/1;
             }
             elt.setAttribute('data-depth', x);
-            if (x > options.maxDepth) {
+            var className = elt.className;
+            elt.className = 'sf-dump-expanded';
+            if (className ? 'sf-dump-expanded' !== className : (x > options.maxDepth)) {
                 toggle(a);
             }
-        } else if ('sf-dump-ref' == elt.className && (a = elt.getAttribute('href'))) {
+        } else if (/\bsf-dump-ref\b/.test(elt.className) && (a = elt.getAttribute('href'))) {
             a = a.substr(1);
             elt.className += ' '+a;
 
@@ -425,7 +437,7 @@ return function (root, x) {
                 if (this.isEmpty()) {
                     return this.current();
                 }
-                this.idx = this.idx < (this.nodes.length - 1) ? this.idx + 1 : this.idx;
+                this.idx = this.idx < (this.nodes.length - 1) ? this.idx + 1 : 0;
         
                 return this.current();
             },
@@ -433,7 +445,7 @@ return function (root, x) {
                 if (this.isEmpty()) {
                     return this.current();
                 }
-                this.idx = this.idx > 0 ? this.idx - 1 : this.idx;
+                this.idx = this.idx > 0 ? this.idx - 1 : (this.nodes.length - 1);
         
                 return this.current();
             },
@@ -507,7 +519,15 @@ return function (root, x) {
                     return;
                 }
 
-                var xpathResult = doc.evaluate('//pre[@id="' + root.id + '"]//span[@class="sf-dump-str" or @class="sf-dump-key" or @class="sf-dump-public" or @class="sf-dump-protected" or @class="sf-dump-private"][contains(child::text(), ' + xpathString(searchQuery) + ')]', document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                var classMatches = [
+                    "sf-dump-str",
+                    "sf-dump-key",
+                    "sf-dump-public",
+                    "sf-dump-protected",
+                    "sf-dump-private",
+                ].map(xpathHasClass).join(' or ');
+                
+                var xpathResult = doc.evaluate('.//span[' + classMatches + '][contains(translate(child::text(), ' + xpathString(searchQuery.toUpperCase()) + ', ' + xpathString(searchQuery.toLowerCase()) + '), ' + xpathString(searchQuery.toLowerCase()) + ')]', root, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
 
                 while (node = xpathResult.iterateNext()) state.nodes.push(node);
                 
@@ -518,8 +538,7 @@ return function (root, x) {
         Array.from(search.querySelectorAll('.sf-dump-search-input-next, .sf-dump-search-input-previous')).forEach(function (btn) {
             addEventListener(btn, 'click', function (e) {
                 e.preventDefault();
-                var direction = -1 !== e.target.className.indexOf('next') ? 'next' : 'previous';
-                'next' === direction ? state.next() : state.previous();
+                -1 !== e.target.className.indexOf('next') ? state.next() : state.previous();
                 searchInput.focus();
                 collapseAll(root);
                 showCurrent(state);
@@ -728,15 +747,25 @@ EOHTML
     {
         parent::enterHash($cursor, $type, $class, false);
 
+        if ($cursor->skipChildren) {
+            $cursor->skipChildren = false;
+            $eol = ' class=sf-dump-compact>';
+        } elseif ($this->expandNextHash) {
+            $this->expandNextHash = false;
+            $eol = ' class=sf-dump-expanded>';
+        } else {
+            $eol = '>';
+        }
+
         if ($hasChild) {
+            $this->line .= '<samp';
             if ($cursor->refIndex) {
                 $r = Cursor::HASH_OBJECT !== $type ? 1 - (Cursor::HASH_RESOURCE !== $type) : 2;
                 $r .= $r && 0 < $cursor->softRefHandle ? $cursor->softRefHandle : $cursor->refIndex;
 
-                $this->line .= sprintf('<samp id=%s-ref%s>', $this->dumpId, $r);
-            } else {
-                $this->line .= '<samp>';
+                $this->line .= sprintf(' id=%s-ref%s', $this->dumpId, $r);
             }
+            $this->line .= $eol;
             $this->dumpLine($cursor->depth);
         }
     }
@@ -821,7 +850,8 @@ EOHTML
             $attr['href'] = $href;
         }
         if (isset($attr['href'])) {
-            $v = sprintf('<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>', esc($this->utf8Encode($attr['href'])), $v);
+            $target = isset($attr['file']) ? '' : ' target="_blank"';
+            $v = sprintf('<a href="%s"%s rel="noopener noreferrer">%s</a>', esc($this->utf8Encode($attr['href'])), $target, $v);
         }
         if (isset($attr['lang'])) {
             $v = sprintf('<code class="%s">%s</code>', esc($attr['lang']), $v);

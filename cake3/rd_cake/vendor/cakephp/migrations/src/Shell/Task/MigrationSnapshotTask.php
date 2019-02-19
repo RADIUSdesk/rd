@@ -17,15 +17,21 @@ use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
+use Migrations\TableFinderTrait;
 use Migrations\Util\UtilTrait;
 
 /**
  * Task class for generating migration snapshot files.
+ *
+ * @property \Bake\Shell\Task\BakeTemplateTask $BakeTemplate
+ * @property \Bake\Shell\Task\TestTask $Test
  */
 class MigrationSnapshotTask extends SimpleMigrationTask
 {
-    use UtilTrait;
+
     use SnapshotTrait;
+    use TableFinderTrait;
+    use UtilTrait;
 
     /**
      * {@inheritDoc}
@@ -34,7 +40,7 @@ class MigrationSnapshotTask extends SimpleMigrationTask
     {
         $collection = $this->getCollection($this->connection);
         EventManager::instance()->on('Bake.initialize', function (Event $event) use ($collection) {
-            $event->subject->loadHelper('Migrations.Migration', [
+            $event->getSubject()->loadHelper('Migrations.Migration', [
                 'collection' => $collection
             ]);
         });
@@ -99,7 +105,8 @@ class MigrationSnapshotTask extends SimpleMigrationTask
     public function getCollection($connection)
     {
         $connection = ConnectionManager::get($connection);
-        return $connection->schemaCollection();
+
+        return $connection->getSchemaCollection();
     }
 
     /**
@@ -124,7 +131,7 @@ class MigrationSnapshotTask extends SimpleMigrationTask
     {
         $parser = parent::getOptionParser();
 
-        $parser->description(
+        $parser->setDescription(
             'Bake migration snapshot class.'
         )->addArgument('name', [
             'help' => 'Name of the migration to bake. Can use Plugin.name to bake migration files into plugins.',

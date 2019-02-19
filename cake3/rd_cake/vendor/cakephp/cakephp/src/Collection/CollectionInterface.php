@@ -1,16 +1,16 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.0.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Collection;
 
@@ -286,6 +286,63 @@ interface CollectionInterface extends Iterator, JsonSerializable
     public function min($callback, $type = SORT_NUMERIC);
 
     /**
+     * Returns the average of all the values extracted with $matcher
+     * or of this collection.
+     *
+     * ### Example:
+     *
+     * ```
+     * $items = [
+     *  ['invoice' => ['total' => 100]],
+     *  ['invoice' => ['total' => 200]]
+     * ];
+     *
+     * $total = (new Collection($items))->avg('invoice.total');
+     *
+     * // Total: 150
+     *
+     * $total = (new Collection([1, 2, 3]))->avg();
+     * // Total: 2
+     * ```
+     *
+     * @param string|callable|null $matcher The property name to sum or a function
+     * If no value is passed, an identity function will be used.
+     * that will return the value of the property to sum.
+     * @return float|int|null
+     */
+    public function avg($matcher = null);
+
+    /**
+     * Returns the median of all the values extracted with $matcher
+     * or of this collection.
+     *
+     * ### Example:
+     *
+     * ```
+     * $items = [
+     *  ['invoice' => ['total' => 400]],
+     *  ['invoice' => ['total' => 500]]
+     *  ['invoice' => ['total' => 100]]
+     *  ['invoice' => ['total' => 333]]
+     *  ['invoice' => ['total' => 200]]
+     * ];
+     *
+     * $total = (new Collection($items))->median('invoice.total');
+     *
+     * // Total: 333
+     *
+     * $total = (new Collection([1, 2, 3, 4]))->median();
+     * // Total: 2.5
+     * ```
+     *
+     * @param string|callable|null $matcher The property name to sum or a function
+     * If no value is passed, an identity function will be used.
+     * that will return the value of the property to sum.
+     * @return float|int|null
+     */
+    public function median($matcher = null);
+
+    /**
      * Returns a sorted iterator out of the elements in this collection,
      * ranked in ascending order by the results of running each value through a
      * callback. $callback can also be a string representing the column or property
@@ -451,8 +508,8 @@ interface CollectionInterface extends Iterator, JsonSerializable
      *
      * ```
      * $items = [
-     *  ['invoice' => ['total' => 100],
-     *  ['invoice' => ['total' => 200]
+     *  ['invoice' => ['total' => 100]],
+     *  ['invoice' => ['total' => 200]]
      * ];
      *
      * $total = (new Collection($items))->sumOf('invoice.total');
@@ -918,7 +975,6 @@ interface CollectionInterface extends Iterator, JsonSerializable
      *
      * @param int $chunkSize The maximum size for each chunk
      * @return \Cake\Collection\CollectionInterface
-     * @deprecated 4.0.0 Deprecated in favor of chunks
      */
     public function chunk($chunkSize);
 
@@ -962,7 +1018,7 @@ interface CollectionInterface extends Iterator, JsonSerializable
      * losing any possible transformations. This is used mainly to remove empty
      * IteratorIterator wrappers that can only slowdown the iteration process.
      *
-     * @return \Iterator
+     * @return \Traversable
      */
     public function unwrap();
 
@@ -993,4 +1049,53 @@ interface CollectionInterface extends Iterator, JsonSerializable
      * @return \Cake\Collection\CollectionInterface
      */
     public function transpose();
+
+    /**
+     * Returns the amount of elements in the collection.
+     *
+     * ## WARNINGS:
+     *
+     * ### Consumes all elements for NoRewindIterator collections:
+     *
+     * On certain type of collections, calling this method may render unusable afterwards.
+     * That is, you may not be able to get elements out of it, or to iterate on it anymore.
+     *
+     * Specifically any collection wrapping a Generator (a function with a yield statement)
+     * or a unbuffered database cursor will not accept any other function calls after calling
+     * `count()` on it.
+     *
+     * Create a new collection with `buffered()` method to overcome this problem.
+     *
+     * ### Can report more elements than unique keys:
+     *
+     * Any collection constructed by appending collections together, or by having internal iterators
+     * returning duplicate keys, will report a larger amount of elements using this functions than
+     * the final amount of elements when converting the collections to a keyed array. This is because
+     * duplicate keys will be collapsed into a single one in the final array, whereas this count method
+     * is only concerned by the amount of elements after converting it to a plain list.
+     *
+     * If you need the count of elements after taking the keys in consideration
+     * (the count of unique keys), you can call `countKeys()`
+     *
+     * ### Will change the current position of the iterator:
+     *
+     * Calling this method at the same time that you are iterating this collections, for example in
+     * a foreach, will result in undefined behavior. Avoid doing this.
+     *
+     *
+     * @return int
+     */
+    public function count();
+
+    /**
+     * Returns the number of unique keys in this iterator. This is, the number of
+     * elements the collection will contain after calling `toArray()`
+     *
+     * This method comes with a number of caveats. Please refer to `CollectionInterface::count()`
+     * for details.
+     *
+     * @see \Cake\Collection\CollectionInterface::count()
+     * @return int
+     */
+    public function countKeys();
 }

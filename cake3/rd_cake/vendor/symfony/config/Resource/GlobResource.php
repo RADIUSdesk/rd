@@ -29,8 +29,6 @@ class GlobResource implements \IteratorAggregate, SelfCheckingResourceInterface,
     private $hash;
 
     /**
-     * Constructor.
-     *
      * @param string $prefix    A directory prefix
      * @param string $pattern   A glob pattern
      * @param bool   $recursive Whether directories should be scanned recursively or not
@@ -134,7 +132,7 @@ class GlobResource implements \IteratorAggregate, SelfCheckingResourceInterface,
 
         $prefixLen = strlen($this->prefix);
         foreach ($finder->followLinks()->sortByName()->in($this->prefix) as $path => $info) {
-            if (preg_match($regex, substr($path, $prefixLen)) && $info->isFile()) {
+            if (preg_match($regex, substr('\\' === \DIRECTORY_SEPARATOR ? str_replace('\\', '/', $path) : $path, $prefixLen)) && $info->isFile()) {
                 yield $path => $info;
             }
         }

@@ -24,6 +24,7 @@ use Cake\Utility\Inflector;
 /**
  * The Plugin Task handles creating an empty plugin, ready to be used
  *
+ * @property \Bake\Shell\Task\BakeTemplateTask $BakeTemplate
  */
 class PluginTask extends BakeTask
 {
@@ -42,6 +43,13 @@ class PluginTask extends BakeTask
     public $tasks = [
         'Bake.BakeTemplate'
     ];
+
+    /**
+     * Plugin path.
+     *
+     * @var string
+     */
+    public $path;
 
     /**
      * initialize
@@ -68,7 +76,9 @@ class PluginTask extends BakeTask
 
             return false;
         }
-        $plugin = $this->_camelize($name);
+        $parts = explode('/', $name);
+        $plugin = implode('/', array_map([$this, '_camelize'], $parts));
+
         $pluginPath = $this->_pluginPath($plugin);
         if (is_dir($pluginPath)) {
             $this->out(sprintf('Plugin: %s already exists, no action taken', $plugin));
@@ -77,7 +87,7 @@ class PluginTask extends BakeTask
             return false;
         }
         if (!$this->bake($plugin)) {
-            $this->error(sprintf("An error occurred trying to bake: %s in %s", $plugin, $this->path . $plugin));
+            $this->abort(sprintf("An error occurred trying to bake: %s in %s", $plugin, $this->path . $plugin));
         }
     }
 
@@ -130,6 +140,11 @@ class PluginTask extends BakeTask
     protected function _modifyBootstrap($plugin, $hasAutoloader)
     {
         $bootstrap = new File($this->bootstrap, false);
+        if (!$bootstrap->exists()) {
+            $this->err('<warning>Could not update application bootstrap.php file, as it could not be found.</warning>');
+
+            return;
+        }
         $contents = $bootstrap->read();
         if (!preg_match("@\n\s*Plugin::loadAll@", $contents)) {
             $autoload = $hasAutoloader ? null : "'autoload' => true, ";
@@ -190,12 +205,13 @@ class PluginTask extends BakeTask
         do {
             $templatesPath = array_shift($paths) . 'Bake/Plugin';
             $templatesDir = new Folder($templatesPath);
-            $templates = $templatesDir->findRecursive('.*\.ctp');
+            $templates = $templatesDir->findRecursive('.*\.(twig|ctp)');
         } while (!$templates);
 
         sort($templates);
         foreach ($templates as $template) {
-            $template = substr($template, strrpos($template, 'Plugin') + 7, -4);
+            $template = substr($template, strrpos($template, 'Plugin' . DIRECTORY_SEPARATOR) + 7, -4);
+            $template = rtrim($template, '.');
             $this->_generateFile($template, $root);
         }
     }
@@ -237,8 +253,8 @@ class PluginTask extends BakeTask
         $namespace = str_replace('/', '\\', $plugin);
 
         $config = json_decode(file_get_contents($file), true);
-        $config['autoload']['psr-4'][$namespace . '\\'] = $autoloadPath . $plugin . "/src";
-        $config['autoload-dev']['psr-4'][$namespace . '\\Test\\'] = $autoloadPath . $plugin . "/tests";
+        $config['autoload']['psr-4'][$namespace . '\\'] = $autoloadPath . $plugin . "/src/";
+        $config['autoload-dev']['psr-4'][$namespace . '\\Test\\'] = $autoloadPath . $plugin . "/tests/";
 
         $this->out('<info>Modifying composer autoloader</info>');
 
@@ -248,7 +264,7 @@ class PluginTask extends BakeTask
         $composer = $this->findComposer();
 
         if (!$composer) {
-            $this->error('Could not locate composer. Add composer to your PATH, or use the --composer option.');
+            $this->abort('Could not locate composer. Add composer to your PATH, or use the --composer option.');
 
             return false;
         }
@@ -264,7 +280,7 @@ class PluginTask extends BakeTask
             chdir($cwd);
         } catch (\RuntimeException $e) {
             $error = $e->getMessage();
-            $this->error(sprintf('Could not run `composer dump-autoload`: %s', $error));
+            $this->abort(sprintf('Could not run `composer dump-autoload`: %s', $error));
 
             return false;
         }
@@ -312,6 +328,7 @@ class PluginTask extends BakeTask
             return;
         }
 
+        $choice = null;
         while (!$valid) {
             foreach ($pathOptions as $i => $option) {
                 $this->out($i + 1 . '. ' . $option);
@@ -349,7 +366,7 @@ class PluginTask extends BakeTask
     /**
      * Uses either the CLI option or looks in $PATH and cwd for composer.
      *
-     * @return string|false Either the path to composer or false if it cannot be found.
+     * @return string|bool Either the path to composer or false if it cannot be found.
      */
     public function findComposer()
     {
