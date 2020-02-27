@@ -243,7 +243,7 @@ class DataUsageController extends AppController {
 
         //Prime the days
         $slot_start = "$start_day 00:00:00";
-        $slot_end   = "$start_day 59:59:59";
+        $slot_end   = "$start_day 23:59:59";
         $days       = array("Monday", "Tuesday","Wednesday", "Thusday", "Friday", "Saturday", "Sunday");
         $count      = 1;
 
@@ -270,7 +270,7 @@ class DataUsageController extends AppController {
             $pieces     = explode('-',$start_day);
             $start_day  = date('Y-m-d',strtotime('+1 day', mktime(0, 0, 0, $pieces[1],$pieces[2], $pieces[0])));
             $slot_start = "$start_day 00:00:00";
-            $slot_end   = "$start_day 59:59:59";
+            $slot_end   = "$start_day 23:59:59";
             $count++;
         }
         return(array('items' => $items));             
@@ -287,7 +287,7 @@ class DataUsageController extends AppController {
 
         //Prime the days
         $slot_start = "$start_day 00:00:00";
-        $slot_end   = "$start_day 59:59:59";
+        $slot_end   = "$start_day 23:59:59";
 
         $start  = 1;
         $end    = cal_days_in_month(CAL_GREGORIAN, $pieces[1], $pieces[0]); 
@@ -319,7 +319,7 @@ class DataUsageController extends AppController {
             $pieces     = explode('-',$start_day);
             $start_day  = date('Y-m-d',strtotime('+1 day', mktime(0, 0, 0, $pieces[1],$pieces[2], $pieces[0])));
             $slot_start = "$start_day 00:00:00";
-            $slot_end   = "$start_day 59:59:59";
+            $slot_end   = "$start_day 23:59:59";
             $start++;
         }
         return(array('items' => $items));           
